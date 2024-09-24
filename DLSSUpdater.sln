@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34607.119
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DLSSUpdater", "DlssUpdater\DLSSUpdater.csproj", "{891674A2-74FE-4E71-A18E-859680E25E98}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Debug|Any CPU.Build.0 = Debug|x64
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Debug|x64.ActiveCfg = Debug|x64
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Debug|x64.Build.0 = Debug|x64
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Debug|x86.ActiveCfg = Debug|x86
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Debug|x86.Build.0 = Debug|x86
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Release|Any CPU.ActiveCfg = Release|x64
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Release|Any CPU.Build.0 = Release|x64
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Release|x64.ActiveCfg = Release|x64
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Release|x64.Build.0 = Release|x64
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Release|x86.ActiveCfg = Release|x86
+		{891674A2-74FE-4E71-A18E-859680E25E98}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {733C89D2-0184-4715-B6A6-846CE34E1685}
+	EndGlobalSection
+EndGlobal

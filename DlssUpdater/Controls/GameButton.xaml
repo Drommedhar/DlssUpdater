@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="DlssUpdater.Controls.GameButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             x:Name="gameButton"
+             Loaded="gameButton_Loaded" MouseEnter="gameButton_MouseEnter" MouseLeave="gameButton_MouseLeave"
+             Width="200" Height="300">
+    <UserControl.Effect>
+        <DropShadowEffect BlurRadius="10" ShadowDepth="0" />
+    </UserControl.Effect>
+    <Grid
+        Width="{Binding ActualWidth, 
+              RelativeSource = {RelativeSource AncestorType = {x:Type UserControl}}}"
+        Height="{Binding ActualHeight, 
+              RelativeSource ={RelativeSource AncestorType = {x:Type UserControl}}}"
+        Background="{DynamicResource ApplicationBackgroundBrush}">
+        <Image Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+               Source="{Binding GameInfo.GameImage, ElementName=gameButton}"
+               HorizontalAlignment="Left"
+               Stretch="Fill"
+               VerticalAlignment="Top"
+               Width="200"
+               Height="300" />
+        <ui:TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding GameInfo.GameName, ElementName=gameButton}"
+                      Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Top"
+                      HorizontalAlignment="Center" Margin="5,0,0,0" TextWrapping="WrapWithOverflow" Width="100"
+                      TextAlignment="Center" Focusable="True" FontSize="20"
+                      Visibility="{Binding GameInfo.TextVisible, ElementName=gameButton}" />
+        <Grid x:Name="gridAntiCheat" Height="25" VerticalAlignment="Bottom" Opacity="0.5" Background="#FF3A0000">
+            <Label Content="Possible anti cheat detected" VerticalAlignment="Center"
+                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,5,0"
+                   HorizontalAlignment="Center" />
+        </Grid>
+        <Rectangle x:Name="selectionBox" StrokeThickness="5" Fill="#19000000"/>
+        <ui:Button x:Name="btnAction" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Icon="{ui:SymbolIcon Subtract12}" Height="50" Width="50" Margin="0,0,0,0" Visibility="Hidden"
+                   Click="btnAction_Click" />
+    </Grid>
+</UserControl>

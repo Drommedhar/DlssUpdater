@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DLSSUpdater": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\git\\DlssUpdater_github\\DlssUpdater\\bin\\x64\\Debug\\net8.0-windows\\win-x64\\download\\update.zip D:\\git\\DlssUpdater_github\\DlssUpdater\\bin\\x64\\Debug\\net8.0-windows\\win-x64\\ 4176"
+    }
+  }
+}
