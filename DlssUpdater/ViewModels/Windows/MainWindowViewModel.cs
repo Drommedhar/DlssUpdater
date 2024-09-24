@@ -12,6 +12,12 @@ public partial class MainWindowViewModel : ObservableObject
     {
         new NavigationViewItem
         {
+            Content = "Changelog",
+            Icon = new SymbolIcon { Symbol = SymbolRegular.DocumentOnePage20 },
+            TargetPageType = typeof(ChangelogPage)
+        },
+        new NavigationViewItem
+        {
             Content = "Settings",
             Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
             TargetPageType = typeof(SettingsPage)

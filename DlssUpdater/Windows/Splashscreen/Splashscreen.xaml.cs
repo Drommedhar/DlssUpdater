@@ -95,6 +95,9 @@ public partial class Splashscreen : Window
 
         if(installUpdate)
         {
+            _settings.ShowChangelogOnStartup = true;
+            _settings.Save();
+
             // Download the update and start the ApplicationUpdater
             var outputPath = Path.Combine(AppContext.BaseDirectory, _settings.Directories.DownloadPath, "update.zip");
             var updateUrl = "http://github.com/Drommedhar/DlssUpdater/releases/latest/download/dlssupdater.zip";

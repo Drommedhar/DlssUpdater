@@ -35,6 +35,7 @@ public class Settings
 
     public Paths Directories { get; set; } = new();
     public AntiCheat AntiCheatSettings { get; set; } = new();
+    public bool ShowChangelogOnStartup { get; set; } = false;
 
     public void Save()
     {
@@ -60,5 +61,6 @@ public class Settings
     {
         Directories = other.Directories;
         AntiCheatSettings = other.AntiCheatSettings;
+        ShowChangelogOnStartup = other.ShowChangelogOnStartup;
     }
 }

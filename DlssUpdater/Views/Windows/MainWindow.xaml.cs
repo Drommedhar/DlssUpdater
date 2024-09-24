@@ -1,5 +1,6 @@
 ﻿using DlssUpdater.ViewModels.Windows;
 using DlssUpdater.Views.Pages;
+using System.Runtime;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
@@ -8,10 +9,15 @@ namespace DlssUpdater.Views.Windows;
 
 public partial class MainWindow : INavigationWindow
 {
+    public MainWindowViewModel ViewModel { get; }
+
+    private readonly Settings _settings;
+
     public MainWindow(MainWindowViewModel viewModel, IPageService pageService, INavigationService navigationService,
-        ISnackbarService snackbarService)
+        ISnackbarService snackbarService, Settings settings)
     {
         ViewModel = viewModel;
+        _settings = settings;
         DataContext = this;
 
         SystemThemeWatcher.Watch(this);
@@ -22,8 +28,6 @@ public partial class MainWindow : INavigationWindow
         snackbarService.SetSnackbarPresenter(SnackbarPresenter);
         navigationService.SetNavigationControl(RootNavigation);
     }
-
-    public MainWindowViewModel ViewModel { get; }
 
     INavigationView INavigationWindow.GetNavigation()
     {
@@ -66,7 +70,16 @@ public partial class MainWindow : INavigationWindow
     public void ShowWindow()
     {
         Show();
-        Navigate(typeof(GamesPage));
+        if (_settings.ShowChangelogOnStartup)
+        {
+            Navigate(typeof(ChangelogPage));
+            _settings.ShowChangelogOnStartup = false;
+            _settings.Save();
+        }
+        else
+        {
+            Navigate(typeof(GamesPage));
+        }
     }
 
     public void CloseWindow()

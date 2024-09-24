@@ -20,6 +20,7 @@
 
     <ItemGroup>
         <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
+        <PackageReference Include="MdXaml" Version="1.27.0" />
         <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
         <PackageReference Include="WPF-UI" Version="3.0.5" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
@@ -40,6 +41,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Update="changelog.md">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="version.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

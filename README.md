@@ -10,6 +10,7 @@ To build Dlss Updater on your machine, you first need to check out the git repos
 At the time of writing, these nugets include:
 * [WPF UI](https://github.com/lepoco/wpfui)
 * [WpfBindingErrors](https://github.com/bblanchon/WpfBindingErrors)
+* [MdXaml](https://github.com/whistyun/MdXaml)
 
 With this you should be able to compile Dlss Updater.
 
@@ -59,3 +60,7 @@ Dlss Updater is free and open source software licensed under the MIT License. Yo
 
 # Discord
 If you have further question feel free to join the official discord [here](https://discord.gg/WShdqSDSvu)
+
+# Known issues
+* Changes to folders in the [Settings Page](#Settings Page) will not take effect until the application is restarted.
+* Game auto-detection cannot be turned off at this time.

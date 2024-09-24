@@ -59,6 +59,8 @@ public partial class App
             services.AddSingleton<DLSSViewModel>();
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<SettingsViewModel>();
+            services.AddSingleton<ChangelogPage>();
+            services.AddSingleton<ChangelogViewModel>();
 
             services.AddSingleton<Settings>();
             services.AddSingleton<DllUpdater>();
