@@ -38,7 +38,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Create the package
-      run: dotnet publish --configuration Release ${Solution_Name} --self-contained -p:PublishSingleFile=True -p:PublishReadyToRun=True --output bin\fire\out
+      run: dotnet publish --configuration Release ${Solution_Name} --self-contained false -p:PublishSingleFile=True -p:PublishReadyToRun=False --output bin\fire\out
 
     - name: Zip Release
       uses: vimtor/action-zip@v1.2

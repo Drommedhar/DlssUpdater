@@ -15,6 +15,10 @@ At the time of writing, these nugets include:
 With this you should be able to compile Dlss Updater.
 
 # Usage
+## Prerequisites
+Make sure you have the latest .NET Framework installed to run Dlss Updater. To reduce the size of the archive, the runtime is _NOT_ bundled with the application. Dlss Updater uses .NET 8.
+
+## First start
 When you start the software, you will be greeted by a splash screen where Dlss Updater is getting everything ready. It will load saved settings and also request all available versions for the different DLSS libraries. Note that Dlss Updater has implemented a caching system to reduce server load on successive starts. The caching time is defined in [Settings.cs](Settings.cs) under **Constants.CacheTime**.
 ![Startup screen](docs/images/splashcreen.png)
 

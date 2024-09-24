@@ -8,10 +8,12 @@
         <UseWPF>true</UseWPF>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Platforms>x64;x86</Platforms>
-        <FileVersion>0.2</FileVersion>
+        <Platforms>x64</Platforms>
+        <FileVersion>1.0.0.2</FileVersion>
         <SelfContained>true</SelfContained>
         <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+        <SignAssembly>False</SignAssembly>
+        <AssemblyVersion>1.0.0.2</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
