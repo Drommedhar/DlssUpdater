@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DlssUpdater.GameLibrary;
+using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
 using static DlssUpdater.Defines.DlssTypes;
 
@@ -25,8 +26,10 @@ public partial class GameInfo : ObservableObject
     [ObservableProperty] [JsonIgnore] public GameInfo _self;
 
     [ObservableProperty] [JsonIgnore] public Visibility _textVisible;
+    [ObservableProperty][JsonIgnore] public Visibility _updateVisible;
 
     [JsonIgnore] public LibraryType LibraryType;
+    [JsonIgnore] public readonly DllUpdater _updater;
 
     public GameInfo(string gameName, string gamePath, LibraryType type)
     {
@@ -39,6 +42,8 @@ public partial class GameInfo : ObservableObject
 
         Self = this;
         HasAntiCheat = App.GetService<AntiCheatChecker>()!.Check(gamePath);
+        _updater = App.GetService<DllUpdater>()!;
+        GatherInstalledVersions().ConfigureAwait(true);
     }
 
     [JsonIgnore] public Dictionary<DllType, InstalledPackage> InstalledDlls { get; set; } = [];
@@ -49,6 +54,7 @@ public partial class GameInfo : ObservableObject
 
         await Task.Run(() =>
         {
+            bool bUpdateAvailable = false;
             foreach (var (dll, info) in InstalledDlls)
             {
                 var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
@@ -58,8 +64,13 @@ public partial class GameInfo : ObservableObject
                 info.Path = allFiles[0];
                 var fileInfo = FileVersionInfo.GetVersionInfo(info.Path);
                 info.Version = fileInfo.FileVersion!.Replace(',', '.');
-                // TODO: This will report a different version as the one stored in DlssUpdater!
+                if (_updater.IsNewerVersionAvailable(dll, info)) 
+                {
+                    bUpdateAvailable = true;
+                }
             }
+
+            UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
         });
     }
 

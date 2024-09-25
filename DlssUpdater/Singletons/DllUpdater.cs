@@ -28,6 +28,7 @@ public class DllUpdater
     private readonly NLog.Logger _logger;
 
     public DateTime LastUpdate { get; set; } = DateTime.MinValue;
+    public event EventHandler? DlssFilesChanged;
 
     public DllUpdater()
     {
@@ -48,7 +49,37 @@ public class DllUpdater
 
     public bool IsNewerVersionAvailable()
     {
-        // TODO: Implement
+        foreach (DllType dllType in Enum.GetValues(typeof(DllType)))
+        {
+            if(IsNewerVersionAvailable(dllType))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool IsNewerVersionAvailable(DllType type)
+    {
+        if(InstalledPackages.TryGetValue(type, out var highestInstalled) && 
+            OnlinePackages.TryGetValue(type, out var highestOnline) && highestInstalled.FirstOrDefault() != null
+            && highestOnline.FirstOrDefault() != null)
+        {
+            return new Version(highestInstalled.FirstOrDefault()!.Version) < new Version(highestOnline.FirstOrDefault()!.Version);
+        }
+
+        return false;
+    }
+
+    public bool IsNewerVersionAvailable(DllType type, InstalledPackage installed)
+    {
+        if (OnlinePackages.TryGetValue(type, out var highestOnline)
+            && highestOnline.FirstOrDefault() != null)
+        {
+            return new Version(installed.Version) < new Version(highestOnline.FirstOrDefault()!.Version);
+        }
+
         return true;
     }
 
@@ -65,6 +96,7 @@ public class DllUpdater
                 await updateDlssVersionAsync(dllType);
             }
 
+            DlssFilesChanged?.Invoke(this, EventArgs.Empty);
             LastUpdate = DateTime.UtcNow;
         }
         Save();
@@ -139,6 +171,11 @@ public class DllUpdater
                 VersionDetailed = folder
             };
             value.Add(installedPackage);
+            var installed = value.ToList();
+            value.Clear();
+            installed.Sort((first, second) => second.VersionDetailed.CompareTo(first.VersionDetailed));
+            foreach (var ver in installed) value.Add(ver);
+            DlssFilesChanged?.Invoke(this, EventArgs.Empty);
             return true;
         }
         catch (HttpRequestException)
@@ -157,6 +194,7 @@ public class DllUpdater
             File.Delete(package.Path);
             Directory.Delete(Path.GetDirectoryName(package.Path)!);
             installedPackages.Remove(package);
+            DlssFilesChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -196,6 +234,7 @@ public class DllUpdater
             var data = JsonSerializer.Deserialize<DllUpdater>(jsonData, new JsonSerializerOptions())!;
             LastUpdate = data.LastUpdate;
             OnlinePackages = data.OnlinePackages;
+            DlssFilesChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -314,6 +353,7 @@ public class DllUpdater
             installedPackages.Sort((first, second) => second.VersionDetailed.CompareTo(first.VersionDetailed));
             foreach (var package in installedPackages) value.Add(package);
         }
+        DlssFilesChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private string getInstallPath(DllType dllType)

@@ -20,7 +20,13 @@
 
     <Grid x:Name="MainGrid">
         <TabControl>
-            <TabItem Header="DLSS">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Foreground="{DynamicResource TextFillColorSecondaryBrush}" Content="DLSS" />
+                        <ui:InfoBadge Severity="Caution" Visibility="{Binding ViewModel.DlssUpdate}" HorizontalAlignment="Right" Margin="10,0,0,0" Opacity="0.5"/>                        
+                    </StackPanel>
+                </TabItem.Header>
                 <ui:VirtualizingItemsControl
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                     ItemsSource="{Binding ViewModel.Dlss, Mode=OneWay}"
@@ -37,7 +43,13 @@
                     </ItemsControl.ItemTemplate>
                 </ui:VirtualizingItemsControl>
             </TabItem>
-            <TabItem Header="Ray Reconstruction">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Foreground="{DynamicResource TextFillColorSecondaryBrush}" Content="Ray Reconstruction" />
+                        <ui:InfoBadge Severity="Caution" Visibility="{Binding ViewModel.DlssDUpdate}" HorizontalAlignment="Right" Margin="10,0,0,0" Opacity="0.5"/>
+                    </StackPanel>
+                </TabItem.Header>
                 <ui:VirtualizingItemsControl
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                     ItemsSource="{Binding ViewModel.DlssD, Mode=OneWay}"
@@ -54,7 +66,13 @@
                     </ItemsControl.ItemTemplate>
                 </ui:VirtualizingItemsControl>
             </TabItem>
-            <TabItem Header="Frame Generation">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Foreground="{DynamicResource TextFillColorSecondaryBrush}" Content="Frame Generation" />
+                        <ui:InfoBadge Severity="Caution" Visibility="{Binding ViewModel.DlssGUpdate}" HorizontalAlignment="Right" Margin="10,0,0,0" Opacity="0.5"/>
+                    </StackPanel>
+                </TabItem.Header>
                 <ui:VirtualizingItemsControl
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                     ItemsSource="{Binding ViewModel.DlssG, Mode=OneWay}"

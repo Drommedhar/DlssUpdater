@@ -23,9 +23,16 @@
                Height="300" />
         <ui:TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding GameInfo.GameName, ElementName=gameButton}"
                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Top"
-                      HorizontalAlignment="Center" Margin="5,0,0,0" TextWrapping="WrapWithOverflow" Width="100"
+                      HorizontalAlignment="Center" Margin="5,25,0,0" TextWrapping="WrapWithOverflow" Width="100"
                       TextAlignment="Center" Focusable="True" FontSize="20"
                       Visibility="{Binding GameInfo.TextVisible, ElementName=gameButton}" />
+        <Grid Visibility="{Binding GameInfo.UpdateVisible, ElementName=gameButton}" Background="#FF3A3A00" VerticalAlignment="Top" Opacity="0.5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="1" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Content="Update available" Margin="5,0,0,0" HorizontalAlignment="Center"/>
+        </Grid>
         <Grid x:Name="gridAntiCheat" Height="25" VerticalAlignment="Bottom" Opacity="0.5" Background="#FF3A0000">
             <Label Content="Possible anti cheat detected" VerticalAlignment="Center"
                    Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,5,0"

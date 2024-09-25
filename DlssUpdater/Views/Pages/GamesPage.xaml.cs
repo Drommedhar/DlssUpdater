@@ -84,7 +84,7 @@ public partial class GamesPage : INavigableView<GamesViewModel>
         }
     }
 
-    private void btnPropsAdd_Click(object sender, RoutedEventArgs e)
+    private async void btnPropsAdd_Click(object sender, RoutedEventArgs e)
     {
         if (_newGameInfo)
         {
@@ -118,6 +118,9 @@ public partial class GamesPage : INavigableView<GamesViewModel>
                 _snackbar.ShowEx("Installation", "DLLs were not installed!", ControlAppearance.Danger);
                 break;
         }
+
+        await ViewModel.SelectedGame!.GatherInstalledVersions();
+        _gameContainer.DoUpdate();
     }
 
     private async Task<bool> ensureNewGameData()
