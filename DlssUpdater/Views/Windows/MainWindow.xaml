@@ -20,7 +20,7 @@
     WindowBackdropType="Mica"
     WindowCornerPreference="Round"
     WindowStartupLocation="CenterScreen"
-    mc:Ignorable="d" MinWidth="800" MinHeight="600">
+    mc:Ignorable="d" MinWidth="800" MinHeight="600" WindowState="{Binding ViewModel.WindowState}" SizeChanged="FluentWindow_SizeChanged">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

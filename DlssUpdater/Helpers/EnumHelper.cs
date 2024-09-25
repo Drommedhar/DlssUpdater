@@ -14,7 +14,7 @@ namespace DlssUpdater.Helpers
 
             // note: AsInt mean: math integer vs enum (not the c# int type)
             dynamic valueAsInt = Convert.ChangeType(value, underlyingType);
-            dynamic flagAsInt = Convert.ChangeType(flag, underlyingType);
+            dynamic flagAsInt = Convert.ChangeType(flag, underlyingType)!;
             if (set)
             {
                 valueAsInt |= flagAsInt;

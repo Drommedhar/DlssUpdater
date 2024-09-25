@@ -18,7 +18,7 @@ public partial class GameButton : UserControl
     public GameButton()
     {
         InitializeComponent();
-        _gameContainer = App.GetService<GameContainer>();
+        _gameContainer = App.GetService<GameContainer>()!;
         gridAntiCheat.Visibility = Visibility.Hidden;
         selectionBox.Visibility = Visibility.Hidden;
     }

@@ -52,32 +52,32 @@ public class VdfParser
 
     private string? getString(int start)
     {
-        var startIndex = _data.IndexOf('\"', start + 1);
-        var endIndex = _data.IndexOf('\"', startIndex + 1);
+        var startIndex = _data!.IndexOf('\"', start + 1);
+        var endIndex = _data!.IndexOf('\"', startIndex + 1);
         if (startIndex == -1 || endIndex == -1) return null;
 
-        return _data.Substring(startIndex + 1, endIndex - startIndex - 1);
+        return _data!.Substring(startIndex + 1, endIndex - startIndex - 1);
     }
 
     private List<string> getObject(int start)
     {
         List<string> objects = [];
 
-        var objectStart = _data.IndexOf('{', start + 1);
-        var objectEnd = _data.IndexOf('}', start + 1);
+        var objectStart = _data!.IndexOf('{', start + 1);
+        var objectEnd = _data!.IndexOf('}', start + 1);
         if (objectStart == -1 || objectEnd == -1) return objects;
 
         var startIndex = objectStart;
         int index;
-        while ((index = _data.IndexOf('\"', startIndex)) != -1 && index <= objectEnd)
+        while ((index = _data!.IndexOf('\"', startIndex)) != -1 && index <= objectEnd)
         {
             // index now contains the start of the value, find the end
-            var valueEndIndex = _data.IndexOf('\"', index + 1);
+            var valueEndIndex = _data!.IndexOf('\"', index + 1);
             if (valueEndIndex == -1)
                 // Should not happen, but better be safe
                 break;
 
-            var value = _data.Substring(index + 1, valueEndIndex - index - 1);
+            var value = _data!.Substring(index + 1, valueEndIndex - index - 1);
             objects.Add(value.Trim());
             startIndex = valueEndIndex + 1;
         }
@@ -91,7 +91,7 @@ public class VdfParser
 
         var startIndex = 0;
         int index;
-        while ((index = _data.IndexOf(key, startIndex)) != -1)
+        while ((index = _data!.IndexOf(key, startIndex)) != -1)
         {
             keyIndidices.Add(index);
             startIndex = index + 1;

@@ -8,9 +8,12 @@ namespace DlssUpdater.GameLibrary.Steam;
 public class SteamLibrary : ILibrary
 {
     private string? _installPath;
+    private readonly NLog.Logger _logger;
 
-    internal SteamLibrary()
+    internal SteamLibrary(NLog.Logger logger)
     {
+        _logger = logger;
+
         getInstallationDirectory();
     }
 
@@ -59,6 +62,9 @@ public class SteamLibrary : ILibrary
         using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
         using var steamRegistryKey = hklm.OpenSubKey(@"SOFTWARE\Valve\Steam");
         var installPath = steamRegistryKey?.GetValue("InstallPath") as string;
+
+        _logger.Debug($"Steam install directory: {installPath ?? "N/A"}");
+
         if (!string.IsNullOrEmpty(installPath)) _installPath = installPath;
     }
 
@@ -67,13 +73,22 @@ public class SteamLibrary : ILibrary
         List<GameInfo> ret = [];
 
         foreach (var folderItem in folder)
-        foreach (var app in folderItem.Apps)
         {
-            var appPath = Path.Combine(folderItem.Path, $"appmanifest_{app}.acf");
-            if (!File.Exists(appPath)) continue;
+            foreach (var app in folderItem.Apps)
+            {
+                var appPath = Path.Combine(folderItem.Path, $"appmanifest_{app}.acf");
+                if (!File.Exists(appPath))
+                {
+                    _logger.Warn($"Steam: {appPath} not found.");
+                    continue;
+                }
 
-            var info = await getGameFromManifest(appPath, app);
-            if (info is not null) ret.Add(info);
+                var info = await getGameFromManifest(appPath, app);
+                if (info is not null)
+                {
+                    ret.Add(info);
+                }
+            }
         }
 
         return ret;
@@ -86,10 +101,18 @@ public class SteamLibrary : ILibrary
 
         var gameName = parser.GetValuesForKey<string>("name");
         var gamePath = parser.GetValuesForKey<string>("installdir");
-        if (gameName.Count != 1 || gamePath.Count != 1) return null;
+        if (gameName.Count != 1 || gamePath.Count != 1) 
+        {
+            _logger.Warn($"Steam: getGameFromManifest returned {gameName.Count} and {gamePath.Count}");
+            return null; 
+        }
 
         var finalGamePath = Path.Combine(Path.GetDirectoryName(path)!, "common", gamePath[0]);
-        if (!Directory.Exists(finalGamePath)) return null;
+        if (!Directory.Exists(finalGamePath))
+        {
+            _logger.Warn($"Steam: getGameFromManifest could not find file {finalGamePath}");
+            return null;
+        }
         var info = new GameInfo(gameName[0], finalGamePath, LibraryType.Steam);
         var imageUri = getGameImage(appId);
         if (imageUri != null)
@@ -101,6 +124,7 @@ public class SteamLibrary : ILibrary
         await info.GatherInstalledVersions();
         if (info.HasInstalledDlls()) return info;
 
+        _logger.Debug($"Steam: '{info.GameName}' does not have anny DLSS dll and is ignored.");
         return null;
     }
 

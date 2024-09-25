@@ -38,7 +38,7 @@ public partial class GameInfo : ObservableObject
         foreach (DllType dllType in Enum.GetValues(typeof(DllType))) InstalledDlls.Add(dllType, new InstalledPackage());
 
         Self = this;
-        HasAntiCheat = App.GetService<AntiCheatChecker>().Check(gamePath);
+        HasAntiCheat = App.GetService<AntiCheatChecker>()!.Check(gamePath);
     }
 
     [JsonIgnore] public Dictionary<DllType, InstalledPackage> InstalledDlls { get; set; } = [];
@@ -86,7 +86,7 @@ public class GameConvert : JsonConverter<GameInfo>
         {
             if (reader.TokenType == JsonTokenType.EndObject)
             {
-                var info = new GameInfo(gameName, gamePath, LibraryType.Manual);
+                var info = new GameInfo(gameName!, gamePath!, LibraryType.Manual);
                 if (!string.IsNullOrEmpty(gameImageUri)) info.SetGameImageUri(gameImageUri);
                 return info;
             }

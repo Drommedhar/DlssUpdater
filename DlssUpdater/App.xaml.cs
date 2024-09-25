@@ -61,6 +61,7 @@ public partial class App
             services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<ChangelogPage>();
             services.AddSingleton<ChangelogViewModel>();
+            services.AddSingleton(NLog.LogManager.GetCurrentClassLogger());
 
             services.AddSingleton<Settings>();
             services.AddSingleton<DllUpdater>();
@@ -76,7 +77,7 @@ public partial class App
     /// </summary>
     /// <typeparam name="T">Type of the service to get.</typeparam>
     /// <returns>Instance of the service or <see langword="null" />.</returns>
-    public static T GetService<T>()
+    public static T? GetService<T>()
         where T : class
     {
         return _host.Services.GetService(typeof(T)) as T;

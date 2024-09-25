@@ -15,14 +15,20 @@ public static class WebHelper
     {
         try
         {
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = WebRequest.Create(url) as HttpWebRequest;
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+            if(request is null )
+            {
+                return false;
+            }
             request.Timeout =
                 5000; //set the timeout to 5 seconds to keep the user from waiting too long for the page to load
             request.Method = "HEAD"; //Get only the header information -- no need to download any content
 
             using (var response = request.GetResponse() as HttpWebResponse)
             {
-                var statusCode = (int)response.StatusCode;
+                var statusCode = (int)response!.StatusCode;
                 if (statusCode >= 100 && statusCode < 400) //Good requests
                     return true;
 
@@ -39,7 +45,7 @@ public static class WebHelper
             if (ex.Status == WebExceptionStatus.ProtocolError) //400 errors
                 return false;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
         }
 
