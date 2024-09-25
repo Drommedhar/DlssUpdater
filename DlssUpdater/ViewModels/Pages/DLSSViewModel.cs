@@ -14,11 +14,26 @@ public partial class DLSSViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private IEnumerable<OnlinePackage>? _dlssG;
 
+    [ObservableProperty]
+    private Visibility _dlssUpdate;
+    [ObservableProperty]
+    private Visibility _dlssDUpdate;
+    [ObservableProperty]
+    private Visibility _dlssGUpdate;
+
     private bool _isInitialized;
 
     public DLSSViewModel(DllUpdater updater)
     {
         _updater = updater;
+        _updater.DlssFilesChanged += _updater_DlssFilesChanged;
+    }
+
+    private void _updater_DlssFilesChanged(object? sender, EventArgs e)
+    {
+        DlssUpdate = _updater.IsNewerVersionAvailable(DlssTypes.DllType.Dlss) ? Visibility.Visible : Visibility.Hidden;
+        DlssDUpdate = _updater.IsNewerVersionAvailable(DlssTypes.DllType.DlssD) ? Visibility.Visible : Visibility.Hidden;
+        DlssGUpdate = _updater.IsNewerVersionAvailable(DlssTypes.DllType.DlssG) ? Visibility.Visible : Visibility.Hidden;
     }
 
     public void OnNavigatedTo()
@@ -37,6 +52,7 @@ public partial class DLSSViewModel : ObservableObject, INavigationAware
         DlssD = _updater.OnlinePackages[DlssTypes.DllType.DlssD];
         DlssG = _updater.OnlinePackages[DlssTypes.DllType.DlssG];
 
+        _updater_DlssFilesChanged(null, EventArgs.Empty);
         _isInitialized = true;
     }
 }

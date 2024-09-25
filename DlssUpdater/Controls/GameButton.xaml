@@ -23,15 +23,30 @@
                Height="300" />
         <ui:TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding GameInfo.GameName, ElementName=gameButton}"
                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Top"
-                      HorizontalAlignment="Center" Margin="5,0,0,0" TextWrapping="WrapWithOverflow" Width="100"
+                      HorizontalAlignment="Center" Margin="5,25,0,0" TextWrapping="WrapWithOverflow" Width="100"
                       TextAlignment="Center" Focusable="True" FontSize="20"
                       Visibility="{Binding GameInfo.TextVisible, ElementName=gameButton}" />
+        <Grid Visibility="{Binding GameInfo.UpdateVisible, ElementName=gameButton}" Background="#FF3A3A00" VerticalAlignment="Top" Opacity="0.5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="1" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Content="Update available" Margin="5,0,0,0" HorizontalAlignment="Center"/>
+        </Grid>
         <Grid x:Name="gridAntiCheat" Height="25" VerticalAlignment="Bottom" Opacity="0.5" Background="#FF3A0000">
             <Label Content="Possible anti cheat detected" VerticalAlignment="Center"
                    Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,5,0"
                    HorizontalAlignment="Center" />
         </Grid>
-        <Rectangle x:Name="selectionBox" StrokeThickness="5" Fill="#19000000"/>
+        <Grid x:Name="selectionBox">
+            <Rectangle StrokeThickness="5" Fill="#19000000"/>
+            <StackPanel Background="#BF000000" VerticalAlignment="Bottom" Margin="0,25,0,25">
+                <TextBlock x:Name="BlockVersions" Foreground="{DynamicResource TextFillColorPrimaryBrush}" TextAlignment="Left" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" VerticalAlignment="Bottom" Text="{Binding GameInfo.InstalledVersions, ElementName=gameButton}" Width="189"/>
+                <StackPanel.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" />
+                </StackPanel.Effect>
+            </StackPanel>
+        </Grid>
         <ui:Button x:Name="btnAction" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top"
                    Icon="{ui:SymbolIcon Subtract12}" Height="50" Width="50" Margin="0,0,0,0" Visibility="Hidden"
                    Click="btnAction_Click" />

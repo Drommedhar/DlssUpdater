@@ -7,6 +7,7 @@ using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DlssUpdater.Singletons;
 using DlssUpdater.ViewModels.Pages;
+using DLSSUpdater.Singletons;
 using Microsoft.Win32;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
@@ -21,13 +22,15 @@ public partial class GamesPage : INavigableView<GamesViewModel>
     private readonly GameContainer _gameContainer;
     private readonly ISnackbarService _snackbar;
     private readonly DllUpdater _updater;
+    private readonly AsyncFileWatcher _fileWatcher;
 
     public GamesPage(GamesViewModel viewModel, DllUpdater updater, GameContainer gameContainer,
-        ISnackbarService snackbar)
+        ISnackbarService snackbar, AsyncFileWatcher watcher)
     {
         _updater = updater;
         _gameContainer = gameContainer;
         _snackbar = snackbar;
+        _fileWatcher = watcher;
         ViewModel = viewModel;
         DataContext = this;
 
@@ -84,11 +87,12 @@ public partial class GamesPage : INavigableView<GamesViewModel>
         }
     }
 
-    private void btnPropsAdd_Click(object sender, RoutedEventArgs e)
+    private async void btnPropsAdd_Click(object sender, RoutedEventArgs e)
     {
         if (_newGameInfo)
         {
             ViewModel.Games!.Add(ViewModel.SelectedGame!);
+            _fileWatcher.AddFile(ViewModel.SelectedGame!);
         }
         else
         {
@@ -118,6 +122,9 @@ public partial class GamesPage : INavigableView<GamesViewModel>
                 _snackbar.ShowEx("Installation", "DLLs were not installed!", ControlAppearance.Danger);
                 break;
         }
+
+        await ViewModel.SelectedGame!.GatherInstalledVersions();
+        _gameContainer.DoUpdate();
     }
 
     private async Task<bool> ensureNewGameData()

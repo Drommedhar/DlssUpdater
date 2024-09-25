@@ -5,7 +5,9 @@ using System.Text.Json.Serialization;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DlssUpdater.GameLibrary;
+using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
+using DLSSUpdater.Singletons;
 using static DlssUpdater.Defines.DlssTypes;
 
 namespace DlssUpdater.Defines;
@@ -25,8 +27,11 @@ public partial class GameInfo : ObservableObject
     [ObservableProperty] [JsonIgnore] public GameInfo _self;
 
     [ObservableProperty] [JsonIgnore] public Visibility _textVisible;
+    [ObservableProperty] [JsonIgnore] public Visibility _updateVisible;
+    [ObservableProperty][JsonIgnore] public string _installedVersions;
 
     [JsonIgnore] public LibraryType LibraryType;
+    [JsonIgnore] public readonly DllUpdater _updater;
 
     public GameInfo(string gameName, string gamePath, LibraryType type)
     {
@@ -39,16 +44,21 @@ public partial class GameInfo : ObservableObject
 
         Self = this;
         HasAntiCheat = App.GetService<AntiCheatChecker>()!.Check(gamePath);
+        _updater = App.GetService<DllUpdater>()!;
+        GatherInstalledVersions().ConfigureAwait(true);
     }
 
     [JsonIgnore] public Dictionary<DllType, InstalledPackage> InstalledDlls { get; set; } = [];
 
-    public async Task GatherInstalledVersions()
+    public async Task<bool> GatherInstalledVersions()
     {
-        if (!Directory.Exists(GamePath)) return;
+        if (!Directory.Exists(GamePath)) return false;
 
+        bool bChanged = false;
+        var internalVersions = "";
         await Task.Run(() =>
         {
+            bool bUpdateAvailable = false;
             foreach (var (dll, info) in InstalledDlls)
             {
                 var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
@@ -57,10 +67,30 @@ public partial class GameInfo : ObservableObject
                 // We only should have one entry
                 info.Path = allFiles[0];
                 var fileInfo = FileVersionInfo.GetVersionInfo(info.Path);
-                info.Version = fileInfo.FileVersion!.Replace(',', '.');
-                // TODO: This will report a different version as the one stored in DlssUpdater!
+                var newVersion = fileInfo.FileVersion?.Replace(',', '.');
+                if (newVersion is not null && newVersion != info.Version)
+                {
+                    info.Version = fileInfo.FileVersion?.Replace(',', '.') ?? "0.0.0.0";
+                    bChanged = true;
+                }
+                if (_updater.IsNewerVersionAvailable(dll, info))
+                {
+                    bUpdateAvailable = true;
+                }
+
+                if (!string.IsNullOrEmpty(internalVersions))
+                {
+                    internalVersions += "\n";
+                }
+                internalVersions += $"{GetShortName(dll)}: {info.Version}";
             }
+
+            UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
         });
+
+        InstalledVersions = internalVersions;
+
+        return bChanged;
     }
 
     public bool HasInstalledDlls()

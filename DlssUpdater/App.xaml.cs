@@ -68,6 +68,7 @@ public partial class App
             services.AddSingleton<GameContainer>();
             services.AddSingleton<AntiCheatChecker>();
             services.AddSingleton<VersionUpdater>();
+            services.AddSingleton<AsyncFileWatcher>();
 
             services.AddSingleton<ISnackbarService, SnackbarService>();
         }).Build();

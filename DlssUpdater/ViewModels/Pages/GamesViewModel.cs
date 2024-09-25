@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using DlssUpdater.Defines;
 using DlssUpdater.Singletons;
+using DLSSUpdater.Singletons;
 using Wpf.Ui.Controls;
 
 namespace DlssUpdater.ViewModels.Pages;
@@ -42,10 +43,16 @@ public partial class GamesViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private GameInfo? _selectedGame;
 
-    public GamesViewModel(DllUpdater updater, GameContainer gameContainer)
+    public GamesViewModel(DllUpdater updater, GameContainer gameContainer, AsyncFileWatcher watcher)
     {
         _updater = updater;
         _gameContainer = gameContainer;
+        watcher.FilesChanged += Watcher_FilesChanged;
+    }
+
+    private void Watcher_FilesChanged(object? sender, EventArgs e)
+    {
+        Update();
     }
 
     public void OnNavigatedTo()

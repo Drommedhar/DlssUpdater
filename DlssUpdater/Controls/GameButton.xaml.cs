@@ -56,7 +56,7 @@ public partial class GameButton : UserControl
 
     private void btnAction_Click(object sender, RoutedEventArgs e)
     {
-        _gameContainer.Games.Remove(GameInfo);
+        _gameContainer.RemoveGame(GameInfo);
         _gameContainer.SaveGames();
     }
 }
