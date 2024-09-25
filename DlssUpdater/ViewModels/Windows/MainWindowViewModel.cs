@@ -5,6 +5,7 @@ using System.Windows.Data;
 using System.Xml.Linq;
 using DlssUpdater.Singletons;
 using DlssUpdater.Views.Pages;
+using DLSSUpdater.Singletons;
 using Wpf.Ui.Controls;
 
 namespace DlssUpdater.ViewModels.Windows;
@@ -73,10 +74,11 @@ public partial class MainWindowViewModel : ObservableObject
         }
     };
 
-    public MainWindowViewModel(DllUpdater updater, GameContainer gameContainer)
+    public MainWindowViewModel(DllUpdater updater, GameContainer gameContainer, AsyncFileWatcher watcher)
     {
         _updater = updater;
         _gameContainer = gameContainer;
+        watcher.FilesChanged += Watcher_FilesChanged;
         MenuItems.Add(GamesItem);
         MenuItems.Add(DlssItem);
         updater.DlssFilesChanged += Updater_DlssFilesChanged;
@@ -99,6 +101,11 @@ public partial class MainWindowViewModel : ObservableObject
             UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
         };
         BindingOperations.SetBinding(GamesItem.InfoBadge, InfoBadge.VisibilityProperty, gameNotificationBinding);
+    }
+
+    private void Watcher_FilesChanged(object? sender, EventArgs e)
+    {
+        GameUpdateAvailable = _gameContainer.IsUpdateAvailable() ? Visibility.Visible : Visibility.Hidden;
     }
 
     private void GameContainer_GamesChanged(object? sender, EventArgs e)

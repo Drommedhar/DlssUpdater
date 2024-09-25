@@ -125,6 +125,7 @@ public class SteamLibrary : ILibrary
         if (info.HasInstalledDlls()) return info;
 
         _logger.Debug($"Steam: '{info.GameName}' does not have anny DLSS dll and is ignored.");
+        
         return null;
     }
 

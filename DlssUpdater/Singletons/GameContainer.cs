@@ -4,6 +4,7 @@ using System.Text.Json;
 using DlssUpdater.Defines;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
+using DLSSUpdater.Singletons;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.Singletons;
@@ -25,12 +26,14 @@ public class GameContainer
     private readonly Settings _settings;
     private readonly AntiCheatChecker.AntiCheatChecker _antiCheatChecker;
     private readonly NLog.Logger _logger;
+    private readonly AsyncFileWatcher _watcher;
 
-    public GameContainer(Settings settings, AntiCheatChecker.AntiCheatChecker antiCheatChecker, NLog.Logger logger)
+    public GameContainer(Settings settings, AntiCheatChecker.AntiCheatChecker antiCheatChecker, NLog.Logger logger, AsyncFileWatcher watcher)
     {
         _settings = settings;
         _antiCheatChecker = antiCheatChecker;
         _logger = logger;
+        _watcher = watcher;
 
         // TODO: Add settings for active libraries
         _libraries.Add(ILibrary.Create(LibraryType.Steam, _logger));
@@ -47,6 +50,12 @@ public class GameContainer
     public async Task LoadGamesAsync()
     {
         await loadGamesAsync();
+    }
+
+    public void RemoveGame(GameInfo game)
+    {
+        _watcher.RemoveFile(game);
+        Games.Remove(game);
     }
 
     public void DoUpdate()
@@ -84,15 +93,24 @@ public class GameContainer
             var jsonData = File.ReadAllText(gameDataPath);
             var data = JsonSerializer.Deserialize<ObservableCollection<GameInfo>>(jsonData, _jsonOptions)!;
             Games.Clear();
-            foreach (var item in data) Games.Add(item);
+            foreach (var item in data)
+            {
+                Games.Add(item);
+                _watcher.AddFile(item);
+            }
         }
 
         foreach (var lib in _libraries)
         {
             var libGames = await lib.GatherGamesAsync();
             foreach (var item in libGames)
+            {
                 if (!Games.Any(g => g.GamePath == item.GamePath))
+                {
                     Games.Add(item);
+                    _watcher.AddFile(item);
+                }
+            }
         }
     }
 

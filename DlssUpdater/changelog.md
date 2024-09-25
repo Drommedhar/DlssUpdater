@@ -2,6 +2,7 @@
 * Add notification icon if DLSS updates are available
 	* If a specific type has no version installed, no notification will be shown, as not everyone will use Ray Reconstruction or Frame Gen
 * Show information if a game has an update available (in Navigation view and game itself)
+* Automatically detect changes to dlls from installed games
 
 # 1.0.1.0
 * Add logging to narrow down common problems. These can be found in 'logs' directory next to the executable

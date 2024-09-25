@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
+using DLSSUpdater.Singletons;
 using static DlssUpdater.Defines.DlssTypes;
 
 namespace DlssUpdater.Defines;
@@ -48,10 +49,11 @@ public partial class GameInfo : ObservableObject
 
     [JsonIgnore] public Dictionary<DllType, InstalledPackage> InstalledDlls { get; set; } = [];
 
-    public async Task GatherInstalledVersions()
+    public async Task<bool> GatherInstalledVersions()
     {
-        if (!Directory.Exists(GamePath)) return;
+        if (!Directory.Exists(GamePath)) return false;
 
+        bool bChanged = false;
         await Task.Run(() =>
         {
             bool bUpdateAvailable = false;
@@ -63,8 +65,13 @@ public partial class GameInfo : ObservableObject
                 // We only should have one entry
                 info.Path = allFiles[0];
                 var fileInfo = FileVersionInfo.GetVersionInfo(info.Path);
-                info.Version = fileInfo.FileVersion!.Replace(',', '.');
-                if (_updater.IsNewerVersionAvailable(dll, info)) 
+                var newVersion = fileInfo.FileVersion?.Replace(',', '.');
+                if (newVersion is not null && newVersion != info.Version)
+                {
+                    info.Version = fileInfo.FileVersion?.Replace(',', '.') ?? "0.0.0.0";
+                    bChanged = true;
+                }
+                if (_updater.IsNewerVersionAvailable(dll, info))
                 {
                     bUpdateAvailable = true;
                 }
@@ -72,6 +79,8 @@ public partial class GameInfo : ObservableObject
 
             UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
         });
+
+        return bChanged;
     }
 
     public bool HasInstalledDlls()
