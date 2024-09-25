@@ -17,13 +17,13 @@ public interface ILibrary
 {
     public Task<List<GameInfo>> GatherGamesAsync();
 
-    static ILibrary Create(LibraryType type)
+    static ILibrary Create(LibraryType type, NLog.Logger logger)
     {
         return type switch
         {
-            LibraryType.Manual => new ManualLibrary(),
-            LibraryType.Steam => new SteamLibrary(),
-            LibraryType.Ubisoft => new UbisoftConnectLibrary(),
+            LibraryType.Manual => new ManualLibrary(logger),
+            LibraryType.Steam => new SteamLibrary(logger),
+            LibraryType.Ubisoft => new UbisoftConnectLibrary(logger),
             _ => throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(LibraryType))
         };
     }

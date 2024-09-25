@@ -28,8 +28,8 @@ public partial class DownloadButton : UserControl
 
     public DownloadButton()
     {
-        _updater = App.GetService<DllUpdater>();
-        _snackbar = App.GetService<ISnackbarService>();
+        _updater = App.GetService<DllUpdater>()!;
+        _snackbar = App.GetService<ISnackbarService>()!;
 
         InitializeComponent();
 

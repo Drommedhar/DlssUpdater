@@ -15,7 +15,6 @@ public partial class DLSSViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private IEnumerable<OnlinePackage>? _dlssG;
 
     private bool _isInitialized;
-    private ISnackbarService _snackbar;
 
     public DLSSViewModel(DllUpdater updater)
     {

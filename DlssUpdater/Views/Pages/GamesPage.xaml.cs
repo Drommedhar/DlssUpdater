@@ -152,7 +152,7 @@ public partial class GamesPage : INavigableView<GamesViewModel>
 
         foreach (var c in codecs)
         {
-            var codecName = c.CodecName.Substring(8).Replace("Codec", "Files").Trim();
+            var codecName = c.CodecName!.Substring(8).Replace("Codec", "Files").Trim();
             dlg.Filter = string.Format("{0}{1}{2} ({3})|{3}", dlg.Filter, sep, codecName, c.FilenameExtension);
             sep = "|";
         }

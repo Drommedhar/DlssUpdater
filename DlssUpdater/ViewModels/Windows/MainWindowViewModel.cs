@@ -52,4 +52,6 @@ public partial class MainWindowViewModel : ObservableObject
     {
         new MenuItem { Header = "Home", Tag = "tray_home" }
     };
+
+    [ObservableProperty] private WindowState _windowState;
 }

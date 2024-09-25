@@ -68,7 +68,7 @@ namespace DLSSUpdater.Singletons
                 }
                 Application.Current.Shutdown();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 
             }

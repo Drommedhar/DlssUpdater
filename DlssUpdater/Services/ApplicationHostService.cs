@@ -10,7 +10,7 @@ public class ApplicationHostService : IHostedService
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private Splashscreen _splashscreen;
+    private Splashscreen? _splashscreen;
 
     public ApplicationHostService(IServiceProvider serviceProvider)
     {

@@ -26,15 +26,19 @@ public partial class Splashscreen : Window
     private readonly DllUpdater _updater;
     private readonly VersionUpdater _versionUpdater;
     private readonly Settings _settings;
+    private readonly NLog.Logger _logger;
 
     private bool _runInit = true;
 
     public Splashscreen(MainWindow mainWindow, DllUpdater updater, GameContainer container, Settings settings,
-                        AntiCheatChecker cheatChecker, VersionUpdater versionUpdater)
+                        AntiCheatChecker cheatChecker, VersionUpdater versionUpdater, NLog.Logger logger)
     {
         _updater = updater;
         _gameContainer = container;
         _versionUpdater = versionUpdater;
+        _logger = logger;
+        _logger.Debug("### STARTUP ###");
+
         settings.Load();
         _settings = settings;
         cheatChecker.Init();
@@ -98,6 +102,8 @@ public partial class Splashscreen : Window
             _settings.ShowChangelogOnStartup = true;
             _settings.Save();
 
+            _logger.Debug("Downloading update file");
+
             // Download the update and start the ApplicationUpdater
             var outputPath = Path.Combine(AppContext.BaseDirectory, _settings.Directories.DownloadPath, "update.zip");
             var updateUrl = "http://github.com/Drommedhar/DlssUpdater/releases/latest/download/dlssupdater.zip";
@@ -122,6 +128,7 @@ public partial class Splashscreen : Window
             // Now let's finally start the updater
             var updateArgs = $"{outputPath} {AppContext.BaseDirectory} {Environment.ProcessId}";
             await File.WriteAllTextAsync(Path.Combine(_settings.Directories.DownloadPath, "update.txt"), updateArgs);
+            _logger.Debug($"Starting update with the following args: {updateArgs}");
             Process.Start(Path.Combine(_settings.Directories.DownloadPath, "DlssUpdater.exe"));
             Application.Current.Shutdown();
         }
@@ -136,6 +143,7 @@ public partial class Splashscreen : Window
         catch (HttpRequestException ex)
         {
             _updater.OnInfo -= Updater_OnInfo;
+            _logger.Error($"Request for UpdateDlssVersions failed: {ex}");
             SplashscreenViewModel.InfoText = $"ERROR: {ex}";
             await Task.Delay(5000);
             Application.Current.Shutdown();

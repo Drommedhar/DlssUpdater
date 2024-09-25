@@ -22,15 +22,17 @@ public class GameContainer
 
     private readonly Settings _settings;
     private readonly AntiCheatChecker.AntiCheatChecker _antiCheatChecker;
+    private readonly NLog.Logger _logger;
 
-    public GameContainer(Settings settings, AntiCheatChecker.AntiCheatChecker antiCheatChecker)
+    public GameContainer(Settings settings, AntiCheatChecker.AntiCheatChecker antiCheatChecker, NLog.Logger logger)
     {
         _settings = settings;
         _antiCheatChecker = antiCheatChecker;
+        _logger = logger;
 
         // TODO: Add settings for active libraries
-        _libraries.Add(ILibrary.Create(LibraryType.Steam));
-        _libraries.Add(ILibrary.Create(LibraryType.Ubisoft));
+        _libraries.Add(ILibrary.Create(LibraryType.Steam, _logger));
+        _libraries.Add(ILibrary.Create(LibraryType.Ubisoft, _logger));
     }
 
     public SortableObservableCollection<GameInfo> Games { get; } = new()

@@ -9,9 +9,12 @@ namespace DlssUpdater.GameLibrary;
 public class UbisoftConnectLibrary : ILibrary
 {
     private string? _installPath;
+    private readonly NLog.Logger _logger;
 
-    internal UbisoftConnectLibrary()
+    internal UbisoftConnectLibrary(NLog.Logger logger)
     {
+        _logger = logger;
+
         getInstallationDirectory();
     }
 
@@ -28,6 +31,9 @@ public class UbisoftConnectLibrary : ILibrary
         using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
         using var ubiRegKey = hklm.OpenSubKey(@"SOFTWARE\Ubisoft\Launcher");
         var installPath = ubiRegKey?.GetValue("InstallDir") as string;
+
+        _logger.Debug($"Ubisoft Connect install directory: {installPath ?? "N/A"}");
+
         if (!string.IsNullOrEmpty(installPath)) _installPath = installPath;
     }
 
@@ -42,6 +48,7 @@ public class UbisoftConnectLibrary : ILibrary
         var configPath = Path.Combine(_installPath, "cache", "configuration", "configurations");
         if(!File.Exists(configPath))
         {
+            _logger.Warn($"Ubisoft connect: Could not find configurations file at {configPath}");
             return ret;
         }
 
@@ -73,6 +80,7 @@ public class UbisoftConnectLibrary : ILibrary
             var gamePath = gameRegKey?.GetValue("InstallDir") as string;
             if (string.IsNullOrEmpty(gamePath))
             {
+                _logger.Warn($"Ubisoft connect: Could not find regkey for {registerKey}");
                 continue;
             }
 
@@ -88,7 +96,10 @@ public class UbisoftConnectLibrary : ILibrary
                 }
                 ret.Add(info);
             }
-            
+            else
+            {
+                _logger.Debug($"Ubisoft connect: '{info.GameName}' does not have any DLSS dll.");
+            }
         }
 
         return ret;

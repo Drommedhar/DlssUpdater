@@ -4,6 +4,11 @@ namespace DlssUpdater.GameLibrary;
 
 public class ManualLibrary : ILibrary
 {
+    public ManualLibrary(NLog.Logger logger)
+    {
+
+    }
+
     public async Task<List<GameInfo>> GatherGamesAsync()
     {
         List<GameInfo> ret = [];

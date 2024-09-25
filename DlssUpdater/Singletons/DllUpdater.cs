@@ -24,17 +24,19 @@ public class DllUpdater
 
     [JsonIgnore]
     private readonly Settings _settings;
+    [JsonIgnore]
+    private readonly NLog.Logger _logger;
 
     public DateTime LastUpdate { get; set; } = DateTime.MinValue;
 
     public DllUpdater()
     {
-
     }
 
-    public DllUpdater(Settings settings)
+    public DllUpdater(Settings settings, NLog.Logger logger)
     {
         _settings = settings;
+        _logger = logger;
     }
 
     public Dictionary<DllType, ObservableCollection<OnlinePackage>> OnlinePackages { get; set; } = [];
@@ -56,6 +58,7 @@ public class DllUpdater
         var nextCheck = LastUpdate.Add(Constants.CacheTime);
         if(DateTime.UtcNow > nextCheck)
         {
+            _logger.Debug($"Updating online DLSS libs.");
             OnlinePackages.Clear();
             foreach (DllType dllType in Enum.GetValues(typeof(DllType)))
             {
@@ -105,7 +108,11 @@ public class DllUpdater
             }
 
             // Something failed
-            if (!File.Exists(outputPath)) return false;
+            if (!File.Exists(outputPath))
+            {
+                _logger.Warn($"DllUpdater: Could not download file to {outputPath}");
+                return false;
+            }
 
             var dllTargetPath = Path.Combine(_settings.Directories.InstallPath, GetName(package.DllType),
                 package.Version.Replace(' ', '_'));
@@ -168,8 +175,9 @@ public class DllUpdater
                 File.Copy(package.Path, info.Path, true);
                 result = UpdateResult.Success;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.Error($"DllUpdater: Exception on UpdateGameDlls: {ex}");
                 result = UpdateResult.Failure;
                 return result;
             }

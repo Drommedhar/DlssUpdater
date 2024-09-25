@@ -20,8 +20,6 @@ public partial class MainWindow : INavigationWindow
         _settings = settings;
         DataContext = this;
 
-        SystemThemeWatcher.Watch(this);
-
         InitializeComponent();
         SetPageService(pageService);
 
@@ -69,6 +67,8 @@ public partial class MainWindow : INavigationWindow
 
     public void ShowWindow()
     {
+        ViewModel.WindowState = _settings.WindowState;
+
         Show();
         if (_settings.ShowChangelogOnStartup)
         {
@@ -88,4 +88,10 @@ public partial class MainWindow : INavigationWindow
     }
 
     #endregion INavigationWindow methods
+
+    private void FluentWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        _settings.WindowState = WindowState;
+        _settings.Save();
+    }
 }
