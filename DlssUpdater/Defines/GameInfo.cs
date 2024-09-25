@@ -27,7 +27,8 @@ public partial class GameInfo : ObservableObject
     [ObservableProperty] [JsonIgnore] public GameInfo _self;
 
     [ObservableProperty] [JsonIgnore] public Visibility _textVisible;
-    [ObservableProperty][JsonIgnore] public Visibility _updateVisible;
+    [ObservableProperty] [JsonIgnore] public Visibility _updateVisible;
+    [ObservableProperty][JsonIgnore] public string _installedVersions;
 
     [JsonIgnore] public LibraryType LibraryType;
     [JsonIgnore] public readonly DllUpdater _updater;
@@ -54,6 +55,7 @@ public partial class GameInfo : ObservableObject
         if (!Directory.Exists(GamePath)) return false;
 
         bool bChanged = false;
+        var internalVersions = "";
         await Task.Run(() =>
         {
             bool bUpdateAvailable = false;
@@ -75,10 +77,18 @@ public partial class GameInfo : ObservableObject
                 {
                     bUpdateAvailable = true;
                 }
+
+                if (!string.IsNullOrEmpty(internalVersions))
+                {
+                    internalVersions += "\n";
+                }
+                internalVersions += $"{GetShortName(dll)}: {info.Version}";
             }
 
             UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
         });
+
+        InstalledVersions = internalVersions;
 
         return bChanged;
     }

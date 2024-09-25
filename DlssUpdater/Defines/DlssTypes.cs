@@ -31,6 +31,17 @@ public static class DlssTypes
         };
     }
 
+    public static string GetShortName(DllType type)
+    {
+        return type switch
+        {
+            DllType.Dlss => "Main",
+            DllType.DlssD => "Ray Reconstruction",
+            DllType.DlssG => "Frame Gen",
+            _ => ""
+        };
+    }
+
     public static string GetDllName(DllType type)
     {
         return type switch
