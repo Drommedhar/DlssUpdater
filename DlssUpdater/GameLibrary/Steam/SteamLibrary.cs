@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using DlssUpdater.Helpers;
+using DLSSUpdater.Defines;
 using Microsoft.Win32;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
@@ -7,19 +8,28 @@ namespace DlssUpdater.GameLibrary.Steam;
 
 public class SteamLibrary : ILibrary
 {
-    private string? _installPath;
     private readonly NLog.Logger _logger;
+    private readonly LibraryConfig _config;    
 
-    internal SteamLibrary(NLog.Logger logger)
+    internal SteamLibrary(LibraryConfig config, NLog.Logger logger)
     {
+        _config = config;
         _logger = logger;
 
-        getInstallationDirectory();
+        if(string.IsNullOrEmpty(config.InstallPath))
+        {
+            GetInstallationDirectory();
+        }
+    }
+
+    public LibraryType GetLibraryType()
+    {
+        return _config.LibraryType;
     }
 
     public async Task<List<GameInfo>> GatherGamesAsync()
     {
-        if (_installPath is null) return [];
+        if (string.IsNullOrEmpty(_config.InstallPath)) return [];
 
         // We now know steam is installed, so we can carry on by parsing the 'libraryfolder.vdf'
         var folders = await getLibraryFolders();
@@ -29,7 +39,7 @@ public class SteamLibrary : ILibrary
     private async Task<List<LibraryFolder>> getLibraryFolders()
     {
         List<LibraryFolder> ret = [];
-        var vdfPath = Path.Combine(_installPath!, "steamapps", "libraryfolders.vdf");
+        var vdfPath = Path.Combine(_config.InstallPath!, "steamapps", "libraryfolders.vdf");
         if (!File.Exists(vdfPath)) return ret;
 
         VdfParser parser = new(vdfPath);
@@ -56,7 +66,7 @@ public class SteamLibrary : ILibrary
         return ret;
     }
 
-    private void getInstallationDirectory()
+    public void GetInstallationDirectory()
     {
         // We are getting the steam installation path from the user registry (if it exists)
         using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
@@ -65,7 +75,7 @@ public class SteamLibrary : ILibrary
 
         _logger.Debug($"Steam install directory: {installPath ?? "N/A"}");
 
-        if (!string.IsNullOrEmpty(installPath)) _installPath = installPath;
+        if (!string.IsNullOrEmpty(installPath)) _config.InstallPath = installPath;
     }
 
     private async Task<List<GameInfo>> getGames(List<LibraryFolder> folder)
@@ -124,14 +134,14 @@ public class SteamLibrary : ILibrary
         await info.GatherInstalledVersions();
         if (info.HasInstalledDlls()) return info;
 
-        _logger.Debug($"Steam: '{info.GameName}' does not have anny DLSS dll and is ignored.");
+        _logger.Debug($"Steam: '{info.GameName}' does not have any DLSS dll and is being ignored.");
         
         return null;
     }
 
     private string? getGameImage(string appId)
     {
-        var cachedImage = Path.Combine(_installPath!, "appcache", "librarycache", $"{appId}_library_600x900.jpg");
+        var cachedImage = Path.Combine(_config.InstallPath!, "appcache", "librarycache", $"{appId}_library_600x900.jpg");
         if (File.Exists(cachedImage)) return new string(cachedImage);
 
         var url = $"https://steamcdn-a.akamaihd.net/steam/apps/{appId}/library_600x900_2x.jpg";

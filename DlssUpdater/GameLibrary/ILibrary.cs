@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using DlssUpdater.GameLibrary.Steam;
+using DLSSUpdater.Defines;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.GameLibrary;
@@ -15,15 +16,28 @@ public enum LibraryType
 
 public interface ILibrary
 {
+    public LibraryType GetLibraryType();
+    public void GetInstallationDirectory();
     public Task<List<GameInfo>> GatherGamesAsync();
 
-    static ILibrary Create(LibraryType type, NLog.Logger logger)
+    static ILibrary Create(LibraryConfig config, NLog.Logger logger)
+    {
+        return config.LibraryType switch
+        {
+            LibraryType.Manual => new ManualLibrary(config, logger),
+            LibraryType.Steam => new SteamLibrary(config, logger),
+            LibraryType.Ubisoft => new UbisoftConnectLibrary(config, logger),
+            _ => throw new InvalidEnumArgumentException(nameof(config.LibraryType), (int)config.LibraryType, typeof(LibraryType))
+        };
+    }
+
+    static string GetName(LibraryType type)
     {
         return type switch
         {
-            LibraryType.Manual => new ManualLibrary(logger),
-            LibraryType.Steam => new SteamLibrary(logger),
-            LibraryType.Ubisoft => new UbisoftConnectLibrary(logger),
+            LibraryType.Manual => "Manual",
+            LibraryType.Steam => "Steam",
+            LibraryType.Ubisoft => "Ubisoft Connect",
             _ => throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(LibraryType))
         };
     }

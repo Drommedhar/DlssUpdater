@@ -1,5 +1,6 @@
 ﻿# 1.0.3.0
-* Streamline games ui (no unnecessary popups, easier readable buttons )
+* Streamline games ui (no unnecessary popups, easier readable buttons)
+* Make libraries configurable and allow manually setting the installation directory
 
 # 1.0.2.0
 * Add notification icon if DLSS updates are available

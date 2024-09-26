@@ -2,7 +2,9 @@
 using DlssUpdater.Helpers;
 using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
+using DLSSUpdater.Defines;
 using Microsoft.VisualBasic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime;
@@ -20,6 +22,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] string? _installPath;
     [ObservableProperty] string? _downloadPath;
     [ObservableProperty] string? _settingsPath;
+
+    [ObservableProperty] private ObservableCollection<LibraryConfig>? _libraries;
 
     private bool _isInitialized = false;
     private Settings _settings;
@@ -51,6 +55,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         UpdateAntiCheat(_settings.AntiCheatSettings.DisclaimerAccepted);
         AntiCheatEACEnabled = _settings.AntiCheatSettings.ActiveAntiCheatChecks.HasFlag(AntiCheatProvider.EasyAntiCheat);
         AntiCheatBattlEyeEnabled = _settings.AntiCheatSettings.ActiveAntiCheatChecks.HasFlag(AntiCheatProvider.BattlEye);
+        Libraries = _settings.Libraries;
     }
 
     public void UpdateAntiCheat(bool enabled)

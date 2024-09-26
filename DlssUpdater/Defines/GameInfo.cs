@@ -32,6 +32,7 @@ public partial class GameInfo : ObservableObject
 
     [JsonIgnore] public LibraryType LibraryType;
     [JsonIgnore] public readonly DllUpdater _updater;
+    [JsonIgnore] public readonly NLog.Logger _logger;
 
     public GameInfo(string gameName, string gamePath, LibraryType type)
     {
@@ -45,6 +46,7 @@ public partial class GameInfo : ObservableObject
         Self = this;
         HasAntiCheat = App.GetService<AntiCheatChecker>()!.Check(gamePath);
         _updater = App.GetService<DllUpdater>()!;
+        _logger = App.GetService<NLog.Logger>()!;
         GatherInstalledVersions().ConfigureAwait(true);
     }
 
@@ -62,7 +64,12 @@ public partial class GameInfo : ObservableObject
             foreach (var (dll, info) in InstalledDlls)
             {
                 var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
-                if (allFiles is null || allFiles.Length != 1) continue;
+                _logger.Debug($"Found '{allFiles?.Length.ToString() ?? "0"} files' for {GetDllName(dll)} in {GameName}");
+                if (allFiles is null || allFiles.Length == 0)
+                {
+                    continue; 
+                }
+                // TODO: Support for multiple instances of the same dll?
 
                 // We only should have one entry
                 info.Path = allFiles[0];
