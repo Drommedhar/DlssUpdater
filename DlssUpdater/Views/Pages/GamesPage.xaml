@@ -112,9 +112,9 @@
             </Grid>
 
             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                <ui:Button x:Name="btnPropsAdd" Icon="{ui:SymbolIcon Save16}" Height="50" Width="50" Margin="5,0,5,5"
+                <ui:Button x:Name="btnPropsAdd" Content="Save" Height="50" Width="90" Margin="5,0,5,5"
                            Click="btnPropsAdd_Click" />
-                <ui:Button x:Name="btnPropsClose" Icon="{ui:SymbolIcon ArrowRight48}" Height="50" Width="50"
+                <ui:Button x:Name="btnPropsClose" Content="Close" Height="50" Width="90"
                            Click="btnPropsClose_Click" Margin="5,0,5,5" />
             </StackPanel>
         </Grid>

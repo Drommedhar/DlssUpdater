@@ -55,7 +55,7 @@ public partial class GamesPage : INavigableView<GamesViewModel>
     {
         if (sender is GameButton btn && btn.GameInfo is not null)
         {
-            if (btn.GameInfo != ViewModel.SelectedGame && !await ensureNewGameData()) return;
+            if (btn.GameInfo == ViewModel.SelectedGame) return;
 
             _newGameInfo = false;
             await btn.GameInfo.GatherInstalledVersions();
@@ -111,10 +111,6 @@ public partial class GamesPage : INavigableView<GamesViewModel>
 
         switch (updateResult)
         {
-            case DllUpdater.UpdateResult.NothingDone:
-                _snackbar.ShowEx("Installation", _newGameInfo ? "Added successfully" : "Nothing done",
-                    ControlAppearance.Dark);
-                break;
             case DllUpdater.UpdateResult.Success:
                 _snackbar.ShowEx("Installation", "DLLs were installed successfully!", ControlAppearance.Success);
                 break;
@@ -125,26 +121,6 @@ public partial class GamesPage : INavigableView<GamesViewModel>
 
         await ViewModel.SelectedGame!.GatherInstalledVersions();
         _gameContainer.DoUpdate();
-    }
-
-    private async Task<bool> ensureNewGameData()
-    {
-        if (gridProps.Visibility == Visibility.Visible)
-        {
-            var uiMessageBox = new MessageBox
-            {
-                Title = "Warning",
-                Content = "The currently open game has not been saved and changed data will be lost. Continue?",
-                SecondaryButtonText = "Yes",
-                CloseButtonText = "Cancel",
-                IsPrimaryButtonEnabled = false,
-                IsSecondaryButtonEnabled = true
-            };
-
-            return await uiMessageBox.ShowDialogAsync() == MessageBoxResult.Secondary;
-        }
-
-        return true;
     }
 
     private void ButtonImage_Click(object sender, RoutedEventArgs e)

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using DlssUpdater.GameLibrary.Steam;
 using DlssUpdater.Helpers;
+using DLSSUpdater.Defines;
 using Microsoft.Win32;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
@@ -8,24 +9,33 @@ namespace DlssUpdater.GameLibrary;
 
 public class UbisoftConnectLibrary : ILibrary
 {
-    private string? _installPath;
+    private readonly LibraryConfig _config;
     private readonly NLog.Logger _logger;
 
-    internal UbisoftConnectLibrary(NLog.Logger logger)
+    internal UbisoftConnectLibrary(LibraryConfig config, NLog.Logger logger)
     {
+        _config = config;
         _logger = logger;
 
-        getInstallationDirectory();
+        if(string.IsNullOrEmpty(config.InstallPath) )
+        {
+            GetInstallationDirectory();
+        }
+    }
+
+    public LibraryType GetLibraryType()
+    {
+        return _config.LibraryType;
     }
 
     public async Task<List<GameInfo>> GatherGamesAsync()
     {
-        if (_installPath is null) return [];
+        if (string.IsNullOrEmpty(_config.InstallPath)) return [];
 
         return await getGames();
     }
 
-    private void getInstallationDirectory()
+    public void GetInstallationDirectory()
     {
         // We are getting the steam installation path from the user registry (if it exists)
         using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
@@ -34,18 +44,18 @@ public class UbisoftConnectLibrary : ILibrary
 
         _logger.Debug($"Ubisoft Connect install directory: {installPath ?? "N/A"}");
 
-        if (!string.IsNullOrEmpty(installPath)) _installPath = installPath;
+        if (!string.IsNullOrEmpty(installPath)) _config.InstallPath = installPath;
     }
 
     private async Task<List<GameInfo>> getGames()
     {
         List<GameInfo> ret = [];
-        if(string.IsNullOrEmpty(_installPath))
+        if(string.IsNullOrEmpty(_config.InstallPath))
         {
             return ret;
         }
 
-        var configPath = Path.Combine(_installPath, "cache", "configuration", "configurations");
+        var configPath = Path.Combine(_config.InstallPath, "cache", "configuration", "configurations");
         if(!File.Exists(configPath))
         {
             _logger.Warn($"Ubisoft connect: Could not find configurations file at {configPath}");
@@ -98,7 +108,7 @@ public class UbisoftConnectLibrary : ILibrary
             }
             else
             {
-                _logger.Debug($"Ubisoft connect: '{info.GameName}' does not have any DLSS dll.");
+                _logger.Debug($"Ubisoft connect: '{info.GameName}' does not have any DLSS dll and is being ignored.");
             }
         }
 
@@ -107,7 +117,7 @@ public class UbisoftConnectLibrary : ILibrary
 
     private string? getGameImage(string thumbImage)
     {
-        var cachedImage = Path.Combine(_installPath!, "cache", "assets", thumbImage);
+        var cachedImage = Path.Combine(_config.InstallPath!, "cache", "assets", thumbImage);
         if (File.Exists(cachedImage)) return new string(cachedImage);
 
         var url = $"https://ubistatic3-a.akamaihd.net/orbit/uplay_launcher_3_0/assets/{thumbImage}";

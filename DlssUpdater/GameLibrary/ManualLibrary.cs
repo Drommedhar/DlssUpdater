@@ -1,12 +1,23 @@
-﻿using GameInfo = DlssUpdater.Defines.GameInfo;
+﻿using DLSSUpdater.Defines;
+using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.GameLibrary;
 
 public class ManualLibrary : ILibrary
 {
-    public ManualLibrary(NLog.Logger logger)
+    public ManualLibrary(LibraryConfig config, NLog.Logger logger)
     {
 
+    }
+
+    public LibraryType GetLibraryType()
+    {
+        return LibraryType.Manual;
+    }
+
+    public void GetInstallationDirectory()
+    {
+        
     }
 
     public async Task<List<GameInfo>> GatherGamesAsync()

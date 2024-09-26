@@ -40,6 +40,7 @@ public partial class Splashscreen : Window
         _logger.Debug("### STARTUP ###");
 
         settings.Load();
+        _gameContainer.UpdateLibraries();
         _settings = settings;
         cheatChecker.Init();
 

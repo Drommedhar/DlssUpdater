@@ -7,6 +7,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:helpers="clr-namespace:DlssUpdater.Helpers"
     xmlns:pages="clr-namespace:DlssUpdater.Views.Pages"
+    xmlns:controls="clr-namespace:DlssUpdater.Controls"
     Title="SettingsPage"
     d:DataContext="{d:DesignInstance pages:SettingsPage,
                                      IsDesignTimeCreatable=False}"
@@ -16,14 +17,14 @@
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
-    <StackPanel>
+    <Grid x:Name="MainGrid">
         <TabControl>
             <TabItem Header="Common">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -60,6 +61,20 @@ Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,5,0" />
                     <ui:ToggleSwitch Content="BattlEye" Margin="0,0,0,5" IsEnabled="{Binding ViewModel.AntiCheatEnabled}" IsChecked="{Binding ViewModel.AntiCheatBattlEyeEnabled}"/>                    
                 </StackPanel>
             </TabItem>
+            <TabItem Header="Launcher">
+                <ui:VirtualizingItemsControl
+    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+    ItemsSource="{Binding ViewModel.Libraries, Mode=OneWay}"
+    VirtualizingPanel.CacheLengthUnit="Item">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <controls:LauncherPanel
+                                LibraryConfig="{Binding Self}"
+                                Width="{Binding ActualWidth, ElementName=MainGrid}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ui:VirtualizingItemsControl>
+            </TabItem>
         </TabControl>
-    </StackPanel>
+    </Grid>
 </Page>

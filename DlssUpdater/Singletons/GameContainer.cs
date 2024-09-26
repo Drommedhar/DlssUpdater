@@ -21,7 +21,7 @@ public class GameContainer
         }
     };
 
-    private readonly List<ILibrary> _libraries = [];
+    public readonly List<ILibrary> Libraries = [];
 
     private readonly Settings _settings;
     private readonly AntiCheatChecker.AntiCheatChecker _antiCheatChecker;
@@ -35,9 +35,7 @@ public class GameContainer
         _logger = logger;
         _watcher = watcher;
 
-        // TODO: Add settings for active libraries
-        _libraries.Add(ILibrary.Create(LibraryType.Steam, _logger));
-        _libraries.Add(ILibrary.Create(LibraryType.Ubisoft, _logger));
+        UpdateLibraries();
 
         Games.CollectionChanged += Games_CollectionChanged;
     }
@@ -46,6 +44,20 @@ public class GameContainer
     {
         SortingSelector = g => g.GameName
     };
+
+    public void UpdateLibraries()
+    {
+        Libraries.Clear();
+        foreach (var library in _settings.Libraries)
+        {
+            if (!library.IsChecked)
+            {
+                continue;
+            }
+
+            Libraries.Add(ILibrary.Create(library, _logger));
+        }
+    }
 
     public async Task LoadGamesAsync()
     {
@@ -100,7 +112,7 @@ public class GameContainer
             }
         }
 
-        foreach (var lib in _libraries)
+        foreach (var lib in Libraries)
         {
             var libGames = await lib.GatherGamesAsync();
             foreach (var item in libGames)
@@ -110,6 +122,29 @@ public class GameContainer
                     Games.Add(item);
                     _watcher.AddFile(item);
                 }
+            }
+        }
+    }
+
+    public async Task ReloadLibraryGames(LibraryType type)
+    {
+        // Create a list of games to remove
+        var gamesToRemove = Games.Where(game => game.LibraryType == type).ToList();
+
+        // Remove the games from the ObservableCollection
+        foreach (var game in gamesToRemove)
+        {
+            Games.Remove(game);
+        }
+
+        // Reload games from libraries of the specified type
+        foreach (var lib in Libraries.Where(l => l.GetLibraryType() == type))
+        {
+            var libGames = await lib.GatherGamesAsync();
+            foreach (var item in libGames.Where(item => !Games.Any(g => g.GamePath == item.GamePath)))
+            {
+                Games.Add(item);
+                _watcher.AddFile(item);
             }
         }
     }
