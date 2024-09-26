@@ -126,6 +126,29 @@ public class GameContainer
         }
     }
 
+    public async Task ReloadLibraryGames(LibraryType type)
+    {
+        // Create a list of games to remove
+        var gamesToRemove = Games.Where(game => game.LibraryType == type).ToList();
+
+        // Remove the games from the ObservableCollection
+        foreach (var game in gamesToRemove)
+        {
+            Games.Remove(game);
+        }
+
+        // Reload games from libraries of the specified type
+        foreach (var lib in Libraries.Where(l => l.GetLibraryType() == type))
+        {
+            var libGames = await lib.GatherGamesAsync();
+            foreach (var item in libGames.Where(item => !Games.Any(g => g.GamePath == item.GamePath)))
+            {
+                Games.Add(item);
+                _watcher.AddFile(item);
+            }
+        }
+    }
+
     private void Games_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         GamesChanged?.Invoke(this, e);

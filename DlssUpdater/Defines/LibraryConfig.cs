@@ -31,6 +31,7 @@ namespace DLSSUpdater.Defines
             LibraryType = type;
             _libraryName = name;
             _installPath = string.Empty;
+            _isChecked = true;
             Self = this;
         }
     }

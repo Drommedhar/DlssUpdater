@@ -35,6 +35,7 @@ namespace DlssUpdater.Controls
 
         private readonly Settings _settings;
         private readonly GameContainer _gameContainer;
+        private readonly NLog.Logger _logger;
 
         public LauncherPanel()
         {
@@ -42,6 +43,7 @@ namespace DlssUpdater.Controls
 
             _settings = App.GetService<Settings>()!;
             _gameContainer = App.GetService<GameContainer>()!;
+            _logger = App.GetService<NLog.Logger>()!;
 
             GridExpand.Visibility = Visibility.Visible;
         }
@@ -49,8 +51,9 @@ namespace DlssUpdater.Controls
         private async void ToggleSwitch_Click(object sender, RoutedEventArgs e)
         {
             _settings.Save();
+            _logger.Debug($"Switched library '{LibraryConfig.LibraryName}' to {LibraryConfig.IsChecked}");
             _gameContainer.UpdateLibraries();
-            await _gameContainer.LoadGamesAsync();
+            await _gameContainer.ReloadLibraryGames(LibraryConfig.LibraryType);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
