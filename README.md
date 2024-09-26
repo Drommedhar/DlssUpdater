@@ -66,5 +66,5 @@ Dlss Updater is free and open source software licensed under the MIT License. Yo
 If you have further question feel free to join the official discord [here](https://discord.gg/WShdqSDSvu)
 
 # Known issues
-* Changes to folders in the [Settings Page](#Settings Page) will not take effect until the application is restarted.
+* Changes to folders in the [Settings Page](#settings-page) will not take effect until the application is restarted.
 * Game auto-detection cannot be turned off at this time.
