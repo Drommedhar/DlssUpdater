@@ -9,11 +9,11 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <Platforms>x64</Platforms>
-        <FileVersion>1.0.0.2</FileVersion>
+        <FileVersion>1.0.3.0</FileVersion>
         <SelfContained>true</SelfContained>
         <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
         <SignAssembly>False</SignAssembly>
-        <AssemblyVersion>1.0.0.2</AssemblyVersion>
+        <AssemblyVersion>1.0.3.0</AssemblyVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
