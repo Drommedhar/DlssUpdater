@@ -124,7 +124,7 @@ public class SteamLibrary : ILibrary
         await info.GatherInstalledVersions();
         if (info.HasInstalledDlls()) return info;
 
-        _logger.Debug($"Steam: '{info.GameName}' does not have anny DLSS dll and is ignored.");
+        _logger.Debug($"Steam: '{info.GameName}' does not have any DLSS DLLs and is being ignored.");
         
         return null;
     }
