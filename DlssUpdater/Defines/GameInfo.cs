@@ -72,7 +72,7 @@ public partial class GameInfo : ObservableObject
                 // TODO: Support for multiple instances of the same dll?
 
                 // We only should have one entry
-                info.Path = allFiles[0];
+                info.Path = allFiles[^1];
                 var fileInfo = FileVersionInfo.GetVersionInfo(info.Path);
                 var newVersion = fileInfo.FileVersion?.Replace(',', '.');
                 if (newVersion is not null && newVersion != info.Version)

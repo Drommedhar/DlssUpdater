@@ -1,6 +1,7 @@
 ﻿# 1.0.3.0
 * Streamline games ui (no unnecessary popups, easier readable buttons)
 * Make libraries configurable and allow manually setting the installation directory
+* Change behaviour if more than one instance of the same dll is found in game directory
 
 # 1.0.2.0
 * Add notification icon if DLSS updates are available
