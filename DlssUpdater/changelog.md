@@ -1,4 +1,7 @@
-﻿# 1.0.2.0
+﻿# 1.0.3.0
+* Streamline games ui (no unnecessary popups, easier readable buttons )
+
+# 1.0.2.0
 * Add notification icon if DLSS updates are available
 	* If a specific type has no version installed, no notification will be shown, as not everyone will use Ray Reconstruction or Frame Gen
 * Show information if a game has an update available (in Navigation view and game itself)
