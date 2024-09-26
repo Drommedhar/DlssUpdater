@@ -68,3 +68,4 @@ If you have further question feel free to join the official discord [here](https
 # Known issues
 * Changes to folders in the [Settings Page](#settings-page) will not take effect until the application is restarted.
 * Multiple instances of the the dll in a game folder can lead to strange behaviour. Make sure that there is only 1 instance in a game.
+* Opening the same game after closing config does nothing
