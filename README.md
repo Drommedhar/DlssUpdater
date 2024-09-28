@@ -47,6 +47,7 @@ Dlss Updater features automatic game detection from popular game libraries. Curr
 * Ubisoft Connect
 * GOG
 * Epic Games
+* Xbox
 
 Other libraries may be added in the future.
 

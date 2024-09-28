@@ -14,13 +14,11 @@
         Height="{Binding ActualHeight, 
               RelativeSource ={RelativeSource AncestorType = {x:Type UserControl}}}"
         Background="{DynamicResource ApplicationBackgroundBrush}">
-        <Image Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-               Source="{Binding GameInfo.GameImage, ElementName=gameButton}"
-               HorizontalAlignment="Left"
-               Stretch="Fill"
-               VerticalAlignment="Top"
-               Width="200"
-               Height="300" />
+        <Rectangle Width="200" Height="300" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="{Binding GameInfo.GameImage, ElementName=gameButton}" Stretch="UniformToFill"/>
+            </Rectangle.Fill>
+        </Rectangle>
         <ui:TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding GameInfo.GameName, ElementName=gameButton}"
                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Top"
                       HorizontalAlignment="Center" Margin="5,25,0,0" TextWrapping="WrapWithOverflow" Width="100"
