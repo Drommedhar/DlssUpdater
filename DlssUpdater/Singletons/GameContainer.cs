@@ -50,11 +50,6 @@ public class GameContainer
         Libraries.Clear();
         foreach (var library in _settings.Libraries)
         {
-            if (!library.IsChecked)
-            {
-                continue;
-            }
-
             Libraries.Add(ILibrary.Create(library, _logger));
         }
     }
@@ -114,6 +109,11 @@ public class GameContainer
 
         foreach (var lib in Libraries)
         {
+            if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == lib.GetLibraryType())?.IsChecked ?? false)
+            {
+                continue;
+            }
+
             var libGames = await lib.GatherGamesAsync();
             foreach (var item in libGames)
             {
@@ -135,6 +135,12 @@ public class GameContainer
         foreach (var game in gamesToRemove)
         {
             Games.Remove(game);
+            _watcher.RemoveFile(game);
+        }
+
+        if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == type)?.IsChecked ?? false)
+        {
+            return;
         }
 
         // Reload games from libraries of the specified type

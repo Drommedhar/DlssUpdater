@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using DlssUpdater.GameLibrary.Steam;
 using DLSSUpdater.Defines;
+using DLSSUpdater.GameLibrary;
+using DLSSUpdater.GameLibrary.EpicGames;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.GameLibrary;
@@ -10,7 +12,10 @@ public enum LibraryType
     Manual,
 
     Steam,
-    Ubisoft
+    Ubisoft,
+    EpicGames,
+    GOG,
+    Xbox,
     // TODO: More launchers
 }
 
@@ -27,6 +32,9 @@ public interface ILibrary
             LibraryType.Manual => new ManualLibrary(config, logger),
             LibraryType.Steam => new SteamLibrary(config, logger),
             LibraryType.Ubisoft => new UbisoftConnectLibrary(config, logger),
+            LibraryType.GOG => new GOGLibrary(config, logger),
+            LibraryType.EpicGames => new EpicGamesLibrary(config, logger),
+            LibraryType.Xbox => new XboxLibrary(config, logger),
             _ => throw new InvalidEnumArgumentException(nameof(config.LibraryType), (int)config.LibraryType, typeof(LibraryType))
         };
     }
@@ -38,6 +46,9 @@ public interface ILibrary
             LibraryType.Manual => "Manual",
             LibraryType.Steam => "Steam",
             LibraryType.Ubisoft => "Ubisoft Connect",
+            LibraryType.GOG => "GOG",
+            LibraryType.EpicGames => "Epic Games",
+            LibraryType.Xbox => "Xbox",
             _ => throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(LibraryType))
         };
     }

@@ -44,15 +44,12 @@ namespace DlssUpdater.Controls
             _settings = App.GetService<Settings>()!;
             _gameContainer = App.GetService<GameContainer>()!;
             _logger = App.GetService<NLog.Logger>()!;
-
-            GridExpand.Visibility = Visibility.Visible;
         }
 
         private async void ToggleSwitch_Click(object sender, RoutedEventArgs e)
         {
             _settings.Save();
             _logger.Debug($"Switched library '{LibraryConfig.LibraryName}' to {LibraryConfig.IsChecked}");
-            _gameContainer.UpdateLibraries();
             await _gameContainer.ReloadLibraryGames(LibraryConfig.LibraryType);
         }
 
@@ -72,9 +69,14 @@ namespace DlssUpdater.Controls
             {
                 LibraryConfig.InstallPath = dlg.FolderName;
                 _settings.Save();
-                _gameContainer.UpdateLibraries();
+                await _gameContainer.ReloadLibraryGames(LibraryConfig.LibraryType);
                 await _gameContainer.LoadGamesAsync();
             }
+        }
+
+        private void LibPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            GridExpand.IsEnabled = LibraryConfig.NeedsInstallPath ? true : false;
         }
     }
 }

@@ -1,4 +1,9 @@
-﻿# 1.0.3.0
+﻿# 1.0.4.0
+* Add GOG library support
+* Add Epic Games library support
+* Add Xbox library support
+
+# 1.0.3.0
 * Streamline games ui (no unnecessary popups, easier readable buttons)
 * Make libraries configurable and allow manually setting the installation directory
 * Change behaviour if more than one instance of the same dll is found in game directory. It will selected the last one found. This might result in the wrong one being used, so make sure that not multiple instances are inside a game folder.

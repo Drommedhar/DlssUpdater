@@ -27,4 +27,16 @@ public class SortableObservableCollection<T> : ObservableCollection<T>
         using var enumerator = map.GetEnumerator();
         if (enumerator.MoveNext()) Move(enumerator.Current.OldIndex, enumerator.Current.NewIndex);
     }
+
+    public int IndexOf(Func<T, bool> predicate)
+    {
+        int index = 0;
+        foreach (var item in this)
+        {
+            if (predicate(item)) return index;
+            index++;
+        }
+
+        return -1;
+    }
 }

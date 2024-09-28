@@ -89,9 +89,15 @@ public class Settings
         AntiCheatSettings = other.AntiCheatSettings;
         ShowChangelogOnStartup = other.ShowChangelogOnStartup;
         WindowState = other.WindowState;
-        if(other.Libraries.Count != 0)
+        foreach (var lib in other.Libraries)
         {
-            Libraries = other.Libraries;
+            var index = Libraries.IndexOf(l => l.LibraryType == lib.LibraryType);
+            if(index == -1)
+            {
+                continue;
+            }
+
+            Libraries[index] = lib;
         }
     }
 }
