@@ -108,7 +108,15 @@ public partial class GameInfo : ObservableObject
     public void SetGameImageUri(string imageUri)
     {
         GameImageUri = imageUri;
-        if (!string.IsNullOrEmpty(GameImageUri)) GameImage = new BitmapImage(new Uri(GameImageUri));
+        if (!string.IsNullOrEmpty(GameImageUri))
+        {
+            GameImage = new BitmapImage(new Uri(GameImageUri));
+            TextVisible = Visibility.Hidden;
+        }
+        else
+        {
+            TextVisible = Visibility.Visible;
+        }
     }
 }
 

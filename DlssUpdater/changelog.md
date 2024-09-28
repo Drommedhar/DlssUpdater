@@ -1,4 +1,8 @@
-﻿# 1.0.4.0
+﻿# 1.0.4.1
+* Fix bug with image on manual added game which would not remove text
+* Fix selecting same game after closing configuration page
+
+# 1.0.4.0
 * Add GOG library support
 * Add Epic Games library support
 * Add Xbox library support

@@ -55,7 +55,7 @@ public partial class GamesPage : INavigableView<GamesViewModel>
     {
         if (sender is GameButton btn && btn.GameInfo is not null)
         {
-            if (btn.GameInfo == ViewModel.SelectedGame) return;
+            if (btn.GameInfo == null) return;
 
             _newGameInfo = false;
             await btn.GameInfo.GatherInstalledVersions();
