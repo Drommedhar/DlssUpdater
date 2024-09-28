@@ -45,6 +45,7 @@ You can also change the AntiCheat detection settings on the AntiCheat tab. Pleas
 Dlss Updater features automatic game detection from popular game libraries. Currently the following libraries are supported:
 * Steam
 * Ubisoft Connect
+* GOG
 
 Other libraries may be added in the future.
 
