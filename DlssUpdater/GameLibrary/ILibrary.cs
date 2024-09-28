@@ -10,7 +10,8 @@ public enum LibraryType
     Manual,
 
     Steam,
-    Ubisoft
+    Ubisoft,
+    GOG,
     // TODO: More launchers
 }
 
@@ -27,6 +28,7 @@ public interface ILibrary
             LibraryType.Manual => new ManualLibrary(config, logger),
             LibraryType.Steam => new SteamLibrary(config, logger),
             LibraryType.Ubisoft => new UbisoftConnectLibrary(config, logger),
+            LibraryType.GOG => new GOGLibrary(config, logger),
             _ => throw new InvalidEnumArgumentException(nameof(config.LibraryType), (int)config.LibraryType, typeof(LibraryType))
         };
     }
@@ -38,6 +40,7 @@ public interface ILibrary
             LibraryType.Manual => "Manual",
             LibraryType.Steam => "Steam",
             LibraryType.Ubisoft => "Ubisoft Connect",
+            LibraryType.GOG => "GOG",
             _ => throw new InvalidEnumArgumentException(nameof(type), (int)type, typeof(LibraryType))
         };
     }

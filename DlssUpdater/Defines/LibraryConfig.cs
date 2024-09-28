@@ -24,6 +24,9 @@ namespace DLSSUpdater.Defines
         [ObservableProperty]
         private string _installPath;
 
+        [ObservableProperty]
+        private bool _needsInstallPath;
+
         [ObservableProperty][JsonIgnore] public LibraryConfig _self;
 
         public LibraryConfig(LibraryType type, string name)
@@ -32,6 +35,7 @@ namespace DLSSUpdater.Defines
             _libraryName = name;
             _installPath = string.Empty;
             _isChecked = true;
+            _needsInstallPath = true;
             Self = this;
         }
     }
@@ -44,6 +48,7 @@ public class LibraryConvert : JsonConverter<LibraryConfig>
         bool isChecked = false;
         string libraryName = "";
         string installPath = "";
+        bool needsInstallPath = true;
         LibraryType libraryType = LibraryType.Manual;
         while (reader.Read())
         {
@@ -52,7 +57,8 @@ public class LibraryConvert : JsonConverter<LibraryConfig>
                 var config = new LibraryConfig(libraryType, libraryName)
                 {
                     IsChecked = isChecked,
-                    InstallPath = installPath
+                    InstallPath = installPath,
+                    NeedsInstallPath = needsInstallPath,
                 };
                 return config;
             }
@@ -75,6 +81,10 @@ public class LibraryConvert : JsonConverter<LibraryConfig>
             {
                 installPath = reader.GetString()!;
             }
+            if (propName == "NeedsInstallPath")
+            {
+                needsInstallPath = reader.GetBoolean()!;
+            }
         }
 
         return null;
@@ -87,6 +97,7 @@ public class LibraryConvert : JsonConverter<LibraryConfig>
         writer.WriteString(nameof(LibraryConfig.LibraryName), value.LibraryName);
         writer.WriteString(nameof(LibraryConfig.LibraryType), value.LibraryType.ToString());
         writer.WriteString(nameof(LibraryConfig.InstallPath), value.InstallPath);
+        writer.WriteBoolean(nameof(LibraryConfig.NeedsInstallPath), value.NeedsInstallPath);
         writer.WriteEndObject();
     }
 }
