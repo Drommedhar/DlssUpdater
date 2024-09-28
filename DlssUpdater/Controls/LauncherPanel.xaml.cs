@@ -50,7 +50,6 @@ namespace DlssUpdater.Controls
         {
             _settings.Save();
             _logger.Debug($"Switched library '{LibraryConfig.LibraryName}' to {LibraryConfig.IsChecked}");
-            _gameContainer.UpdateLibraries();
             await _gameContainer.ReloadLibraryGames(LibraryConfig.LibraryType);
         }
 
@@ -70,7 +69,7 @@ namespace DlssUpdater.Controls
             {
                 LibraryConfig.InstallPath = dlg.FolderName;
                 _settings.Save();
-                _gameContainer.UpdateLibraries();
+                await _gameContainer.ReloadLibraryGames(LibraryConfig.LibraryType);
                 await _gameContainer.LoadGamesAsync();
             }
         }

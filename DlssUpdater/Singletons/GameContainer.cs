@@ -27,7 +27,6 @@ public class GameContainer
     private readonly AntiCheatChecker.AntiCheatChecker _antiCheatChecker;
     private readonly NLog.Logger _logger;
     private readonly AsyncFileWatcher _watcher;
-    private object _lock = new object();
 
     public GameContainer(Settings settings, AntiCheatChecker.AntiCheatChecker antiCheatChecker, NLog.Logger logger, AsyncFileWatcher watcher)
     {
@@ -48,18 +47,10 @@ public class GameContainer
 
     public void UpdateLibraries()
     {
-        lock (_lock)
+        Libraries.Clear();
+        foreach (var library in _settings.Libraries)
         {
-            Libraries.Clear();
-            foreach (var library in _settings.Libraries)
-            {
-                if (!library.IsChecked)
-                {
-                    continue;
-                }
-
-                Libraries.Add(ILibrary.Create(library, _logger));
-            }
+            Libraries.Add(ILibrary.Create(library, _logger));
         }
     }
 
@@ -118,6 +109,11 @@ public class GameContainer
 
         foreach (var lib in Libraries)
         {
+            if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == lib.GetLibraryType())?.IsChecked ?? false)
+            {
+                continue;
+            }
+
             var libGames = await lib.GatherGamesAsync();
             foreach (var item in libGames)
             {
@@ -140,6 +136,11 @@ public class GameContainer
         {
             Games.Remove(game);
             _watcher.RemoveFile(game);
+        }
+
+        if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == type)?.IsChecked ?? false)
+        {
+            return;
         }
 
         // Reload games from libraries of the specified type
