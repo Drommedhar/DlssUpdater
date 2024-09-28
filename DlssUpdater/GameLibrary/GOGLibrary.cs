@@ -1,11 +1,12 @@
 ﻿using System.IO;
 using System.Text.Json;
+using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
 using Microsoft.Win32;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
-namespace DlssUpdater.GameLibrary.Steam;
+namespace DLSSUpdater.GameLibrary;
 
 public class GOGLibrary : ILibrary
 {
@@ -18,6 +19,7 @@ public class GOGLibrary : ILibrary
         _logger = logger;
 
         _config.NeedsInstallPath = false;
+        _config.InstallPath = "None needed";
     }
 
     public LibraryType GetLibraryType()
@@ -32,14 +34,14 @@ public class GOGLibrary : ILibrary
 
     public void GetInstallationDirectory()
     {
-        
+
     }
 
     private async Task<List<GameInfo>> getGames()
     {
         List<GameInfo> ret = [];
 
-        // We are getting the steam installation path from the user registry (if it exists)
+        // We are getting the gog games paths from the user registry (if it exists)
         using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
         using var gogRegistryKey = hklm.OpenSubKey(@"SOFTWARE\GOG.com\Games");
         var subKeys = gogRegistryKey?.GetSubKeyNames();
@@ -95,7 +97,7 @@ public class GOGLibrary : ILibrary
         // NOTE: For ease of use we just use the online image here, as we need an online connection anyway
         var url = $"https://api.gog.com/v2/games/{appId}";
         var json = await WebHelper.HttpGet(url);
-        var yourObject = System.Text.Json.JsonDocument.Parse(json);
+        var yourObject = JsonDocument.Parse(json);
 
         try
         {

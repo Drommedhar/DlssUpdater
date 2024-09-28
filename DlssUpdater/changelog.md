@@ -1,5 +1,6 @@
 ﻿# 1.0.4.0
 * Add GOG library support
+* Add Epic Games library support
 
 # 1.0.3.0
 * Streamline games ui (no unnecessary popups, easier readable buttons)

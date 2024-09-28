@@ -77,7 +77,7 @@ namespace DlssUpdater.Controls
 
         private void LibPanel_Loaded(object sender, RoutedEventArgs e)
         {
-            GridExpand.Visibility = LibraryConfig.NeedsInstallPath ? Visibility.Visible : Visibility.Collapsed;
+            GridExpand.IsEnabled = LibraryConfig.NeedsInstallPath ? true : false;
         }
     }
 }
