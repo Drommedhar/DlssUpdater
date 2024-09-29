@@ -98,6 +98,14 @@ public class XboxLibrary : ILibrary
                     .Descendants(uap + "VisualElements")
                     .FirstOrDefault()?.Attribute("DisplayName")?.Value;
 
+                // Extract the namespace (if any is necessary)
+                XNamespace ns = xmlDoc.Root!.Name.Namespace;
+
+                // Query all Application elements and get their Id attributes
+                var id = xmlDoc
+                    .Descendants(ns + "Application")  // Include the namespace for the Application element
+                    .Select(app => app.Attribute("Id")?.Value).FirstOrDefault();
+
                 string imagePathFinal = "";
                 if(splashScreenImage != null)
                 {
@@ -106,7 +114,10 @@ public class XboxLibrary : ILibrary
                 
                 if (!string.IsNullOrEmpty(displayName))
                 {
-                    var info = new GameInfo(displayName, gameDir, GetLibraryType());
+                    var info = new GameInfo(displayName, gameDir, GetLibraryType())
+                    {
+                        UniqueId = "xbox_" + id,
+                    };
                     if (!string.IsNullOrEmpty(imagePathFinal))
                     {
                         info.SetGameImageUri(imagePathFinal);

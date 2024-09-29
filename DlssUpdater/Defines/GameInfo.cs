@@ -14,6 +14,7 @@ namespace DlssUpdater.Defines;
 
 public partial class GameInfo : ObservableObject
 {
+    public string UniqueId { get; set; }
     [ObservableProperty] [JsonIgnore] public ImageSource? _gameImage;
 
     [ObservableProperty] public string? _gameImageUri;
@@ -21,6 +22,8 @@ public partial class GameInfo : ObservableObject
     [ObservableProperty] public string _gameName;
 
     [ObservableProperty] public string _gamePath;
+    public bool IsHidden;
+    [ObservableProperty] public Visibility _visible;
 
     [ObservableProperty] [JsonIgnore] public bool _hasAntiCheat;
 
@@ -108,13 +111,21 @@ public partial class GameInfo : ObservableObject
     public void SetGameImageUri(string imageUri)
     {
         GameImageUri = imageUri;
-        if (!string.IsNullOrEmpty(GameImageUri))
+        try
         {
-            GameImage = new BitmapImage(new Uri(GameImageUri));
-            TextVisible = Visibility.Hidden;
+            if (!string.IsNullOrEmpty(GameImageUri))
+            {
+                GameImage = new BitmapImage(new Uri(GameImageUri));
+                TextVisible = Visibility.Hidden;
+            }
+            else
+            {
+                TextVisible = Visibility.Visible;
+            }
         }
-        else
+        catch(FileNotFoundException ex)
         {
+            _logger.Error($"Image not found: {ex}");
             TextVisible = Visibility.Visible;
         }
     }
@@ -126,12 +137,22 @@ public class GameConvert : JsonConverter<GameInfo>
     {
         var gameName = "";
         var gamePath = "";
+        var libraryType = "";
+        var uniqueId = "";
         string? gameImageUri = null;
+        var isHidden = false;
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
             {
-                var info = new GameInfo(gameName!, gamePath!, LibraryType.Manual);
+                LibraryType type = string.IsNullOrEmpty(libraryType) ? LibraryType.Manual : (LibraryType)Enum.Parse(typeof(LibraryType), libraryType);
+                var info = new GameInfo(gameName!, gamePath!, type);
+                if(type == LibraryType.Manual && string.IsNullOrEmpty(uniqueId))
+                {
+                    uniqueId = Guid.NewGuid().ToString();
+                }
+                info.UniqueId = uniqueId!;
+                info.IsHidden = isHidden;
                 if (!string.IsNullOrEmpty(gameImageUri)) info.SetGameImageUri(gameImageUri);
                 return info;
             }
@@ -142,7 +163,14 @@ public class GameConvert : JsonConverter<GameInfo>
                 gameName = reader.GetString();
             else if (propName == "GamePath")
                 gamePath = reader.GetString();
-            else if (propName == "GameImageUri") gameImageUri = reader.GetString();
+            else if (propName == "GameImageUri")
+                gameImageUri = reader.GetString();
+            else if(propName == "LibraryType")
+                libraryType = reader.GetString();
+            else if(propName == "UniqueId")
+                uniqueId = reader.GetString();
+            else if(propName == "IsHidden")
+                isHidden = reader.GetBoolean();
         }
 
         return null;
@@ -150,12 +178,13 @@ public class GameConvert : JsonConverter<GameInfo>
 
     public override void Write(Utf8JsonWriter writer, GameInfo value, JsonSerializerOptions options)
     {
-        if (value.LibraryType != LibraryType.Manual) return;
-
         writer.WriteStartObject();
         writer.WriteString((string)nameof(GameInfo.GameName), (string?)value.GameName);
         writer.WriteString((string)nameof(GameInfo.GamePath), (string?)value.GamePath);
         writer.WriteString((string)nameof(GameInfo.GameImageUri), value.GameImageUri);
+        writer.WriteString((string)nameof(GameInfo.LibraryType), value.LibraryType.ToString());
+        writer.WriteString((string)nameof(GameInfo.UniqueId), value.UniqueId);
+        writer.WriteBoolean((string)nameof(GameInfo.IsHidden), value.IsHidden);
         writer.WriteEndObject();
     }
 }

@@ -1,4 +1,10 @@
-﻿# 1.0.4.1
+﻿# 1.0.5.0
+* Add support for hiding games from main list with right mouse button
+* Add filter to games page
+* Validate MD5 hash and signature of downloaded DLL
+* Fix crash if image for manually added game is no longer available
+
+# 1.0.4.1
 * Fix bug with image on manual added game which would not remove text
 * Fix selecting same game after closing configuration page
 

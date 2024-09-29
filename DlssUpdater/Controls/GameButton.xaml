@@ -4,7 +4,7 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              x:Name="gameButton"
              Loaded="gameButton_Loaded" MouseEnter="gameButton_MouseEnter" MouseLeave="gameButton_MouseLeave"
-             Width="200" Height="300">
+             Width="200" Height="300" MouseRightButtonDown="gameButton_MouseRightButtonDown" Visibility="{Binding GameInfo.Visible, ElementName=gameButton}">
     <UserControl.Effect>
         <DropShadowEffect BlurRadius="10" ShadowDepth="0" />
     </UserControl.Effect>
@@ -49,4 +49,11 @@
                    Icon="{ui:SymbolIcon Subtract12}" Height="50" Width="50" Margin="0,0,0,0" Visibility="Hidden"
                    Click="btnAction_Click" />
     </Grid>
+
+    <UserControl.Resources>
+        <ContextMenu x:Key="gameContextMenu"  StaysOpen="true">
+            <MenuItem Header="Toggle Hidden" Click="MenuItem_Click"/>
+        </ContextMenu>
+    </UserControl.Resources>
+
 </UserControl>

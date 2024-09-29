@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using DlssUpdater.Defines;
 using DlssUpdater.Singletons;
+using DlssUpdater.Views.Pages;
 using DLSSUpdater.Singletons;
 using Wpf.Ui.Controls;
 
@@ -92,6 +93,21 @@ public partial class GamesViewModel : ObservableObject, INavigationAware
         }
 
         _lastGame = SelectedGame;
+    }
+
+    public void ApplyFilter(GamesPage.Filter filter)
+    {
+        foreach(var game in Games!)
+        {
+            if(filter == GamesPage.Filter.All)
+            {
+                game.Visible = game.IsHidden ? Visibility.Collapsed : Visibility.Visible;
+            }
+            else
+            {
+                game.Visible = game.IsHidden ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
     }
 
     private void InitializeViewModel()

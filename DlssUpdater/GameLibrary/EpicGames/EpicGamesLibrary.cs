@@ -117,7 +117,10 @@ public class EpicGamesLibrary : ILibrary
 
                 var imageObj = cachedData.KeyImages.FirstOrDefault(i => i.Type == "DieselGameBoxTall");
 
-                var info = new GameInfo(displayName, location, GetLibraryType());
+                var info = new GameInfo(displayName, location, GetLibraryType())
+                {
+                    UniqueId = "epic_" + catalogId!
+                };
                 if (imageObj is not null && !string.IsNullOrEmpty(imageObj.Url))
                 {
                     info.SetGameImageUri(imageObj.Url);

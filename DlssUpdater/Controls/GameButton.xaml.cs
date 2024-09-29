@@ -1,7 +1,9 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using DlssUpdater.Defines;
 using DlssUpdater.Singletons;
+using DlssUpdater.Views.Pages;
 
 namespace DlssUpdater.Controls;
 
@@ -14,11 +16,13 @@ public partial class GameButton : UserControl
         DependencyProperty.Register("GameInfo", typeof(GameInfo), typeof(GameButton));
 
     private readonly GameContainer _gameContainer;
+    private readonly GamesPage _gamesPage;
 
     public GameButton()
     {
         InitializeComponent();
         _gameContainer = App.GetService<GameContainer>()!;
+        _gamesPage = App.GetService<GamesPage>()!;
         gridAntiCheat.Visibility = Visibility.Hidden;
         selectionBox.Visibility = Visibility.Hidden;
     }
@@ -58,5 +62,23 @@ public partial class GameButton : UserControl
     {
         _gameContainer.RemoveGame(GameInfo);
         _gameContainer.SaveGames();
+    }
+
+    private void MenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        GameInfo.IsHidden = !GameInfo.IsHidden;
+        _gamesPage.UpdateFilter();
+        _gameContainer.SaveGames();
+        _gameContainer.DoUpdate();
+    }
+
+    private void gameButton_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (FindResource("gameContextMenu") is not ContextMenu cm)
+        {
+            return;
+        }
+        cm!.PlacementTarget = sender as Button;
+        cm!.IsOpen = true;
     }
 }

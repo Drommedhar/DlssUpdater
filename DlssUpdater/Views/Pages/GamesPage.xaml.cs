@@ -1,5 +1,7 @@
-﻿using System.Drawing.Imaging;
+﻿using System.ComponentModel;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Windows.Data;
 using System.Windows.Input;
 using DlssUpdater.Controls;
 using DlssUpdater.Defines;
@@ -19,10 +21,17 @@ namespace DlssUpdater.Views.Pages;
 
 public partial class GamesPage : INavigableView<GamesViewModel>
 {
+    public enum Filter
+    {
+        All,
+        Hidden
+    }
+
     private readonly GameContainer _gameContainer;
     private readonly ISnackbarService _snackbar;
     private readonly DllUpdater _updater;
     private readonly AsyncFileWatcher _fileWatcher;
+    private Filter _filter = Filter.All;
 
     public GamesPage(GamesViewModel viewModel, DllUpdater updater, GameContainer gameContainer,
         ISnackbarService snackbar, AsyncFileWatcher watcher)
@@ -47,6 +56,7 @@ public partial class GamesPage : INavigableView<GamesViewModel>
     {
         _newGameInfo = true;
         ViewModel.SelectedGame = new GameInfo("", "", LibraryType.Manual);
+        ViewModel.SelectedGame.UniqueId = Guid.NewGuid().ToString();
         updateUi();
         gridProps.ToggleControlFade(100, 1.0);
     }
@@ -157,5 +167,45 @@ public partial class GamesPage : INavigableView<GamesViewModel>
         btnImage.IsEnabled = isConfigurable;
         gridAntiCheat.Visibility = ViewModel.SelectedGame!.HasAntiCheat ? Visibility.Visible : Visibility.Hidden;
         ViewModel.Update();
+    }
+
+    private void btnFilterAll_Click(object sender, RoutedEventArgs e)
+    {
+        _filter = Filter.All;
+        UpdateFilter();
+    }
+
+    private void btnFilterHidden_Click(object sender, RoutedEventArgs e)
+    {
+        _filter = Filter.Hidden;
+        UpdateFilter();
+    }
+
+    public void UpdateFilter()
+    {
+        ICollectionView collectionView = CollectionViewSource.GetDefaultView(GameGrid.ItemsSource);
+        collectionView.Filter = filterGames;
+    }
+
+    private bool filterGames(object game)
+    {
+        if (game is GameInfo realGame)
+        {
+            if (_filter == Filter.Hidden)
+            {
+                return realGame.IsHidden;
+            }
+            else
+            {
+                return !realGame.IsHidden;
+            }
+        }
+
+        return false;
+    }
+
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        UpdateFilter();
     }
 }
