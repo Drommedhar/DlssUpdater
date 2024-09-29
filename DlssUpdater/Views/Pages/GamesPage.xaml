@@ -16,15 +16,21 @@
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     ScrollViewer.CanContentScroll="False"
-    mc:Ignorable="d">
+    mc:Ignorable="d" Loaded="Page_Loaded">
 
     <Grid x:Name="MainGrid">
         <ui:Button x:Name="btnAction" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top"
                    Icon="{ui:SymbolIcon Add16}" Height="50" Width="50" Margin="0,0,25,0" Click="ButtonAdd_Click" />
+        <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+            <Label Content="Filter:" Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,5,0" />
+            <ui:Button x:Name="btnFilterAll" Content="All" Height="50" Margin="0,0,5,0" Click="btnFilterAll_Click" />
+            <ui:Button x:Name="btnFilterHidden" Content="Hidden" Height="50" Margin="0,0,0,0" Click="btnFilterHidden_Click" />
+        </StackPanel>
         <ui:VirtualizingItemsControl
+            x:Name="GameGrid"
             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
             ItemsSource="{Binding ViewModel.Games, Mode=OneWay}"
-            VirtualizingPanel.CacheLengthUnit="Item" Margin="-5,55,0,0">
+            VirtualizingPanel.CacheLengthUnit="Item" Margin="-5,55,0,0" >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <controls:GameButton

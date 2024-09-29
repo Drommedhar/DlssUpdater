@@ -71,7 +71,10 @@ public class GOGLibrary : ILibrary
                 continue;
             }
 
-            var info = new GameInfo(name, path, GetLibraryType());
+            var info = new GameInfo(name, path, GetLibraryType())
+            {
+                UniqueId = "gog_" + subKey
+            };
             var gameImage = await getGameImage(subKey) ?? string.Empty;
             if (!string.IsNullOrEmpty(gameImage))
             {

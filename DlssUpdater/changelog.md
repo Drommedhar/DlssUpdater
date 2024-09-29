@@ -1,4 +1,8 @@
-﻿# 1.0.4.1
+﻿# 1.0.5.0
+* Add support for hiding games from main list with right mouse button
+* Add filter to games page
+
+# 1.0.4.1
 * Fix bug with image on manual added game which would not remove text
 * Fix selecting same game after closing configuration page
 

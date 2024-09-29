@@ -88,7 +88,7 @@ public class GameContainer
 
     public bool IsUpdateAvailable()
     {
-        return Games.Any(g => g.UpdateVisible == Visibility.Visible);
+        return Games.Any(g => !g.IsHidden && g.UpdateVisible == Visibility.Visible);
     }
 
     private async Task loadGamesAsync()
@@ -117,13 +117,25 @@ public class GameContainer
             var libGames = await lib.GatherGamesAsync();
             foreach (var item in libGames)
             {
-                if (!Games.Any(g => g.GamePath == item.GamePath))
+                var index = Games.IndexOf(g => g.GamePath == item.GamePath);
+                if (index != -1)
                 {
-                    Games.Add(item);
-                    _watcher.AddFile(item);
+                    var id = Games[index].UniqueId;
+                    var isHidden = Games[index].IsHidden;
+                    Games[index] = item;
+                    Games[index].UniqueId = id;
+                    Games[index].IsHidden = isHidden;
                 }
+                else
+                { 
+                    Games.Add(item);
+                }
+                _watcher.AddFile(item);
             }
         }
+
+        SaveGames();
+        DoUpdate();
     }
 
     public async Task ReloadLibraryGames(LibraryType type)
@@ -140,6 +152,7 @@ public class GameContainer
 
         if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == type)?.IsChecked ?? false)
         {
+            SaveGames();
             return;
         }
 
@@ -153,6 +166,8 @@ public class GameContainer
                 _watcher.AddFile(item);
             }
         }
+
+        SaveGames();
     }
 
     private void Games_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

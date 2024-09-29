@@ -123,7 +123,10 @@ public class SteamLibrary : ILibrary
             _logger.Warn($"Steam: getGameFromManifest could not find file {finalGamePath}");
             return null;
         }
-        var info = new GameInfo(gameName[0], finalGamePath, LibraryType.Steam);
+        var info = new GameInfo(gameName[0], finalGamePath, LibraryType.Steam)
+        {
+            UniqueId = "steam_" + appId,
+        };
         var imageUri = getGameImage(appId);
         if (imageUri != null)
         {

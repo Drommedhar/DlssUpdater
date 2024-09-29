@@ -83,6 +83,10 @@ public class UbisoftConnectLibrary : ILibrary
             {
                 continue;
             }
+            if (!result.TryGetValue("app_id", out var appId))
+            {
+                continue;
+            }
 
             using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
             using var gameRegKey = hklm.OpenSubKey(registerKey.Replace("HKEY_LOCAL_MACHINE\\","")
@@ -94,7 +98,10 @@ public class UbisoftConnectLibrary : ILibrary
                 continue;
             }
 
-            var info = new GameInfo(name, gamePath, LibraryType.Ubisoft);
+            var info = new GameInfo(name, gamePath, LibraryType.Ubisoft)
+            {
+                UniqueId = "ubi_" + appId
+            };
             await info.GatherInstalledVersions();
             if (info.HasInstalledDlls())
             {
