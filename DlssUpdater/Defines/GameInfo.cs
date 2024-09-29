@@ -111,13 +111,21 @@ public partial class GameInfo : ObservableObject
     public void SetGameImageUri(string imageUri)
     {
         GameImageUri = imageUri;
-        if (!string.IsNullOrEmpty(GameImageUri))
+        try
         {
-            GameImage = new BitmapImage(new Uri(GameImageUri));
-            TextVisible = Visibility.Hidden;
+            if (!string.IsNullOrEmpty(GameImageUri))
+            {
+                GameImage = new BitmapImage(new Uri(GameImageUri));
+                TextVisible = Visibility.Hidden;
+            }
+            else
+            {
+                TextVisible = Visibility.Visible;
+            }
         }
-        else
+        catch(FileNotFoundException ex)
         {
+            _logger.Error($"Image not found: {ex}");
             TextVisible = Visibility.Visible;
         }
     }
