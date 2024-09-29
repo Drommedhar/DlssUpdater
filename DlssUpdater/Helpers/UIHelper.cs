@@ -36,6 +36,6 @@ public static class UIHelper
     public static void ShowEx(this ISnackbarService snackbar, string title, string message,
         ControlAppearance controlAppearance)
     {
-        snackbar.Show(title, message, controlAppearance, null, TimeSpan.FromSeconds(3));
+        snackbar.Show(title, message, controlAppearance, null, TimeSpan.FromSeconds(5));
     }
 }

@@ -3,8 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CLRSignatures;
 using DlssUpdater.Defines;
 using DlssUpdater.Helpers;
 using static DlssUpdater.Defines.DlssTypes;
@@ -102,15 +104,15 @@ public class DllUpdater
         Save();
     }
 
-    public async Task<bool> DownloadDll(DllType dllType, string version)
+    public async Task<Tuple<bool, string?>> DownloadDll(DllType dllType, string version)
     {
         try
         {
             var package = OnlinePackages[dllType].FirstOrDefault(p => p.Version == version);
-            if (package is null) return false;
+            if (package is null) return new(false, "Online package not found.");
 
             var url = GetUrl(package.DllType);
-            if (url == null) return false;
+            if (url == null) return new(false, "Dll url not found.");
 
             url += $"id={package.DownloadId}";
             KeyValuePair<string, string>[] formData = [new("id", package.DownloadId)];
@@ -143,7 +145,19 @@ public class DllUpdater
             if (!File.Exists(outputPath))
             {
                 _logger.Warn($"DllUpdater: Could not download file to {outputPath}");
-                return false;
+                return new(false, $"Could not download file to {outputPath}.");
+            }
+
+            using (var md5 = MD5.Create())
+            {
+                using var stream = File.OpenRead(outputPath);
+                var hash = md5.ComputeHash(stream);
+                var onlineHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                if (package.MD5.ToLower() != onlineHash)
+                {
+                    _logger.Error($"DllUpdater: MD5 check failed for {outputPath}");
+                    return new(false, $"MD5 check failed for {outputPath}.");
+                }
             }
 
             var dllTargetPath = Path.Combine(_settings.Directories.InstallPath, GetName(package.DllType),
@@ -151,7 +165,16 @@ public class DllUpdater
             ZipFile.ExtractToDirectory(outputPath, dllTargetPath, true);
             File.Delete(outputPath);
 
-            var fileInfo = FileVersionInfo.GetVersionInfo(Path.Combine(dllTargetPath, GetDllName(dllType)));
+            var dllPath = Path.Combine(dllTargetPath, GetDllName(dllType));
+            var signatureValid = Wincrypt.CheckSignature(dllPath);
+            if (!signatureValid)
+            {
+                File.Delete(dllPath);
+                _logger.Warn($"Could not verify signature of '{dllPath}'");
+                return new(false, $"Could not verify signature of '{dllPath}'.");
+            }
+
+            var fileInfo = FileVersionInfo.GetVersionInfo(dllPath);
             var versionString = fileInfo.FileVersion!.Replace(',', '.');
             var versionParsed = Version.Parse(versionString);
             if (versionParsed.Revision == -1)
@@ -176,11 +199,11 @@ public class DllUpdater
             installed.Sort((first, second) => second.VersionDetailed.CompareTo(first.VersionDetailed));
             foreach (var ver in installed) value.Add(ver);
             DlssFilesChanged?.Invoke(this, EventArgs.Empty);
-            return true;
+            return new(true, string.Empty);
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
-            return false;
+            return new(false, $"Download failed: {ex}");
         }
     }
 

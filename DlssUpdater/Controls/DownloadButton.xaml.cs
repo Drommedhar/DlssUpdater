@@ -71,13 +71,13 @@ public partial class DownloadButton : UserControl
         {
             prgDownload.Value = (int)progressPercentage!;
         };
-        var success = await _updater.DownloadDll(DllType, VersionText);
+        var (success, errorString) = await _updater.DownloadDll(DllType, VersionText);
         prgDownload.Visibility = Visibility.Hidden;
 
         if (success)
             _snackbar.ShowEx("Download", "Download was successful.", ControlAppearance.Success);
         else
-            _snackbar.ShowEx("Download", "Download has failed. Please try again after some seconds.",
+            _snackbar.ShowEx("Download", $"Download has failed. {errorString}",
                 ControlAppearance.Danger);
 
         isInstalled();
