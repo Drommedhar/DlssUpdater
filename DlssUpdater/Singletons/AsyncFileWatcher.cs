@@ -1,6 +1,7 @@
 ﻿
 using DlssUpdater.Defines;
 using DlssUpdater.Singletons;
+using System.Collections.Concurrent;
 
 namespace DLSSUpdater.Singletons
 {
@@ -11,8 +12,7 @@ namespace DLSSUpdater.Singletons
     {
         public event EventHandler? FilesChanged;
 
-        private Queue<GameInfo> _queueFiles = new();
-        private object _lock = new();
+        private ConcurrentQueue<GameInfo> _queueFiles = new();
         private Timer? _timer;
 
         private readonly DllUpdater _updater;
@@ -25,52 +25,41 @@ namespace DLSSUpdater.Singletons
 
         public void AddFile(GameInfo info)
         {
-            lock (_lock)
-            {
-                _queueFiles.Enqueue(info);
-            }
+            _queueFiles.Enqueue(info);
         }
 
         public void RemoveFile(GameInfo info) 
         {
-            lock (_lock)
-            {
-                var files = _queueFiles.ToList();
-                var updated = files.Remove(info);
+            var files = _queueFiles.ToList();
+            var updated = files.Remove(info);
 
-                if (updated)
+            if (updated)
+            {
+                _queueFiles.Clear();
+                foreach (var file in files)
                 {
-                    _queueFiles.Clear();
-                    foreach (var file in files)
-                    {
-                        _queueFiles.Enqueue(file);
-                    }
+                    _queueFiles.Enqueue(file);
                 }
             }
         }
 
         private async void Check(object? state)
         {
-            GameInfo? info = null;
-            lock (_lock)
+            if(_queueFiles.Count == 0)
             {
-                if(_queueFiles.Count == 0)
+                return;
+            }
+            if(_queueFiles.TryDequeue(out var info))
+            {
+                var bChanged = await info.GatherInstalledVersions();
+                if (bChanged)
                 {
-                    return;
+                    FilesChanged?.Invoke(this, EventArgs.Empty);
                 }
-                info = _queueFiles.Dequeue();
-            }
 
-            var bChanged = await info.GatherInstalledVersions();
-            if (bChanged)
-            {
-                FilesChanged?.Invoke(this, EventArgs.Empty);
-            }
-
-            lock (_lock) 
-            {
                 _queueFiles.Enqueue(info);
             }
+
         }
     }
 }

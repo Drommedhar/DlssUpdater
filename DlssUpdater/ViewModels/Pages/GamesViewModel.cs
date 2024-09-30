@@ -76,9 +76,9 @@ public partial class GamesViewModel : ObservableObject, INavigationAware
         }
         else
         {
-            DlssItemInstalled = SelectedGame.InstalledDlls[DlssTypes.DllType.Dlss].Version ?? _notInstalled;
-            DlssDItemInstalled = SelectedGame.InstalledDlls[DlssTypes.DllType.DlssD].Version ?? _notInstalled;
-            DlssGItemInstalled = SelectedGame.InstalledDlls[DlssTypes.DllType.DlssG].Version ?? _notInstalled;
+            DlssItemInstalled = string.IsNullOrEmpty(SelectedGame.InstalledDlls[DlssTypes.DllType.Dlss].Version) ? _notInstalled : SelectedGame.InstalledDlls[DlssTypes.DllType.Dlss].Version;
+            DlssDItemInstalled = string.IsNullOrEmpty(SelectedGame.InstalledDlls[DlssTypes.DllType.DlssD].Version) ? _notInstalled : SelectedGame.InstalledDlls[DlssTypes.DllType.DlssD].Version;
+            DlssGItemInstalled = string.IsNullOrEmpty(SelectedGame.InstalledDlls[DlssTypes.DllType.DlssG].Version) ? _notInstalled : SelectedGame.InstalledDlls[DlssTypes.DllType.DlssG].Version;
         }
 
         DlssItemEnabled = DlssItemInstalled != _notInstalled;

@@ -1,4 +1,8 @@
-﻿# 1.0.5.0
+﻿# 1.0.5.1
+* Fix incorrectly enabled ComboBox for DLL types in configuration view
+* Fix AsyncFileWatcher not correctly removing removed games
+
+# 1.0.5.0
 * Add support for hiding games from main list with right mouse button
 * Add filter to games page
 * Validate MD5 hash and signature of downloaded DLL

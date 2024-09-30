@@ -12,7 +12,7 @@ using static DlssUpdater.Defines.DlssTypes;
 
 namespace DlssUpdater.Defines;
 
-public partial class GameInfo : ObservableObject
+public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
 {
     public string UniqueId { get; set; }
     [ObservableProperty] [JsonIgnore] public ImageSource? _gameImage;
@@ -128,6 +128,23 @@ public partial class GameInfo : ObservableObject
             _logger.Error($"Image not found: {ex}");
             TextVisible = Visibility.Visible;
         }
+    }
+
+    public bool Equals(GameInfo? other)
+    {
+        return UniqueId == other?.UniqueId;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj == null)
+            return false;
+        return Equals(obj as GameInfo);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(UniqueId);
     }
 }
 

@@ -11,6 +11,7 @@ using DlssUpdater.Singletons.AntiCheatChecker;
 using DlssUpdater.ViewModels.Windows;
 using DlssUpdater.Views.Windows;
 using DLSSUpdater.Singletons;
+using Wpf.Ui.Appearance;
 using MessageBox = Wpf.Ui.Controls.MessageBox;
 using MessageBoxResult = Wpf.Ui.Controls.MessageBoxResult;
 
