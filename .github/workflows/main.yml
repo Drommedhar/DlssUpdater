@@ -88,4 +88,14 @@ jobs:
       with:
         release_id: ${{ steps.create_release.outputs.id }}
 
+    - uses: sarisia/actions-status-discord@v1
+      if: success()
+      with:
+        webhook: ${{ secrets.WEBHOOK_URL }}
+        nodetail: true
+        title: "New version of `Dlss Updater` is ready!"
+        description: |
+          Version `${{ steps.project-version.outputs.version }}`
+          Download directly inside `Dlss Updater` or [here](${{ steps.create_release.outputs.html_url }}).
+        color: 0xff91a4
 
