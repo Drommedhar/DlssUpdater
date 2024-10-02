@@ -17,12 +17,14 @@ public partial class GameButton : UserControl
 
     private readonly GameContainer _gameContainer;
     private readonly GamesPage _gamesPage;
+    private readonly DllUpdater _updater;
 
     public GameButton()
     {
         InitializeComponent();
         _gameContainer = App.GetService<GameContainer>()!;
         _gamesPage = App.GetService<GamesPage>()!;
+        _updater = App.GetService<DllUpdater>()!;
         gridAntiCheat.Visibility = Visibility.Hidden;
         selectionBox.Visibility = Visibility.Hidden;
     }
@@ -80,5 +82,10 @@ public partial class GameButton : UserControl
         }
         cm!.PlacementTarget = sender as Button;
         cm!.IsOpen = true;
+    }
+
+    private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+    {
+        _updater.RestoreDefaultDlls(GameInfo);       
     }
 }
