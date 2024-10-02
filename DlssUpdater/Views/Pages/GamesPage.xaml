@@ -118,6 +118,7 @@
             </Grid>
 
             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <ui:Button x:Name="btnPropsRestore" Grid.Column="0" Grid.Row="8" Content="Restore default dlls" Height="50" Margin="5,0,52,5" Click="btnPropsRestore_Click"/>
                 <ui:Button x:Name="btnPropsAdd" Content="Save" Height="50" Width="90" Margin="5,0,5,5"
                            Click="btnPropsAdd_Click" />
                 <ui:Button x:Name="btnPropsClose" Content="Close" Height="50" Width="90"

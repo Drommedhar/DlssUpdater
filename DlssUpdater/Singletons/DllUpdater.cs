@@ -4,11 +4,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Security.Cryptography;
+using System.Security.Policy;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CLRSignatures;
 using DlssUpdater.Defines;
 using DlssUpdater.Helpers;
+using Microsoft.Security.Extensions;
 using static DlssUpdater.Defines.DlssTypes;
 using static DlssUpdater.Helpers.HttpClientDownloadWithProgress;
 using static DlssUpdater.Settings;
@@ -148,15 +150,15 @@ public class DllUpdater
                 return new(false, $"Could not download file to {outputPath}.");
             }
 
-            using (var md5 = MD5.Create())
+            using (var sha256 = SHA256.Create())
             {
                 using var stream = File.OpenRead(outputPath);
-                var hash = md5.ComputeHash(stream);
-                var onlineHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                if (package.MD5.ToLower() != onlineHash)
+                var onlineHashArray = sha256.ComputeHash(stream);
+                var onlineHash = BitConverter.ToString(onlineHashArray).Replace("-","").ToLowerInvariant();
+                if (package.SHA256.ToLower() != onlineHash)
                 {
-                    _logger.Error($"DllUpdater: MD5 check failed for {outputPath}");
-                    return new(false, $"MD5 check failed for {outputPath}.");
+                    _logger.Error($"DllUpdater: SHA256 check failed for {outputPath}");
+                    return new(false, $"SHA256 check failed for {outputPath}.");
                 }
             }
 
@@ -166,8 +168,9 @@ public class DllUpdater
             File.Delete(outputPath);
 
             var dllPath = Path.Combine(dllTargetPath, GetDllName(dllType));
-            var signatureValid = Wincrypt.CheckSignature(dllPath);
-            if (!signatureValid)
+            using var fileStream = new FileStream(dllPath, FileMode.Open, FileAccess.Read, FileShare.Read); 
+            var fileSignatureInfo = FileSignatureInfo.GetFromFileStream(fileStream);
+            if (fileSignatureInfo.State != SignatureState.SignedAndTrusted)
             {
                 File.Delete(dllPath);
                 _logger.Warn($"Could not verify signature of '{dllPath}'");
@@ -231,6 +234,31 @@ public class DllUpdater
             var package = InstalledPackages[dll].FirstOrDefault(p => p.VersionDetailed == info.Version);
             if (package is null) continue;
 
+            // Now detect if we need to save this as a default
+            if (!gameInfo.DefaultDlls.TryGetValue(dll, out var defaultDll))
+            {
+                var defaultPath = GetGameDefaultDllPath(gameInfo);
+
+                // Check if the target already exists
+                if (File.Exists(Path.Combine(defaultPath, GetDllName(dll))))
+                {
+                    gameInfo.DefaultDlls.Add(dll, true);
+                    continue;
+                }
+
+                // We need to save this, so we do that
+                DirectoryHelper.EnsureDirectoryExists(defaultPath);
+                try
+                {
+                    File.Copy(info.Path, Path.Combine(defaultPath, GetDllName(dll)), true);
+                    gameInfo.DefaultDlls.Add(dll, true);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Default copy failed: {ex}");
+                }
+            }
+
             try
             {
                 File.Copy(package.Path, info.Path, true);
@@ -245,6 +273,32 @@ public class DllUpdater
         }
 
         return result;
+    }
+
+    public string GetGameDefaultDllPath(GameInfo gameInfo)
+    {
+        return Path.Combine(_settings.Directories.InstallPath, "Games", gameInfo.UniqueId);
+    }
+
+    public void RestoreDefaultDlls(GameInfo gameInfo)
+    {
+        var defaultPath = GetGameDefaultDllPath(gameInfo);
+        foreach(var (dll, package) in gameInfo.InstalledDlls)
+        {
+            if(package is null || string.IsNullOrEmpty(package.Path))
+            {
+                continue;
+            }
+
+            var defaultDll = Path.Combine(defaultPath, GetDllName(dll));
+            if(!File.Exists(defaultDll))
+            {
+                continue;
+            }
+
+            File.Copy(defaultDll, package.Path, true);
+            _logger.Debug($"Restored default for '{gameInfo.GameName}' -> {GetDllName(dll)}");
+        }
     }
 
     public void Load()
@@ -312,18 +366,23 @@ public class DllUpdater
                     .Replace(".zip", "");
             }
 
-            // Parse MD5
-            if (line.Contains("class=\"hash-name\">MD5:"))
+            // Parse SHA256
+            if (line.Contains("class=\"hash-name\">SHA256:"))
             {
                 line = lines[i + 1];
                 // Next line will contain the hash value
-                //<div class="hash-value">078F738799876F99778DFC51012F65F3</div>
-                var startIndex = line.IndexOf('>') + 1;
-                var endIndex = line.LastIndexOf("<");
+                //<div class="hash-value">83ECD0801FB010F9249B5F82C05AF4DF7532F71143336BF9BC7064376A619FBD</div>
+                var startToken = "hash-value\">";
+                var startIndex = line.LastIndexOf(startToken) + 1;
+                var endIndex = line.LastIndexOf("</div>");
                 if (startIndex == -1 && endIndex == -1)
                     continue;
 
-                curPackage!.MD5 = line.Substring(startIndex, endIndex - startIndex);
+                curPackage!.SHA256 = line.Substring(startIndex + startToken.Length, endIndex - startIndex - startToken.Length);
+                if(curPackage!.SHA256.Length % 2 != 0)
+                {
+                    curPackage!.SHA256 = $"0{curPackage!.SHA256}";
+                }
             }
 
             // Parse download id
@@ -337,7 +396,14 @@ public class DllUpdater
 
                 curPackage!.DownloadId = line.Substring(startIndex, endIndex - startIndex);
                 curPackage!.DllType = dllType;
-                onlinePackages.Add(curPackage);
+                if (string.IsNullOrEmpty(curPackage?.SHA256))
+                {
+                    _logger.Error($"Could not determine SHA256 for {GetDllName(dllType)} -> {curPackage!.Version}");
+                }
+                else
+                {
+                    onlinePackages.Add(curPackage);
+                }
                 curPackage = null;
             }
         }

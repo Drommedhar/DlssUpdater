@@ -208,4 +208,9 @@ public partial class GamesPage : INavigableView<GamesViewModel>
     {
         UpdateFilter();
     }
+
+    private void btnPropsRestore_Click(object sender, RoutedEventArgs e)
+    {
+        _updater.RestoreDefaultDlls(ViewModel.SelectedGame!);
+    }
 }

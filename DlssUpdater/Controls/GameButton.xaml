@@ -53,6 +53,7 @@
     <UserControl.Resources>
         <ContextMenu x:Key="gameContextMenu"  StaysOpen="true">
             <MenuItem Header="Toggle Hidden" Click="MenuItem_Click"/>
+            <MenuItem Header="Restore default dlls" Click="MenuItem_Click_1"/>
         </ContextMenu>
     </UserControl.Resources>
 

@@ -20,7 +20,12 @@ namespace DLSSUpdater.Singletons
         public AsyncFileWatcher(DllUpdater updater)
         {
             _updater = updater;
-            _timer = new(Check, null, 0, 100);
+            _timer = new(Check, null, Timeout.Infinite, Timeout.Infinite);
+        }
+
+        public void Start()
+        {
+            _timer!.Change(0, 100);
         }
 
         public void AddFile(GameInfo info)

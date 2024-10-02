@@ -1,4 +1,10 @@
-﻿# 1.0.5.1
+﻿# 1.0.6.0
+* Add saving of default dlls if applying new version and a backup wasn't done
+* Fix File Watcher running on startup while gathering all games leading to race conditions
+* Switch MD5 check to SHA256 check
+* Better check if downloaded DLL is properly signed
+
+# 1.0.5.1
 * Fix incorrectly enabled ComboBox for DLL types in configuration view
 * Fix AsyncFileWatcher not correctly removing removed games
 

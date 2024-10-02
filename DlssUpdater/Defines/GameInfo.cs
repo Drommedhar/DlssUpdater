@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DlssUpdater.GameLibrary;
+using DlssUpdater.Helpers;
 using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
 using DLSSUpdater.Singletons;
@@ -32,6 +33,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
     [ObservableProperty] [JsonIgnore] public Visibility _textVisible;
     [ObservableProperty] [JsonIgnore] public Visibility _updateVisible;
     [ObservableProperty][JsonIgnore] public string _installedVersions;
+    public Dictionary<DllType, bool> DefaultDlls { get; set; } = [];
 
     [JsonIgnore] public LibraryType LibraryType;
     [JsonIgnore] public readonly DllUpdater _updater;
@@ -50,7 +52,6 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         HasAntiCheat = App.GetService<AntiCheatChecker>()!.Check(gamePath);
         _updater = App.GetService<DllUpdater>()!;
         _logger = App.GetService<NLog.Logger>()!;
-        GatherInstalledVersions().ConfigureAwait(true);
     }
 
     [JsonIgnore] public Dictionary<DllType, InstalledPackage> InstalledDlls { get; set; } = [];

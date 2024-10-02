@@ -1,5 +1,6 @@
 ﻿using DlssUpdater.ViewModels.Windows;
 using DlssUpdater.Views.Pages;
+using DLSSUpdater.Singletons;
 using System.Runtime;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
@@ -14,7 +15,7 @@ public partial class MainWindow : INavigationWindow
     private readonly Settings _settings;
 
     public MainWindow(MainWindowViewModel viewModel, IPageService pageService, INavigationService navigationService,
-        ISnackbarService snackbarService, Settings settings)
+        ISnackbarService snackbarService, Settings settings, AsyncFileWatcher watcher)
     {
         ViewModel = viewModel;
         _settings = settings;
@@ -25,6 +26,8 @@ public partial class MainWindow : INavigationWindow
 
         snackbarService.SetSnackbarPresenter(SnackbarPresenter);
         navigationService.SetNavigationControl(RootNavigation);
+
+        watcher.Start();
     }
 
     INavigationView INavigationWindow.GetNavigation()
