@@ -378,11 +378,7 @@ public class DllUpdater
                 if (startIndex == -1 && endIndex == -1)
                     continue;
 
-                curPackage!.SHA256 = line.Substring(startIndex + startToken.Length, endIndex - startIndex - startToken.Length);
-                if(curPackage!.SHA256.Length % 2 != 0)
-                {
-                    curPackage!.SHA256 = $"0{curPackage!.SHA256}";
-                }
+                curPackage!.SHA256 = line.Substring(startIndex + startToken.Length - 1, endIndex - startIndex - startToken.Length + 1);
             }
 
             // Parse download id
