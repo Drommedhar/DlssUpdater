@@ -1,4 +1,9 @@
-﻿# 2.0.1.0
+﻿# 2.0.2.0
+* Fix a bug parsing Steam libraryfolder.vdf
+* Try to check more registry paths for registry reads
+* More logging especially for Steam library
+
+# 2.0.1.0
 * Fix misaligned game configuration window
 * Game config popup more space for controls
 * Move Anti Cheat to the right

@@ -47,6 +47,7 @@ public class GOGLibrary : ILibrary
         var subKeys = gogRegistryKey?.GetSubKeyNames();
         if (subKeys == null || subKeys.Length == 0)
         {
+            _logger.Error($"GOG: Could not find subkey names");
             return ret;
         }
 

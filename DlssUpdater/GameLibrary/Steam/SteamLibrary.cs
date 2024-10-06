@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
+using DLSSUpdater.Helpers;
 using Microsoft.Win32;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
@@ -40,17 +41,29 @@ public class SteamLibrary : ILibrary
     {
         List<LibraryFolder> ret = [];
         var vdfPath = Path.Combine(_config.InstallPath!, "steamapps", "libraryfolders.vdf");
-        if (!File.Exists(vdfPath)) return ret;
+        if (!File.Exists(vdfPath))
+        {
+            _logger.Error($"Steam: Could not find 'libraryfolder.vdf' in '{vdfPath}'");
+            return ret;
+        }
 
         VdfParser parser = new(vdfPath);
         var success = await parser.Load();
-        if (!success) return ret;
+        if (!success)
+        {
+            _logger.Error($"Steam: Could not parse 'libraryfolder.vdf' in '{vdfPath}'");
+            return ret;
+        }
 
         // We can now parse the stuff
         var paths = parser.GetValuesForKey<string>("\"path\"");
         var apps = parser.GetValuesForKey<List<string>>("\"apps\"");
 
-        if (paths.Count != apps.Count) return ret;
+        if (paths.Count != apps.Count)
+        {
+            _logger.Error($"Steam: 'libraryfolder.vdf' contained count mismatch for paths and apps segments");
+            return ret;
+        }
 
         for (var i = 0; i < paths.Count; i++)
         {
@@ -63,15 +76,15 @@ public class SteamLibrary : ILibrary
             ret.Add(folder);
         }
 
+        _logger.Debug($"Steam: Library paths found:\n{string.Join("\n", ret)}");
+
         return ret;
     }
 
     public void GetInstallationDirectory()
     {
         // We are getting the steam installation path from the user registry (if it exists)
-        using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
-        using var steamRegistryKey = hklm.OpenSubKey(@"SOFTWARE\Valve\Steam");
-        var installPath = steamRegistryKey?.GetValue("InstallPath") as string;
+        var installPath = RegistryHelper.GetRegistryValue(@"SOFTWARE\Valve\Steam", "InstallPath") as string;
 
         _logger.Debug($"Steam install directory: {installPath ?? "N/A"}");
 
@@ -162,5 +175,10 @@ public class SteamLibrary : ILibrary
 
         public string Path { get; init; }
         public List<string> Apps { get; internal set; } = [];
+
+        public override string ToString()
+        {
+            return $"'{Path}': -> {string.Join("\t", Apps)}";
+        }
     }
 }
