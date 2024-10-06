@@ -2,6 +2,7 @@
 using DlssUpdater.GameLibrary.Steam;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
+using DLSSUpdater.Helpers;
 using Microsoft.Win32;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
@@ -37,10 +38,8 @@ public class UbisoftConnectLibrary : ILibrary
 
     public void GetInstallationDirectory()
     {
-        // We are getting the steam installation path from the user registry (if it exists)
-        using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
-        using var ubiRegKey = hklm.OpenSubKey(@"SOFTWARE\Ubisoft\Launcher");
-        var installPath = ubiRegKey?.GetValue("InstallDir") as string;
+        // We are getting the ubisoft installation path from the user registry (if it exists)
+        var installPath = RegistryHelper.GetRegistryValue(@"SOFTWARE\Ubisoft\Launcher", "InstallDir") as string;
 
         _logger.Debug($"Ubisoft Connect install directory: {installPath ?? "N/A"}");
 
@@ -88,10 +87,8 @@ public class UbisoftConnectLibrary : ILibrary
                 continue;
             }
 
-            using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
-            using var gameRegKey = hklm.OpenSubKey(registerKey.Replace("HKEY_LOCAL_MACHINE\\","")
-                                   .Replace("\\InstallDir", ""));
-            var gamePath = gameRegKey?.GetValue("InstallDir") as string;
+            var gamePath = RegistryHelper.GetRegistryValue(registerKey.Replace("HKEY_LOCAL_MACHINE\\", "")
+                                         .Replace("\\InstallDir", ""), "InstallDir") as string;
             if (string.IsNullOrEmpty(gamePath))
             {
                 _logger.Warn($"Ubisoft connect: Could not find regkey for {registerKey}");
