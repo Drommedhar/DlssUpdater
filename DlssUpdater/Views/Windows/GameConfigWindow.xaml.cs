@@ -42,26 +42,12 @@ namespace DLSSUpdater.Views.Windows
             _fileWatcher = watcher;
             _updater = updater;
 
-            SizeChanged += (s, e) => CenterOwner(this);
             InitializeComponent();
 
             DataContext = this;
             _updater = updater;
 
             updateUi();
-        }
-
-        private void CenterOwner(Window w)
-        {
-            // TODO: Does not work if maximized
-            if (w.Owner != null)
-            {
-                double top = w.Owner.Top + ((w.Owner.Height - w.ActualHeight) / 2);
-                double left = w.Owner.Left + ((w.Owner.Width - w.ActualWidth) / 2);
-
-                w.Top = top < 0 ? 0 : top;
-                w.Left = left < 0 ? 0 : left;
-            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

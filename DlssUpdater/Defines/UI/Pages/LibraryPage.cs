@@ -83,6 +83,7 @@ namespace DLSSUpdater.Defines.UI.Pages
                 Height = 0,
                 Owner = wndMain
             };
+            WindowPositionHelper.CenterWindowToParent(wndConfig, wndMain!);
             wndConfig.ShowDialog();
             wndMain?.SetEffect(false);
         }

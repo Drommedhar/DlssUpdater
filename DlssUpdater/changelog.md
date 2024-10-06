@@ -1,4 +1,9 @@
-﻿# 2.0.0.0
+﻿# 2.0.1.0
+* Fix misaligned game configuration window
+* Game config popup more space for controls
+* Move Anti Cheat to the right
+
+# 2.0.0.0
 * Completely redesigned user interface
 * Several bugfixes while creating new user interface
 * New option "Show notifications" to hide notification bubbles

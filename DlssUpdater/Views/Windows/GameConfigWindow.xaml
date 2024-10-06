@@ -10,7 +10,7 @@
         xmlns:controls="clr-namespace:DLSSUpdater.Controls"        
         mc:Ignorable="d"
         Title="GameConfigWindow"
-        WindowStyle="None" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
+        WindowStyle="None" WindowStartupLocation="Manual" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
     <adonisControls:AdonisWindow.Effect>
         <DropShadowEffect BlurRadius="5" ShadowDepth="0"/>
     </adonisControls:AdonisWindow.Effect>
@@ -21,7 +21,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" Margin="10" Width="100" Height="150" VerticalAlignment="Top">
+        <Grid Grid.Column="0" Margin="10,10,40,10" Width="100" Height="150" VerticalAlignment="Top">
             <Rectangle Width="100" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="#0FFFFFFF" StrokeThickness="2">
                 <Rectangle.Fill>
                     <ImageBrush ImageSource="{Binding ViewModel.GameInfo.GameImage}"  Stretch="UniformToFill"/>
@@ -49,13 +49,13 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <Label Content="Name:" Grid.Row="0" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"/>
@@ -64,7 +64,7 @@
                         adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
                         adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
                         Background="#FF1d263c" BorderBrush="#00000000"
-                        Text="{Binding ViewModel.GameInfo.GameName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                        Text="{Binding ViewModel.GameInfo.GameName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" VerticalAlignment="Center"/>
             <Label Content="Path:" Grid.Row="1" Grid.Column="0" Margin="0,4,10,0" VerticalAlignment="Center"/>
             <Button x:Name="btnPath" Grid.Row="1" Grid.Column="1"  Content="{Binding ViewModel.PathText}"
                     Foreground="White" IsEnabled="{Binding ViewModel.IsManualGame}"
@@ -85,7 +85,8 @@
                       adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
                         adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
                         adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
-                      SelectedValue="{Binding ViewModel.DlssItem, Mode=TwoWay}" Margin="0,5,0,5" Background="#FF1d263c" BorderBrush="#00000000"/>
+                      SelectedValue="{Binding ViewModel.DlssItem, Mode=TwoWay}" Margin="0,5,0,5" 
+                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000"/>
             <Label Content="Frame Generation:" Grid.Row="3" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"/>
             <ComboBox Grid.Column="1" Grid.Row="3" IsEnabled="{Binding ViewModel.DlssGEnabled}"
                       ItemsSource="{Binding ViewModel.InstalledVersionsDlssG}"
@@ -94,8 +95,9 @@
                       adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
                         adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
                         adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
-                      SelectedValue="{Binding ViewModel.DlssGItem, Mode=TwoWay}" Margin="0,5,0,5" Background="#FF1d263c" BorderBrush="#00000000"/>            
-            <Label Content="Ray Reconstruction:" Grid.Row="4" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                      SelectedValue="{Binding ViewModel.DlssGItem, Mode=TwoWay}" Margin="0,5,0,5" 
+                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000"/>            
+            <Label Content="Ray Reconstruction:" Grid.Row="4" Grid.Column="0" Margin="0,0,20,0" VerticalAlignment="Center"/>
             <ComboBox Grid.Column="1" Grid.Row="4" IsEnabled="{Binding ViewModel.DlssDEnabled}"
                       ItemsSource="{Binding ViewModel.InstalledVersionsDlssD}"
                       DisplayMemberPath="VersionDetailed"
@@ -103,9 +105,10 @@
                       adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
                         adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
                         adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
-                      SelectedValue="{Binding ViewModel.DlssDItem, Mode=TwoWay}" Margin="0,5,0,5" Background="#FF1d263c" BorderBrush="#00000000"/>
-            <CheckBox Grid.Column="1" Grid.Row="5" Content="Save current versions as default" VerticalAlignment="Top" HorizontalAlignment="Right" IsChecked="{Binding ViewModel.SaveAsDefault, Mode=TwoWay}" Background="#00000000" FontSize="12" Focusable="False"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.ColumnSpan="3" HorizontalAlignment="Right" Margin="0,20,0,0">
+                      SelectedValue="{Binding ViewModel.DlssDItem, Mode=TwoWay}" Margin="0,5,0,5" 
+                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000"/>
+            <CheckBox Grid.Column="1" Grid.Row="5" Margin="0,10,0,0" Content="Save current versions as default" VerticalAlignment="Top" HorizontalAlignment="Right" IsChecked="{Binding ViewModel.SaveAsDefault, Mode=TwoWay}" Background="#00000000" FontSize="12" Focusable="False"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.ColumnSpan="3" HorizontalAlignment="Right" Margin="0,0,0,0">
                 <Button x:Name="btnApply" Grid.Row="1" Grid.Column="1"  Content="Apply"
                     Foreground="White"
                     BorderBrush="{x:Null}"

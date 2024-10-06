@@ -28,15 +28,7 @@
                             </Rectangle.Fill>
                         </Rectangle>
                     </StackPanel>
-                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="25,0,0,0">
-                        <Label Content="Anti Cheat" FontSize="16" HorizontalAlignment="Left" Margin="0,0,0,10" VerticalAlignment="Top" Foreground="#3EFFFFFF" FontWeight="Normal"/>
-                        <Rectangle Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                            <Rectangle.Fill>
-                                <ImageBrush ImageSource="{Binding GameInfo.AntiCheatImage, ElementName=gamePanel}" Stretch="Uniform" Opacity="0.5"/>
-                            </Rectangle.Fill>
-                        </Rectangle>
-                    </StackPanel>
-                    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="25,0,0,0" Width="120">
+                    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="70,0,0,0" Width="120">
                         <Label Content="Upscaling" FontSize="16" HorizontalAlignment="Left" Margin="0,0,0,10" VerticalAlignment="Top" Foreground="#3EFFFFFF" FontWeight="Normal"/>
                         <Label Content="{Binding GameInfo.InstalledVersionDlss, ElementName=gamePanel}" FontSize="16" HorizontalAlignment="Left" Margin="0,0,0,4" VerticalAlignment="Bottom" Foreground="#FFFFFFFF" FontWeight="Thin"/>
                     </Grid>
@@ -48,6 +40,14 @@
                         <Label Content="Frame Generation" FontSize="16" HorizontalAlignment="Left" Margin="0,0,0,10" VerticalAlignment="Top" Foreground="#3EFFFFFF" FontWeight="Normal"/>
                         <Label Content="{Binding GameInfo.InstalledVersionDlssG, ElementName=gamePanel}" FontSize="16" HorizontalAlignment="Left" Margin="0,0,0,4" VerticalAlignment="Bottom" Foreground="#FFFFFFFF" FontWeight="Thin"/>
                     </Grid>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="25,0,0,0">
+                        <Label Content="Anti Cheat" FontSize="16" HorizontalAlignment="Left" Margin="0,0,0,10" VerticalAlignment="Top" Foreground="#3EFFFFFF" FontWeight="Normal" Visibility="{Binding GameInfo.HasAntiCheat, ElementName=gamePanel}"/>
+                        <Rectangle Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                            <Rectangle.Fill>
+                                <ImageBrush ImageSource="{Binding GameInfo.AntiCheatImage, ElementName=gamePanel}" Stretch="Uniform" Opacity="0.5"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </StackPanel>

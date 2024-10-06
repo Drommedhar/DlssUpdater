@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DLSSUpdater.Singletons;
+using DlssUpdater.Helpers;
 
 namespace DLSSUpdater.Controls
 {
@@ -70,6 +71,7 @@ namespace DLSSUpdater.Controls
                 Height = 0,
                 Owner = wndMain
             };
+            WindowPositionHelper.CenterWindowToParent(wndConfig, wndMain!);
             wndConfig.ShowDialog();
             wndMain?.SetEffect(false);
         }

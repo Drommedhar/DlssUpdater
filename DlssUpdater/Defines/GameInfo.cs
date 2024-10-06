@@ -19,6 +19,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
     [ObservableProperty] [JsonIgnore] public ImageSource? _libraryImage;
     [ObservableProperty][JsonIgnore] public ImageSource? _antiCheatImage;
     [ObservableProperty][JsonIgnore] public ImageSource? _hideImage;
+    [ObservableProperty][JsonIgnore] public Visibility _hasAntiCheat = Visibility.Collapsed;
 
     [ObservableProperty] public string? _gameImageUri;
 
@@ -134,8 +135,10 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         {
             AntiCheatProvider.EasyAntiCheat => new BitmapImage(new Uri("pack://application:,,,/Icons/eac.png")),
             AntiCheatProvider.BattlEye => new BitmapImage(new Uri("pack://application:,,,/Icons/battleye.png")),
-            _ => new BitmapImage(new Uri("pack://application:,,,/Icons/cross.png")),
+            _ => null,
         };
+
+        HasAntiCheat = AntiCheatImage != null ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public async Task<bool> GatherInstalledVersions()
