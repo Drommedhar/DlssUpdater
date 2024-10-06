@@ -41,7 +41,6 @@ public class VdfParser
             {
                 // We know there needs to be some kind of object here
                 var objectValues = getObject(item + key.Length);
-                if (objectValues.Count == 0) continue;
 
                 if (objectValues is T convertedValue) values.Add(convertedValue);
             }

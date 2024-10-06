@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
+using DLSSUpdater.Helpers;
 using Microsoft.Win32;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
@@ -42,9 +43,7 @@ public class EpicGamesLibrary : ILibrary
     public void GetInstallationDirectory()
     {
         // We are getting the steam installation path from the user registry (if it exists)
-        using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
-        using var ubiRegKey = hklm.OpenSubKey(@"SOFTWARE\Epic Games\EpicGamesLauncher");
-        var installPath = ubiRegKey?.GetValue("AppDataPath") as string;
+        var installPath = RegistryHelper.GetRegistryValue(@"SOFTWARE\Epic Games\EpicGamesLauncher", "AppDataPath") as string;
 
         _logger.Debug($"Epic Games install directory: {installPath ?? "N/A"}");
 
