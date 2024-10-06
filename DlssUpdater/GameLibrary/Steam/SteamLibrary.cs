@@ -131,7 +131,6 @@ public class SteamLibrary : ILibrary
         if (imageUri != null)
         {
             info.SetGameImageUri(imageUri);
-            info.TextVisible = Visibility.Hidden;
         }
 
         await info.GatherInstalledVersions();

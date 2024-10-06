@@ -31,6 +31,7 @@ public class DllUpdater
     [JsonIgnore]
     private readonly NLog.Logger _logger;
 
+    public static string DefaultVersion = "Restore default";
     public DateTime LastUpdate { get; set; } = DateTime.MinValue;
     public event EventHandler? DlssFilesChanged;
 
@@ -78,10 +79,10 @@ public class DllUpdater
 
     public bool IsNewerVersionAvailable(DllType type, InstalledPackage installed)
     {
-        if (OnlinePackages.TryGetValue(type, out var highestOnline)
-            && highestOnline.FirstOrDefault() != null)
+        if (InstalledPackages.TryGetValue(type, out var highestInstalled)
+            && highestInstalled.FirstOrDefault(p => p.Version != DefaultVersion) != null)
         {
-            return new Version(installed.Version) < new Version(highestOnline.FirstOrDefault()!.Version);
+            return new Version(installed.Version) < new Version(highestInstalled.FirstOrDefault(p => p.Version != DefaultVersion)!.Version);
         }
 
         return true;
@@ -224,29 +225,40 @@ public class DllUpdater
         }
     }
 
-    public UpdateResult UpdateGameDlls(GameInfo gameInfo)
+    public bool HasDefaultDll(DllType dllType, GameInfo gameInfo)
+    {
+        if (!gameInfo.DefaultDlls.TryGetValue(dllType, out var defaultDll))
+        {
+            var defaultPath = GetGameDefaultDllPath(gameInfo);
+
+            // Check if the target already exists
+            return File.Exists(Path.Combine(defaultPath, GetDllName(dllType)));
+        }
+
+        return false;
+    }
+
+    public UpdateResult UpdateGameDlls(GameInfo gameInfo, bool saveAsDefault)
     {
         var result = UpdateResult.NothingDone;
         foreach (var (dll, info) in gameInfo.InstalledDlls)
         {
             if (string.IsNullOrEmpty(info.Version)) continue;
 
+            if(info.Version == DefaultVersion)
+            {
+                RestoreDefaultDll(dll, gameInfo);
+                continue;
+            }
+
             var package = InstalledPackages[dll].FirstOrDefault(p => p.VersionDetailed == info.Version);
             if (package is null) continue;
 
             // Now detect if we need to save this as a default
-            if (!gameInfo.DefaultDlls.TryGetValue(dll, out var defaultDll))
+            if(saveAsDefault)
             {
-                var defaultPath = GetGameDefaultDllPath(gameInfo);
-
-                // Check if the target already exists
-                if (File.Exists(Path.Combine(defaultPath, GetDllName(dll))))
-                {
-                    gameInfo.DefaultDlls.Add(dll, true);
-                    continue;
-                }
-
                 // We need to save this, so we do that
+                var defaultPath = GetGameDefaultDllPath(gameInfo);
                 DirectoryHelper.EnsureDirectoryExists(defaultPath);
                 try
                 {
@@ -256,6 +268,11 @@ public class DllUpdater
                 catch (Exception ex)
                 {
                     _logger.Error($"Default copy failed: {ex}");
+                }
+
+                if (!gameInfo.DefaultDlls.TryAdd(dll, true))
+                {
+                    gameInfo.DefaultDlls[dll] = true;
                 }
             }
 
@@ -280,24 +297,24 @@ public class DllUpdater
         return Path.Combine(_settings.Directories.InstallPath, "Games", gameInfo.UniqueId);
     }
 
-    public void RestoreDefaultDlls(GameInfo gameInfo)
+    public void RestoreDefaultDll(DllType dllType, GameInfo gameInfo)
     {
         var defaultPath = GetGameDefaultDllPath(gameInfo);
-        foreach(var (dll, package) in gameInfo.InstalledDlls)
+        if(gameInfo.InstalledDlls.TryGetValue(dllType, out var package))
         {
             if(package is null || string.IsNullOrEmpty(package.Path))
             {
-                continue;
+                return;
             }
 
-            var defaultDll = Path.Combine(defaultPath, GetDllName(dll));
+            var defaultDll = Path.Combine(defaultPath, GetDllName(dllType));
             if(!File.Exists(defaultDll))
             {
-                continue;
+                return;
             }
 
             File.Copy(defaultDll, package.Path, true);
-            _logger.Debug($"Restored default for '{gameInfo.GameName}' -> {GetDllName(dll)}");
+            _logger.Debug($"Restored default for '{gameInfo.GameName}' -> {GetDllName(dllType)}");
         }
     }
 

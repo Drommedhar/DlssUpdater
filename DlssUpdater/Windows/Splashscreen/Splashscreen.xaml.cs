@@ -5,15 +5,13 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime;
 using System.Security.Policy;
+using AdonisUI.Controls;
 using DlssUpdater.Helpers;
 using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
 using DlssUpdater.ViewModels.Windows;
 using DlssUpdater.Views.Windows;
 using DLSSUpdater.Singletons;
-using Wpf.Ui.Appearance;
-using MessageBox = Wpf.Ui.Controls.MessageBox;
-using MessageBoxResult = Wpf.Ui.Controls.MessageBoxResult;
 
 namespace DlssUpdater.Windows.Splashscreen;
 
@@ -86,17 +84,15 @@ public partial class Splashscreen : Window
         bool installUpdate = false;
         if(updateAvailable)
         {
-            var uiMessageBox = new MessageBox
+            var messageBox = new MessageBoxModel
             {
-                Title = "Update available",
-                Content = "An update for Dlss Updater is available.\nDo you want to download the update?",
-                SecondaryButtonText = "Yes",
-                CloseButtonText = "No",
-                IsPrimaryButtonEnabled = false,
-                IsSecondaryButtonEnabled = true
+                Caption = "Update available",
+                Text = "An update for Dlss Updater is available.\nDo you want to download the update?",
+                Icon = AdonisUI.Controls.MessageBoxImage.Question,
+                Buttons = MessageBoxButtons.YesNo()
             };
 
-            installUpdate = await uiMessageBox.ShowDialogAsync() == MessageBoxResult.Secondary;
+            installUpdate = AdonisUI.Controls.MessageBox.Show(messageBox) == AdonisUI.Controls.MessageBoxResult.Yes;
         }
 
         if(installUpdate)
@@ -158,7 +154,7 @@ public partial class Splashscreen : Window
         await _gameContainer.LoadGamesAsync();
 
         Visibility = Visibility.Hidden;
-        _mainWindow.ShowWindow();
+        _mainWindow.ShowDialog();
         Close();
     }
 

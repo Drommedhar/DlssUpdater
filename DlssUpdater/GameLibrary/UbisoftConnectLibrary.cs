@@ -109,7 +109,6 @@ public class UbisoftConnectLibrary : ILibrary
                 if (imageUri != null)
                 {
                     info.SetGameImageUri(imageUri);
-                    info.TextVisible = Visibility.Hidden;
                 }
                 ret.Add(info);
             }

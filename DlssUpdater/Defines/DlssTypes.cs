@@ -31,6 +31,19 @@ public static class DlssTypes
         };
     }
 
+    public static string GetUIName(DllType type)
+    {
+        {
+            return type switch
+            {
+                DllType.Dlss => "Upscaling",
+                DllType.DlssD => "Ray Reconstruction",
+                DllType.DlssG => "Frame Gen",
+                _ => ""
+            };
+        }
+    }
+
     public static string GetShortName(DllType type)
     {
         return type switch

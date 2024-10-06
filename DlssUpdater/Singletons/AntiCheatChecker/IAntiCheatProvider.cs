@@ -6,6 +6,8 @@ public enum AntiCheatProvider
     None = 0,
     EasyAntiCheat = 1,
     BattlEye = 2,
+
+    All = EasyAntiCheat | BattlEye,
     // TODO: More
 }
 

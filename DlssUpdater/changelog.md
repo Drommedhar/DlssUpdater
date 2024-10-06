@@ -1,4 +1,11 @@
-﻿# 1.0.6.1
+﻿# 2.0.0.0
+* Completely redesigned user interface
+* Several bugfixes while creating new user interface
+* New option "Show notifications" to hide notification bubbles
+* Several settings removed that not really served a purpose but induced bugs
+* Dev Note: 4 days of "free time" invested into the new user interface, hope you like it as much as I do :D
+
+# 1.0.6.1
 * Fix incorrect SHA256 check
 
 # 1.0.6.0

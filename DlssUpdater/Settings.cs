@@ -32,7 +32,9 @@ public class Settings
 
     public class Paths
     {
+        [JsonIgnore]
         public string InstallPath { get; set; } = "installed";
+        [JsonIgnore]
         public string DownloadPath { get; set; } = "download";
         [JsonIgnore]
         public string SettingsPath { get; set; } = "settings";
@@ -40,13 +42,13 @@ public class Settings
 
     public class AntiCheat
     {
-        public bool DisclaimerAccepted { get; set; } = false;
-        public AntiCheatProvider ActiveAntiCheatChecks { get; set; } = AntiCheatProvider.None;
+        public AntiCheatProvider ActiveAntiCheatChecks { get; set; } = AntiCheatProvider.All;
     }
 
     public Paths Directories { get; set; } = new();
     public AntiCheat AntiCheatSettings { get; set; } = new();
     public bool ShowChangelogOnStartup { get; set; } = false;
+    public bool ShowNotifications { get; set; } = true;
     public WindowState WindowState { get; set; } = WindowState.Normal;
     public SortableObservableCollection<LibraryConfig> Libraries { get; set; } = [];
 
@@ -89,6 +91,7 @@ public class Settings
         AntiCheatSettings = other.AntiCheatSettings;
         ShowChangelogOnStartup = other.ShowChangelogOnStartup;
         WindowState = other.WindowState;
+        ShowNotifications = other.ShowNotifications;
         foreach (var lib in other.Libraries)
         {
             var index = Libraries.IndexOf(l => l.LibraryType == lib.LibraryType);

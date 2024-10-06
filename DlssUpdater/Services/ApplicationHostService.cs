@@ -1,4 +1,5 @@
-﻿using DlssUpdater.Windows.Splashscreen;
+﻿using DlssUpdater.Views.Windows;
+using DlssUpdater.Windows.Splashscreen;
 using Microsoft.Extensions.Hosting;
 
 namespace DlssUpdater.Services;

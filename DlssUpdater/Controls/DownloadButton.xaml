@@ -1,22 +1,27 @@
-﻿<UserControl x:Class="DlssUpdater.Controls.DownloadButton"
+﻿<UserControl x:Class="DLSSUpdater.Controls.DownloadButton"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+            xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+            xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+            xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"             
              x:Name="downloadButton"
              Loaded="downloadButton_Loaded">
-    <Grid
-        Width="{Binding ActualWidth, 
-              RelativeSource = {RelativeSource AncestorType = {x:Type UserControl}}}"
-        Height="{Binding ActualHeight, 
-              RelativeSource ={RelativeSource AncestorType = {x:Type UserControl}}}"
-        Background="{DynamicResource ApplicationBackgroundBrush}">
-        <ProgressBar x:Name="prgDownload" Grid.Row="2" VerticalAlignment="Bottom"
-                     Height="{Binding ActualHeight, ElementName=downloadButton}" Foreground="Black" />
-        <ui:TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding VersionText, ElementName=downloadButton}"
-                      Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Center"
+    <Grid>
+        <Button x:Name="btnAction" Grid.Column="1" Grid.Row="1" Click="Button_Click"
+                Foreground="White"
+                BorderBrush="{x:Null}"
+                adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
+                adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
+                adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
+                adonisExtensions:RippleExtension.BackgroundBrush="#0AFFFFFF"
+                adonisExtensions:RippleExtension.BorderBrush="#14FFFFFF"
+                Background="#02646464"/>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding VersionText, ElementName=downloadButton}"
+                      Foreground="White" VerticalAlignment="Center"
                       HorizontalAlignment="Left" Margin="5,0,0,0" />
-        <ui:Button x:Name="btnAction" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right"
-                   VerticalAlignment="Center" Icon="{Binding ButtonIcon, ElementName=downloadButton}" Height="50"
-                   Width="50" Margin="0,0,25,0" Click="Button_Click" />
+        <Label x:Name="lblAction" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0"/>
+        <ContentControl x:Name="downloadIcon" ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingBars}}"
+            Foreground="#14FFFFFF"
+            Focusable="False" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0"/>
     </Grid>
 </UserControl>

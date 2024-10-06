@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using AdonisUI.Controls;
+using System.IO;
 using System.Net.Http;
-using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace DlssUpdater.Helpers;
 
@@ -49,13 +49,14 @@ public class HttpClientDownloadWithProgress : IDisposable
         if (!response.IsSuccessStatusCode)
         {
             // TODO: Show error more specific or differently
-            var uiMessageBox = new MessageBox
+            var messageBox = new MessageBoxModel
             {
-                Title = "Download error",
-                Content = $"Download for dll failed with code: {response.StatusCode}"
+                Caption = "Download error",
+                Text = $"Download for dll failed with code: {response.StatusCode}",
+                Buttons = [ MessageBoxButtons.Ok() ]
             };
-
-            _ = await uiMessageBox.ShowDialogAsync();
+            
+            _ = AdonisUI.Controls.MessageBox.Show(messageBox);
             return;
         }
 

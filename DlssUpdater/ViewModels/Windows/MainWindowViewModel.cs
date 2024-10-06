@@ -1,120 +1,138 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Xml.Linq;
-using DlssUpdater.Singletons;
-using DlssUpdater.Views.Pages;
-using DLSSUpdater.Singletons;
-using Wpf.Ui.Controls;
+﻿using DlssUpdater;
+using DlssUpdater.Views.Windows;
+using DLSSUpdater.Defines.UI;
+using DLSSUpdater.Defines.UI.Pages;
+using System.Collections.ObjectModel;
 
-namespace DlssUpdater.ViewModels.Windows;
-
-public partial class MainWindowViewModel : ObservableObject
+namespace DLSSUpdater.ViewModels.Windows
 {
-    [ObservableProperty] private string _applicationTitle = "DLSS Updater";
-
-    [ObservableProperty] private ObservableCollection<object> _footerMenuItems = new()
+    public partial class MainWindowViewModel : ObservableObject
     {
-        new NavigationViewItem
+        public MainWindow? Window { get; set; }
+
+        [ObservableProperty] private WindowState _windowState;
+        [ObservableProperty] private ObservableCollection<NavigationButton> _navigationButtons = [];
+        [ObservableProperty] private ObservableCollection<NavigationButton> _subNavigationButtons = [];
+        [ObservableProperty] private HorizontalAlignment _subNavigationAlignment = HorizontalAlignment.Left;
+
+        private readonly Settings _settings;
+
+        public MainWindowViewModel(LibraryPage libraryPage, DLSSPage dlssPage, SettingsPage settingsPage, 
+                                   ChangelogPage changelogPage, Settings settings)
         {
-            Content = "Changelog",
-            Icon = new SymbolIcon { Symbol = SymbolRegular.DocumentOnePage20 },
-            TargetPageType = typeof(ChangelogPage)
-        },
-        new NavigationViewItem
-        {
-            Content = "Settings",
-            Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
-            TargetPageType = typeof(SettingsPage)
+            _settings = settings;
+            libraryPage.MainWindowViewModel = this;
+            dlssPage.MainWindowViewModel = this;
+
+            NavigationButtons.Add(new("Library", () => ShowPage(libraryPage), false));
+            NavigationButtons.Add(new("DLSS", () => ShowPage(dlssPage), false));
+            NavigationButtons.Add(new("Settings", () => ShowPage(settingsPage), false));
+            NavigationButtons.Add(new("Changelog", () => ShowPage(changelogPage), false));
         }
-    };
 
-    [ObservableProperty] private ObservableCollection<object> _menuItems = new()
-    {
-        
-    };
-
-    [ObservableProperty] private Visibility _dlssUpdateAvailable;
-    [ObservableProperty] private Visibility _gameUpdateAvailable;
-
-    [ObservableProperty] private ObservableCollection<Wpf.Ui.Controls.MenuItem> _trayMenuItems = new()
-    {
-        new Wpf.Ui.Controls.MenuItem { Header = "Home", Tag = "tray_home" }
-    };
-
-    [ObservableProperty] private WindowState _windowState;
-
-    private readonly DllUpdater _updater;
-    private readonly GameContainer _gameContainer;
-
-    private NavigationViewItem GamesItem = new NavigationViewItem
-    {
-        Content = "Games",
-        Icon = new SymbolIcon { Symbol = SymbolRegular.Games48 },
-        TargetPageType = typeof(GamesPage),
-        InfoBadge = new InfoBadge
+        public void UpdateNavigation(object sender)
         {
-            Severity = InfoBadgeSeverity.Caution,
-            Visibility = Visibility.Hidden,
-            Opacity = 0.5
+            var navigationButton = ((System.Windows.Controls.Button)sender)?.DataContext as NavigationButton;
+            SelectNavigationButton(navigationButton, NavigationButtons);
+            navigationButton?.OnClick();
         }
-    };
 
-    private NavigationViewItem DlssItem = new NavigationViewItem
-    {
-        Content = "DLSS",
-        Icon = new SymbolIcon { Symbol = SymbolRegular.Library28 },
-        TargetPageType = typeof(DLSSPage),
-        InfoBadge = new InfoBadge
+        public void UpdateSubNavigation(object sender)
         {
-            Severity = InfoBadgeSeverity.Caution,
-            Visibility = Visibility.Hidden,
-            Opacity = 0.5
+            var navigationButton = ((System.Windows.Controls.Button)sender)?.DataContext as NavigationButton;
+            if (SubNavigationAlignment != HorizontalAlignment.Right)
+            {
+                SelectNavigationButton(navigationButton, SubNavigationButtons);
+            }
+            else
+            {
+                navigationButton?.OnClick();
+            }
         }
-    };
 
-    public MainWindowViewModel(DllUpdater updater, GameContainer gameContainer, AsyncFileWatcher watcher)
-    {
-        _updater = updater;
-        _gameContainer = gameContainer;
-        watcher.FilesChanged += Watcher_FilesChanged;
-        MenuItems.Add(GamesItem);
-        MenuItems.Add(DlssItem);
-        updater.DlssFilesChanged += Updater_DlssFilesChanged;
-        gameContainer.GamesChanged += GameContainer_GamesChanged;
-
-        Binding notificationBinding = new()
+        public void SelectNavigationButton(NavigationButton? navigationButton, ObservableCollection<NavigationButton> buttonList)
         {
-            Source = this,
-            Path = new PropertyPath("DlssUpdateAvailable"),
-            Mode = BindingMode.TwoWay,
-            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
-        };
-        BindingOperations.SetBinding(DlssItem.InfoBadge, InfoBadge.VisibilityProperty, notificationBinding);
+            if(navigationButton == null)
+            {
+                return;
+            }
 
-        Binding gameNotificationBinding = new()
+            foreach (var button in buttonList)
+            {
+                if (button == navigationButton && !button.IsClicked)
+                {
+                    button.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
+                    navigationButton?.OnClick();
+                }
+                else if(button != navigationButton)
+                {
+                    button.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(125, 255, 255, 255));
+                    button.IsClicked = false;
+                }
+            }
+        }
+
+        public void UpdateLibraryNotification(bool bUpdate)
         {
-            Source = this,
-            Path = new PropertyPath("GameUpdateAvailable"),
-            Mode = BindingMode.TwoWay,
-            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
-        };
-        BindingOperations.SetBinding(GamesItem.InfoBadge, InfoBadge.VisibilityProperty, gameNotificationBinding);
-    }
+            // TODO: Well, maybe we should not directly use the index... But hey
+            var btn = NavigationButtons[0];
+            if (btn is null || btn.Control is null)
+            {
+                return;
+            }
 
-    private void Watcher_FilesChanged(object? sender, EventArgs e)
-    {
-        GameUpdateAvailable = _gameContainer.IsUpdateAvailable() ? Visibility.Visible : Visibility.Hidden;
-    }
+            btn.Control.NotificationCount = "";
+            if (_settings.ShowNotifications)
+            {
+                btn.Control.NotificationVisibility = bUpdate ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                btn.Control.NotificationVisibility = Visibility.Collapsed;
+            }
+        }
 
-    private void GameContainer_GamesChanged(object? sender, EventArgs e)
-    {
-        GameUpdateAvailable = _gameContainer.IsUpdateAvailable() ? Visibility.Visible : Visibility.Hidden;
-    }
+        public void UpdateDllsNotification(int count)
+        {
+            // TODO: Well, maybe we should not directly use the index... But hey
+            var btn = NavigationButtons[1];
+            if (btn is null || btn.Control is null)
+            {
+                return;
+            }
 
-    private void Updater_DlssFilesChanged(object? sender, EventArgs e)
-    {
-        DlssUpdateAvailable = _updater.IsNewerVersionAvailable() ? Visibility.Visible : Visibility.Hidden;
+            btn.Control.NotificationCount = count.ToString();
+            if (_settings.ShowNotifications)
+            {
+                btn.Control.NotificationVisibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                btn.Control.NotificationVisibility = Visibility.Collapsed;
+            }
+        }
+
+        public void ReinitPageControl(IContentPage page)
+        {
+            if (Window is null)
+            {
+                return;
+            }
+
+            Window.GridContent.Children.Clear();
+            Window.GridContent.Children.Add(page.GetPageControl());
+        }
+
+        private void ShowPage(IContentPage page)
+        {
+            SubNavigationButtons = page.GetNavigationButtons();
+            SubNavigationAlignment = page.GetAlignment();
+            ReinitPageControl(page);
+
+            if (SubNavigationAlignment != HorizontalAlignment.Right)
+            {
+                SelectNavigationButton(SubNavigationButtons[0], SubNavigationButtons);
+            }
+        }
     }
 }

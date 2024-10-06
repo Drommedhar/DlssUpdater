@@ -121,7 +121,6 @@ public class XboxLibrary : ILibrary
                     if (!string.IsNullOrEmpty(imagePathFinal))
                     {
                         info.SetGameImageUri(imagePathFinal);
-                        info.TextVisible = Visibility.Hidden;
                     }
                 
                     await info.GatherInstalledVersions();

@@ -1,6 +1,5 @@
-﻿using System.Windows.Media.Animation;
-using Wpf.Ui;
-using Wpf.Ui.Controls;
+﻿using System.Windows.Controls;
+using System.Windows.Media.Animation;
 
 namespace DlssUpdater.Helpers;
 
@@ -33,9 +32,11 @@ public static class UIHelper
             control.Visibility = Visibility.Visible;
     }
 
-    public static void ShowEx(this ISnackbarService snackbar, string title, string message,
-        ControlAppearance controlAppearance)
+    public static IEnumerable<UIElement> GetChildren(this ItemsControl itemsControl)
     {
-        snackbar.Show(title, message, controlAppearance, null, TimeSpan.FromSeconds(5));
+        foreach (var item in itemsControl.Items)
+        {
+            yield return (UIElement)itemsControl.ItemContainerGenerator.ContainerFromItem(item);
+        }
     }
 }

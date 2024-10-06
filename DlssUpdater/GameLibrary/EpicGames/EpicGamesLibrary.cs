@@ -124,7 +124,6 @@ public class EpicGamesLibrary : ILibrary
                 if (imageObj is not null && !string.IsNullOrEmpty(imageObj.Url))
                 {
                     info.SetGameImageUri(imageObj.Url);
-                    info.TextVisible = Visibility.Hidden;
                 }
 
                 await info.GatherInstalledVersions();

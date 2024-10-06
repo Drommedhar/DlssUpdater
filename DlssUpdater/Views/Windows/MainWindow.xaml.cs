@@ -1,43 +1,53 @@
-﻿using DlssUpdater.ViewModels.Windows;
-using DlssUpdater.Views.Pages;
+﻿using AdonisUI.Controls;
+using DlssUpdater.Helpers;
+using DLSSUpdater.Controls;
+using DLSSUpdater.Defines.UI;
+using DLSSUpdater.Defines.UI.Pages;
 using DLSSUpdater.Singletons;
+using DLSSUpdater.ViewModels.Windows;
+using Microsoft.Extensions.FileSystemGlobbing;
+using System.Drawing;
 using System.Runtime;
-using Wpf.Ui;
-using Wpf.Ui.Appearance;
-using Wpf.Ui.Controls;
-
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media.Effects;
 namespace DlssUpdater.Views.Windows;
 
-public partial class MainWindow : INavigationWindow
+public partial class MainWindow : AdonisWindow
 {
+    private readonly Settings _settings;
+    private readonly AsyncFileWatcher _fileWatcher;
+
     public MainWindowViewModel ViewModel { get; }
 
-    private readonly Settings _settings;
+    private bool _isInitialized = false;
 
-    public MainWindow(MainWindowViewModel viewModel, IPageService pageService, INavigationService navigationService,
-        ISnackbarService snackbarService, Settings settings, AsyncFileWatcher watcher)
+    public MainWindow(MainWindowViewModel viewModel, Settings settings, AsyncFileWatcher watcher)
     {
         ViewModel = viewModel;
+        ViewModel.Window = this;
         _settings = settings;
-        DataContext = this;
+        _fileWatcher = watcher;
 
         InitializeComponent();
-        SetPageService(pageService);
-
-        snackbarService.SetSnackbarPresenter(SnackbarPresenter);
-        navigationService.SetNavigationControl(RootNavigation);
-
-        watcher.Start();
+        DataContext = this;
     }
 
-    INavigationView INavigationWindow.GetNavigation()
+    public void SetEffect(bool active)
     {
-        throw new NotImplementedException();
-    }
-
-    public void SetServiceProvider(IServiceProvider serviceProvider)
-    {
-        throw new NotImplementedException();
+        if(active)
+        {
+            Effect = new BlurEffect()
+            {
+                KernelType = KernelType.Gaussian,
+                Radius = 10,
+                RenderingBias = RenderingBias.Performance,
+            };
+        }
+        else
+        {
+            Effect = null;
+        }
     }
 
     /// <summary>
@@ -51,50 +61,53 @@ public partial class MainWindow : INavigationWindow
         Application.Current.Shutdown();
     }
 
-    #region INavigationWindow methods
-
-    public INavigationView GetNavigation()
+    private void FluentWindow_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        return RootNavigation;
+        if(!_isInitialized)
+        {
+            return;
+        }
+
+        _settings.WindowState = WindowState;
+        _settings.Save();
     }
 
-    public bool Navigate(Type pageType)
+    private void NavigationButton_Clicked(object sender, RoutedEventArgs e)
     {
-        return RootNavigation.Navigate(pageType);
+        ViewModel.UpdateNavigation(sender);
     }
 
-    public void SetPageService(IPageService pageService)
+    private void SubNavigationButton_Clicked(object sender, RoutedEventArgs e)
     {
-        RootNavigation.SetPageService(pageService);
+        ViewModel.UpdateSubNavigation(sender);
     }
 
-    public void ShowWindow()
+    private async void AdonisWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        // We delay all Loaded calls until the main navigation buttons are actually present
+        var navButtons = ViewModel.NavigationButtons.ToList();
+        while(navButtons.Any(b => b.Control is null))
+        {
+            await Task.Delay(10);
+        }
+
         ViewModel.WindowState = _settings.WindowState;
+        _fileWatcher.Start();
 
-        Show();
         if (_settings.ShowChangelogOnStartup)
         {
-            Navigate(typeof(ChangelogPage));
             _settings.ShowChangelogOnStartup = false;
             _settings.Save();
+            ViewModel.SelectNavigationButton(ViewModel.NavigationButtons[3], ViewModel.NavigationButtons);
         }
         else
         {
-            Navigate(typeof(GamesPage));
+            ViewModel.SelectNavigationButton(ViewModel.NavigationButtons[0], ViewModel.NavigationButtons);
         }
-    }
 
-    public void CloseWindow()
-    {
-        Close();
-    }
+        App.GetService<LibraryPage>()?.UpdateNotificationInfo();
+        App.GetService<DLSSPage>()?.UpdateNotificationInfo();
 
-    #endregion INavigationWindow methods
-
-    private void FluentWindow_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        _settings.WindowState = WindowState;
-        _settings.Save();
+        _isInitialized = true;
     }
 }

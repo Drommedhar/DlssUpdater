@@ -14,11 +14,11 @@ public class AntiCheatChecker
         _logger = logger;
     }
 
-    public bool Check(string directory)
+    public AntiCheatProvider Check(string directory)
     {
-        if (!Directory.Exists(directory)) return false;
+        if (!Directory.Exists(directory)) return AntiCheatProvider.None;
 
-        return _providers.Any(provider => provider.Check(directory));
+        return _providers.FirstOrDefault(provider => provider.Check(directory))?.ProviderType ?? AntiCheatProvider.None;
     }
 
     public void Init()

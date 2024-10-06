@@ -79,7 +79,6 @@ public class GOGLibrary : ILibrary
             if (!string.IsNullOrEmpty(gameImage))
             {
                 info.SetGameImageUri(gameImage);
-                info.TextVisible = Visibility.Hidden;
             }
 
             await info.GatherInstalledVersions();

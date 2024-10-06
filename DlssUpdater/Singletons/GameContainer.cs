@@ -82,13 +82,20 @@ public class GameContainer
         _antiCheatChecker.Init();
         foreach (var game in Games)
         {
-            game.HasAntiCheat = _antiCheatChecker.Check(game.GamePath);
+            game.AntiCheat = _antiCheatChecker.Check(game.GamePath);
+            game.SetAntiCheatImage();
         }
     }
 
     public bool IsUpdateAvailable()
     {
-        return Games.Any(g => !g.IsHidden && g.UpdateVisible == Visibility.Visible);
+        foreach(var game in Games)
+        {
+            if (!game.IsHidden && game.UpdateVisible == Visibility.Visible)
+                return true;
+        }
+        return false;
+        //return Games.Any(g => !g.IsHidden && g.UpdateVisible == Visibility.Visible);
     }
 
     private async Task loadGamesAsync()

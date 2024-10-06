@@ -4,16 +4,17 @@ using System.Windows.Threading;
 using DlssUpdater.Services;
 using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
-using DlssUpdater.ViewModels.Pages;
-using DlssUpdater.ViewModels.Windows;
-using DlssUpdater.Views.Pages;
 using DlssUpdater.Views.Windows;
 using DlssUpdater.Windows.Splashscreen;
+using DLSSUpdater.Defines.UI.Pages;
 using DLSSUpdater.Singletons;
+using DLSSUpdater.ViewModels.Pages;
+using DLSSUpdater.ViewModels.Windows;
+using DLSSUpdater.Views.Pages;
+using DLSSUpdater.Views.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Wpf.Ui;
 using WpfBindingErrors;
 
 namespace DlssUpdater;
@@ -36,31 +37,18 @@ public partial class App
         {
             services.AddHostedService<ApplicationHostService>();
 
-            // Page resolver service
-            services.AddSingleton<IPageService, PageService>();
-
-            // Theme manipulation
-            services.AddSingleton<IThemeService, ThemeService>();
-
-            // TaskBar manipulation
-            services.AddSingleton<ITaskBarService, TaskBarService>();
-
-
-            // Service containing navigation, same as INavigationWindow... but without window
-            services.AddSingleton<INavigationService, NavigationService>();
-
-            // Main window with navigation
-            services.AddSingleton<MainWindowViewModel>();
-            services.AddSingleton<MainWindow>();
+            // Windows
             services.AddSingleton<Splashscreen>();
-            services.AddSingleton<GamesPage>();
-            services.AddSingleton<GamesViewModel>();
-            services.AddSingleton<DLSSPage>();
-            services.AddSingleton<DLSSViewModel>();
-            services.AddSingleton<SettingsPage>();
-            services.AddSingleton<SettingsViewModel>();
-            services.AddSingleton<ChangelogPage>();
-            services.AddSingleton<ChangelogViewModel>();
+            services.AddSingleton<MainWindow>();
+
+            // ViewModel
+            services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<DlssPageViewModel>();
+            services.AddSingleton<GamePageViewModel>();
+            services.AddSingleton<GameConfigWindowViewModel>();
+            services.AddSingleton<SettingsCommonPageViewModel>();
+            services.AddSingleton<ChangelogPageViewModel>();
+
             services.AddSingleton(NLog.LogManager.GetCurrentClassLogger());
 
             services.AddSingleton<Settings>();
@@ -70,7 +58,13 @@ public partial class App
             services.AddSingleton<VersionUpdater>();
             services.AddSingleton<AsyncFileWatcher>();
 
-            services.AddSingleton<ISnackbarService, SnackbarService>();
+            // Pages
+            services.AddSingleton<LibraryPage>();
+            services.AddSingleton<DLSSPage>();
+            services.AddSingleton<SettingsPage>();
+            services.AddSingleton<ChangelogPage>();
+            services.AddSingleton<DlssPageControl>();
+            services.AddSingleton<GamePageControl>();
         }).Build();
 
     /// <summary>
