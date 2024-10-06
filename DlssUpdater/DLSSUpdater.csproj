@@ -13,7 +13,7 @@
         <SelfContained>true</SelfContained>
         <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
         <SignAssembly>False</SignAssembly>
-        <AssemblyVersion>2.0.1.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
