@@ -19,7 +19,7 @@
         <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding VersionText, ElementName=downloadButton}"
                       Foreground="White" VerticalAlignment="Center"
                       HorizontalAlignment="Left" Margin="5,0,0,0" />
-        <Label x:Name="lblAction" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0"/>
+        <Label x:Name="lblAction" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" IsHitTestVisible="False"/>
         <ContentControl x:Name="downloadIcon" ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingBars}}"
             Foreground="#14FFFFFF"
             Focusable="False" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0"/>

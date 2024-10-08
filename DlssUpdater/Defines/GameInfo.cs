@@ -148,40 +148,41 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         bool bChanged = false;
         await Task.Run(() =>
         {
-            bool bUpdateAvailable = false;
-            foreach (var (dll, info) in InstalledDlls)
-            {
-                var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
-                _logger.Debug($"Found '{allFiles?.Length.ToString() ?? "0"} files' for {GetDllName(dll)} in {GameName}");
-                if (allFiles is null || allFiles.Length == 0)
-                {
-                    continue; 
-                }
-                // TODO: Support for multiple instances of the same dll?
+	        bool bUpdateAvailable = false;
+	        foreach (var (dll, info) in InstalledDlls)
+	        {
+		        var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
+		        _logger.Debug($"Found '{allFiles?.Length.ToString() ?? "0"} files' for {GetDllName(dll)} in {GameName}");
+		        if (allFiles is null || allFiles.Length == 0)
+		        {
+			        continue;
+		        }
+		        // TODO: Support for multiple instances of the same dll?
 
-                // We only should have one entry
-                info.Path = allFiles[^1];
-                var fileInfo = FileVersionInfo.GetVersionInfo(info.Path);
-                var newVersion = fileInfo.FileVersion?.Replace(',', '.');
-                if (newVersion is not null && newVersion != info.Version)
-                {
-                    info.Version = fileInfo.FileVersion?.Replace(',', '.') ?? "0.0.0.0";
-                    bChanged = true;
-                }
-                if (_updater.IsNewerVersionAvailable(dll, info))
-                {
-                    bUpdateAvailable = true;
-                }
+		        // We only should have one entry
+		        info.Path = allFiles[^1];
+		        var fileInfo = FileVersionInfo.GetVersionInfo(info.Path);
+		        var newVersion = fileInfo.FileVersion?.Replace(',', '.');
+		        if (newVersion is not null && newVersion != info.Version)
+		        {
+			        info.Version = fileInfo.FileVersion?.Replace(',', '.') ?? "0.0.0.0";
+			        bChanged = true;
+		        }
+		        if (_updater.IsNewerVersionAvailable(dll, info))
+		        {
+			        bUpdateAvailable = true;
+		        }
 
-                switch(dll)
-                {
-                    case DllType.Dlss: InstalledVersionDlss = info.Version; break;
-                    case DllType.DlssD: InstalledVersionDlssD = info.Version; break;
-                    case DllType.DlssG: InstalledVersionDlssG = info.Version; break;
-                }
-            }
+		        switch (dll)
+		        {
+			        case DllType.Dlss: InstalledVersionDlss = info.Version; break;
+			        case DllType.DlssD: InstalledVersionDlssD = info.Version; break;
+			        case DllType.DlssG: InstalledVersionDlssG = info.Version; break;
+		        }
+	        }
 
-            UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
+	        UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
+            
         });
 
         if(bChanged)

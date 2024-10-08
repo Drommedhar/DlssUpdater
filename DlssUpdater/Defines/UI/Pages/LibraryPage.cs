@@ -28,10 +28,12 @@ namespace DLSSUpdater.Defines.UI.Pages
         private readonly GameContainer _gameContainer;
         private readonly AsyncFileWatcher _fileWatcher;
         private readonly DllUpdater _updater;
+        private readonly NLog.Logger _logger;
 
-        public LibraryPage(GameContainer gameContainer, AsyncFileWatcher watcher, DllUpdater updater)
+        public LibraryPage(GameContainer gameContainer, AsyncFileWatcher watcher, DllUpdater updater, NLog.Logger logger)
         {
             PageControl = App.GetService<GamePageControl>()!;
+            _logger = logger;
             _gameContainer = gameContainer;
             _gameContainer.GamesChanged += _gameContainer_GamesChanged;
             _fileWatcher = watcher;
@@ -77,7 +79,7 @@ namespace DLSSUpdater.Defines.UI.Pages
         {
             var wndMain = App.GetService<MainWindow>();
             wndMain?.SetEffect(true);
-            var wndConfig = new GameConfigWindow(App.GetService<GameConfigWindowViewModel>()!, _gameContainer, _fileWatcher, _updater, null)
+            var wndConfig = new GameConfigWindow(App.GetService<GameConfigWindowViewModel>()!, _gameContainer, _fileWatcher, _updater, _logger, null)
             {
                 Width = 0,
                 Height = 0,

@@ -18,7 +18,16 @@ public class AntiCheatChecker
     {
         if (!Directory.Exists(directory)) return AntiCheatProvider.None;
 
-        return _providers.FirstOrDefault(provider => provider.Check(directory))?.ProviderType ?? AntiCheatProvider.None;
+        try
+        {
+	        return _providers.FirstOrDefault(provider => provider.Check(directory))?.ProviderType ?? AntiCheatProvider.None;
+		}
+        catch (UnauthorizedAccessException ex)
+        {
+	        _logger.Error($"AntiCheatChecker: {ex}");
+	        return AntiCheatProvider.None;
+        }
+        
     }
 
     public void Init()
