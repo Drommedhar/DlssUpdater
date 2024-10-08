@@ -42,6 +42,7 @@ namespace DLSSUpdater.Controls
         private readonly GameContainer _gameContainer;
         private readonly DllUpdater _updater;
         private readonly AsyncFileWatcher _fileWatcher;
+        private readonly NLog.Logger _logger;
 
         public GamePanel()
         {
@@ -49,6 +50,7 @@ namespace DLSSUpdater.Controls
             _gameContainer = App.GetService<GameContainer>()!;
             _updater = App.GetService<DllUpdater>()!;
             _fileWatcher = App.GetService<AsyncFileWatcher>()!;
+            _logger = App.GetService<NLog.Logger>()!;
 
             InitializeComponent();
         }
@@ -65,7 +67,7 @@ namespace DLSSUpdater.Controls
         {
             var wndMain = App.GetService<MainWindow>();
             wndMain?.SetEffect(true);
-            var wndConfig = new GameConfigWindow(App.GetService<GameConfigWindowViewModel>()!, _gameContainer, _fileWatcher, _updater, GameInfo)
+            var wndConfig = new GameConfigWindow(App.GetService<GameConfigWindowViewModel>()!, _gameContainer, _fileWatcher, _updater, _logger, GameInfo)
             {
                 Width = 0,
                 Height = 0,

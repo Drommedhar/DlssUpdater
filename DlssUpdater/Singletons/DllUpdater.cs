@@ -235,7 +235,7 @@ public class DllUpdater
             return File.Exists(Path.Combine(defaultPath, GetDllName(dllType)));
         }
 
-        return false;
+        return true;
     }
 
     public UpdateResult UpdateGameDlls(GameInfo gameInfo, bool saveAsDefault)

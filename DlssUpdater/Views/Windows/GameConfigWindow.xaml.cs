@@ -24,11 +24,13 @@ namespace DLSSUpdater.Views.Windows
         private readonly DllUpdater _updater;
         private readonly bool _newGame;
         private readonly GameInfo? _originalGameInfo;
+        private readonly NLog.Logger _logger;
 
         public GameConfigWindow(GameConfigWindowViewModel viewModel, GameContainer gameContainer, AsyncFileWatcher watcher, 
-                                DllUpdater updater, GameInfo? gameInfo)
+                                DllUpdater updater, NLog.Logger logger, GameInfo? gameInfo)
         {
             ViewModel = viewModel;
+            _logger = logger;
             _newGame = true;
             if(gameInfo is not null)
             {
@@ -115,7 +117,23 @@ namespace DLSSUpdater.Views.Windows
                     // Set folder name as name
                     ViewModel.GameInfo.GameName = Path.GetFileName(dlg.FolderName)!;
                 }
-                await ViewModel.GameInfo.GatherInstalledVersions();
+
+                (_, var ex) = await ViewModel.GameInfo.GatherInstalledVersions();
+				if(ex is UnauthorizedAccessException)
+				{
+					ViewModel.GameInfo.GamePath = string.Empty;
+					_logger.Error($"GameInfo.GatherInstalledVersions: {ex}");
+					// TODO: Show the user that this path needs admin rights
+					var messageBox = new MessageBoxModel
+					{
+						Caption = "Access denied",
+						Text = $"You don't have enough rights to access the selected path. Try running Dlss Updater as admin.",
+						Buttons = [MessageBoxButtons.Ok()]
+					};
+
+					_ = AdonisUI.Controls.MessageBox.Show(messageBox);
+				}
+				
                 updateUi();
             }
         }
