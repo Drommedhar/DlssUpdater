@@ -158,6 +158,7 @@ namespace DLSSUpdater.Views.Windows
             if (dlg.ShowDialog() == true)
             {
                 ViewModel.GameInfo.SetGameImageUri(dlg.FileName);
+                ViewModel.GameInfo.GenerateGameImage();
                 updateUi();
             }
         }

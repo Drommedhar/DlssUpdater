@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -273,7 +274,11 @@ public class GameConvert : JsonConverter<GameInfo>
                 }
                 info.UniqueId = uniqueId!;
                 info.IsHidden = isHidden;
-                if (!string.IsNullOrEmpty(gameImageUri)) info.SetGameImageUri(gameImageUri);
+                if (!string.IsNullOrEmpty(gameImageUri))
+                {
+                    info.SetGameImageUri(gameImageUri);
+                    info.GenerateGameImage();
+                }
                 return info;
             }
 

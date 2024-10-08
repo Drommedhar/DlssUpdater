@@ -1,4 +1,7 @@
-﻿# 2.0.3.0
+﻿# 2.0.4.0
+* Improve speed of game gather step
+
+# 2.0.3.0
 * "Restore default version" is no longer added multiple times
 * No longer crashes if the user is not allowed to access a path
 
