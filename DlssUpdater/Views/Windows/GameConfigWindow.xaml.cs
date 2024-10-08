@@ -118,11 +118,8 @@ namespace DLSSUpdater.Views.Windows
                     ViewModel.GameInfo.GameName = Path.GetFileName(dlg.FolderName)!;
                 }
 
-                try
-                {
-	                await ViewModel.GameInfo.GatherInstalledVersions();
-				}
-				catch (UnauthorizedAccessException ex)
+                (_, var ex) = await ViewModel.GameInfo.GatherInstalledVersions();
+				if(ex is UnauthorizedAccessException)
 				{
 					ViewModel.GameInfo.GamePath = string.Empty;
 					_logger.Error($"GameInfo.GatherInstalledVersions: {ex}");

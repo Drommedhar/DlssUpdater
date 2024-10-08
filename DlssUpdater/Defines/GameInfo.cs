@@ -141,56 +141,65 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         HasAntiCheat = AntiCheatImage != null ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    public async Task<bool> GatherInstalledVersions()
+    public async Task<(bool, Exception?)> GatherInstalledVersions()
     {
-        if (!Directory.Exists(GamePath)) return false;
+        if (!Directory.Exists(GamePath)) return (false, null);
 
         bool bChanged = false;
-        await Task.Run(() =>
+        try
         {
-	        bool bUpdateAvailable = false;
-	        foreach (var (dll, info) in InstalledDlls)
-	        {
-		        var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
-		        _logger.Debug($"Found '{allFiles?.Length.ToString() ?? "0"} files' for {GetDllName(dll)} in {GameName}");
-		        if (allFiles is null || allFiles.Length == 0)
-		        {
-			        continue;
-		        }
-		        // TODO: Support for multiple instances of the same dll?
+            await Task.Run(() =>
+            {
+                bool bUpdateAvailable = false;
+                foreach (var (dll, info) in InstalledDlls)
+                {
+                    var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
+                    _logger.Debug($"Found '{allFiles?.Length.ToString() ?? "0"} files' for {GetDllName(dll)} in {GameName}");
+                    if (allFiles is null || allFiles.Length == 0)
+                    {
+                        continue;
+                    }
+                    // TODO: Support for multiple instances of the same dll?
 
-		        // We only should have one entry
-		        info.Path = allFiles[^1];
-		        var fileInfo = FileVersionInfo.GetVersionInfo(info.Path);
-		        var newVersion = fileInfo.FileVersion?.Replace(',', '.');
-		        if (newVersion is not null && newVersion != info.Version)
-		        {
-			        info.Version = fileInfo.FileVersion?.Replace(',', '.') ?? "0.0.0.0";
-			        bChanged = true;
-		        }
-		        if (_updater.IsNewerVersionAvailable(dll, info))
-		        {
-			        bUpdateAvailable = true;
-		        }
+                    // We only should have one entry
+                    info.Path = allFiles[^1];
+                    var fileInfo = FileVersionInfo.GetVersionInfo(info.Path);
+                    var newVersion = fileInfo.FileVersion?.Replace(',', '.');
+                    if (newVersion is not null && newVersion != info.Version)
+                    {
+                        info.Version = fileInfo.FileVersion?.Replace(',', '.') ?? "0.0.0.0";
+                        bChanged = true;
+                    }
+                    if (_updater.IsNewerVersionAvailable(dll, info))
+                    {
+                        bUpdateAvailable = true;
+                    }
 
-		        switch (dll)
-		        {
-			        case DllType.Dlss: InstalledVersionDlss = info.Version; break;
-			        case DllType.DlssD: InstalledVersionDlssD = info.Version; break;
-			        case DllType.DlssG: InstalledVersionDlssG = info.Version; break;
-		        }
-	        }
+                    switch (dll)
+                    {
+                        case DllType.Dlss: InstalledVersionDlss = info.Version; break;
+                        case DllType.DlssD: InstalledVersionDlssD = info.Version; break;
+                        case DllType.DlssG: InstalledVersionDlssG = info.Version; break;
+                    }
+                }
 
-	        UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
-            
-        });
+                UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
+
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.Error($"GameInfo.GatherInstalledVersions failed with: {ex}");
+            InstalledDlls.Clear();
+            return (false, ex);
+        }        
 
         if(bChanged)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => { _libPage.UpdateNotificationInfo(); }));
         }
 
-        return bChanged;
+        return (bChanged, null);
     }
 
     public bool HasInstalledDlls()

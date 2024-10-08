@@ -56,7 +56,7 @@ namespace DLSSUpdater.Singletons
             }
             if(_queueFiles.TryDequeue(out var info))
             {
-                var bChanged = await info.GatherInstalledVersions();
+                (var bChanged, _) = await info.GatherInstalledVersions();
                 if (bChanged)
                 {
                     FilesChanged?.Invoke(this, EventArgs.Empty);
