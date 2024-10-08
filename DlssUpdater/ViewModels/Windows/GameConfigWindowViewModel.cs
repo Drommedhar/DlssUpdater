@@ -57,9 +57,9 @@ namespace DLSSUpdater.ViewModels.Windows
             DlssGItem = "";
             SaveAsDefault = false;
 
-            InstalledVersionsDlss = _updater.InstalledPackages[DllType.Dlss];
-            InstalledVersionsDlssD = _updater.InstalledPackages[DllType.DlssD];
-            InstalledVersionsDlssG = _updater.InstalledPackages[DllType.DlssG];
+            InstalledVersionsDlss = copyPackages(DllType.Dlss);
+            InstalledVersionsDlssD = copyPackages(DllType.DlssD);
+            InstalledVersionsDlssG = copyPackages(DllType.DlssG);
 
             PathText = IsManualGame ? "..." : "Can't be set manually";
             DlssEnabled = !string.IsNullOrEmpty(GameInfo.InstalledDlls[DllType.Dlss].Version);
@@ -78,6 +78,18 @@ namespace DLSSUpdater.ViewModels.Windows
             {
                 InstalledVersionsDlssG.Insert(0, new() { Version = DllUpdater.DefaultVersion, VersionDetailed = DllUpdater.DefaultVersion });
             }
+        }
+
+        private ObservableCollection<InstalledPackage> copyPackages(DllType dllType)
+        {
+            ObservableCollection<InstalledPackage> ret = [];
+
+            foreach (var p in _updater.InstalledPackages[dllType])
+            {
+                ret.Add(p);
+            }
+
+            return ret;
         }
     }
 }
