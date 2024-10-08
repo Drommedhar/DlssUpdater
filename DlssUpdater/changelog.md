@@ -1,4 +1,8 @@
-﻿# 2.0.2.0
+﻿# 2.0.3.0
+* "Restore default version" is no longer added multiple times
+* No longer crashes if the user is not allowed to access a path
+
+# 2.0.2.0
 * Fix a bug parsing Steam libraryfolder.vdf
 * Try to check more registry paths for registry reads
 * More logging especially for Steam library
