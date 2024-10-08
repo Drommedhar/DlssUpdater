@@ -90,57 +90,72 @@ public class EpicGamesLibrary : ILibrary
             }
         }
 
+        List<Task> tasks = [];
+        var throttler = new SemaphoreSlim(initialCount: 10);
         var files = Directory.GetFiles(path);
         foreach (var file in files)
         {
-            var data = await File.ReadAllBytesAsync(file);
-            var yourObject = JsonDocument.Parse(data);
-
-            try
+            var task = Task.Run(async () =>
             {
-                var isApp = yourObject.RootElement.GetProperty("bIsApplication").GetBoolean();
-                if (!isApp)
-                {
-                    continue;
-                }
+                // do an async wait until we can schedule again
+                await throttler.WaitAsync();
 
-                var displayName = yourObject.RootElement.GetProperty("DisplayName").GetString();
-                var location = yourObject.RootElement.GetProperty("InstallLocation").GetString()?.Replace('/', '\\');
-                var catalogId = yourObject.RootElement.GetProperty("CatalogItemId").GetString();
+                var data = await File.ReadAllBytesAsync(file);
+                var yourObject = JsonDocument.Parse(data);
 
-                var cachedData = cachedGames.FirstOrDefault(g => g.Id == catalogId);
-                if (cachedData is null || string.IsNullOrEmpty(displayName) || string.IsNullOrEmpty(location))
+                try
                 {
-                    continue;
-                }
+                    var isApp = yourObject.RootElement.GetProperty("bIsApplication").GetBoolean();
+                    if (!isApp)
+                    {
+                        return;
+                    }
 
-                var imageObj = cachedData.KeyImages.FirstOrDefault(i => i.Type == "DieselGameBoxTall");
+                    var displayName = yourObject.RootElement.GetProperty("DisplayName").GetString();
+                    var location = yourObject.RootElement.GetProperty("InstallLocation").GetString()?.Replace('/', '\\');
+                    var catalogId = yourObject.RootElement.GetProperty("CatalogItemId").GetString();
 
-                var info = new GameInfo(displayName, location, GetLibraryType())
-                {
-                    UniqueId = "epic_" + catalogId!
-                };
-                if (imageObj is not null && !string.IsNullOrEmpty(imageObj.Url))
-                {
-                    info.SetGameImageUri(imageObj.Url);
-                }
+                    var cachedData = cachedGames.FirstOrDefault(g => g.Id == catalogId);
+                    if (cachedData is null || string.IsNullOrEmpty(displayName) || string.IsNullOrEmpty(location))
+                    {
+                        return;
+                    }
 
-                await info.GatherInstalledVersions();
-                if (info.HasInstalledDlls())
-                {
-                    ret.Add(info);
+                    var imageObj = cachedData.KeyImages.FirstOrDefault(i => i.Type == "DieselGameBoxTall");
+
+                    var info = new GameInfo(displayName, location, GetLibraryType())
+                    {
+                        UniqueId = "epic_" + catalogId!
+                    };
+                    if (imageObj is not null && !string.IsNullOrEmpty(imageObj.Url))
+                    {
+                        info.SetGameImageUri(imageObj.Url);
+                    }
+
+                    await info.GatherInstalledVersions();
+                    if (info.HasInstalledDlls())
+                    {
+                        ret.Add(info);
+                    }
+                    else
+                    {
+                        _logger.Debug($"EpicGames: '{info.GameName}' does not have any DLSS dll and is being ignored.");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    _logger.Debug($"EpicGames: '{info.GameName}' does not have any DLSS dll and is being ignored.");
+                    _logger.Warn($"EpicGames Parsing manifest failed with:  {ex}");
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.Warn($"EpicGames Parsing manifest failed with:  {ex}");
-            }
+                finally 
+                {
+                    throttler.Release();
+                }
+            });
+
+            tasks.Add(task);
         }
 
+        await Task.WhenAll(tasks);
         return ret;
     }
 
