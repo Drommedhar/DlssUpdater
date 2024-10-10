@@ -28,6 +28,7 @@ public class Settings
         public static string CacheFile { get; } = "cache.json";
         public static string SettingsFile { get; } = "settings.json";
         public static TimeSpan CacheTime { get; } = TimeSpan.FromMinutes(30);
+        public static int CoreCount { get; } = Environment.ProcessorCount;
     }
 
     public class Paths

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -58,19 +59,25 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
     {
         GameName = gameInfo.GameName;
         GamePath = gameInfo.GamePath;
-        GameImageUri = gameInfo.GameImageUri;
         LibraryType = gameInfo.LibraryType;
         _removeVisible = LibraryType == LibraryType.Manual ? Visibility.Visible : Visibility.Collapsed;
         UniqueId = gameInfo.UniqueId;
         IsHidden = gameInfo.IsHidden;
-        GameImage = gameInfo.GameImage;
-        InstalledDlls = gameInfo.InstalledDlls;
+        GameImageUri = gameInfo.GameImageUri;
+        foreach(var kvp in gameInfo.InstalledDlls)
+        {
+            InstalledDlls.Add(kvp.Key, kvp.Value);
+        }
         _updater = gameInfo._updater;
         _logger = gameInfo._logger;
         _libPage = gameInfo._libPage;
-        InstalledVersionDlss = "N/A";
-        InstalledVersionDlssD = "N/A";
-        InstalledVersionDlssG = "N/A";
+        InstalledVersionDlss = gameInfo.InstalledVersionDlss;
+        InstalledVersionDlssD = gameInfo.InstalledVersionDlssD;
+        InstalledVersionDlssG = gameInfo._installedVersionDlssG;
+        GenerateGameImage();
+        setLibraryImage();
+        setHideImage();
+        SetAntiCheatImage();
 
         Self = this;
     }
@@ -210,6 +217,10 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
     public void SetGameImageUri(string imageUri)
     {
         GameImageUri = imageUri;
+    }
+
+    public void GenerateGameImage()
+    {
         try
         {
             if (!string.IsNullOrEmpty(GameImageUri))
@@ -217,7 +228,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
                 GameImage = new BitmapImage(new Uri(GameImageUri));
             }
         }
-        catch(FileNotFoundException ex)
+        catch (FileNotFoundException ex)
         {
             _logger.Error($"Image not found: {ex}");
         }
@@ -263,7 +274,11 @@ public class GameConvert : JsonConverter<GameInfo>
                 }
                 info.UniqueId = uniqueId!;
                 info.IsHidden = isHidden;
-                if (!string.IsNullOrEmpty(gameImageUri)) info.SetGameImageUri(gameImageUri);
+                if (!string.IsNullOrEmpty(gameImageUri))
+                {
+                    info.SetGameImageUri(gameImageUri);
+                    info.GenerateGameImage();
+                }
                 return info;
             }
 

@@ -63,57 +63,75 @@ public class UbisoftConnectLibrary : ILibrary
 
         var data = await File.ReadAllTextAsync(configPath);
         var entries = data.Split("root:", StringSplitOptions.TrimEntries);
+        List<Task> tasks = [];
+        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
         foreach (var entry in entries)
         {
-            var result = entry
-             .Split("\n")
-             .Select(x => x.Split(':'))
-             .SafeToDictionary(x => x[0].Trim(), x => x.Length >= 2 ? x[1].Trim() : "");
-
-            if (!result.TryGetValue("name", out var name))
+            var task = Task.Run(async () =>
             {
-                continue;
-            }
-            if (!result.TryGetValue("register", out var registerKey))
-            {
-                continue;
-            }
-            if (!result.TryGetValue("thumb_image", out var thumbImage))
-            {
-                continue;
-            }
-            if (!result.TryGetValue("app_id", out var appId))
-            {
-                continue;
-            }
-
-            var gamePath = RegistryHelper.GetRegistryValue(registerKey.Replace("HKEY_LOCAL_MACHINE\\", "")
-                                         .Replace("\\InstallDir", ""), "InstallDir") as string;
-            if (string.IsNullOrEmpty(gamePath))
-            {
-                _logger.Warn($"Ubisoft connect: Could not find regkey for {registerKey}");
-                continue;
-            }
-
-            var info = new GameInfo(name, gamePath, LibraryType.Ubisoft)
-            {
-                UniqueId = "ubi_" + appId
-            };
-            await info.GatherInstalledVersions();
-            if (info.HasInstalledDlls())
-            {
-                var imageUri = getGameImage(thumbImage);
-                if (imageUri != null)
+                try
                 {
-                    info.SetGameImageUri(imageUri);
+                    // do an async wait until we can schedule again
+                    await throttler.WaitAsync();
+
+                    var result = entry
+                     .Split("\n")
+                     .Select(x => x.Split(':'))
+                     .SafeToDictionary(x => x[0].Trim(), x => x.Length >= 2 ? x[1].Trim() : "");
+
+                    if (!result.TryGetValue("name", out var name))
+                    {
+                        return;
+                    }
+                    if (!result.TryGetValue("register", out var registerKey))
+                    {
+                        return;
+                    }
+                    if (!result.TryGetValue("thumb_image", out var thumbImage))
+                    {
+                        return;
+                    }
+                    if (!result.TryGetValue("app_id", out var appId))
+                    {
+                        return;
+                    }
+
+                    var gamePath = RegistryHelper.GetRegistryValue(registerKey.Replace("HKEY_LOCAL_MACHINE\\", "")
+                                                 .Replace("\\InstallDir", ""), "InstallDir") as string;
+                    if (string.IsNullOrEmpty(gamePath))
+                    {
+                        _logger.Warn($"Ubisoft connect: Could not find regkey for {registerKey}");
+                        return;
+                    }
+
+                    var info = new GameInfo(name, gamePath, LibraryType.Ubisoft)
+                    {
+                        UniqueId = "ubi_" + appId
+                    };
+                    await info.GatherInstalledVersions();
+                    if (info.HasInstalledDlls())
+                    {
+                        var imageUri = getGameImage(thumbImage);
+                        if (imageUri != null)
+                        {
+                            info.SetGameImageUri(imageUri);
+                        }
+                        ret.Add(info);
+                    }
+                    else
+                    {
+                        _logger.Debug($"Ubisoft connect: '{info.GameName}' does not have any DLSS dll and is being ignored.");
+                    }
                 }
-                ret.Add(info);
-            }
-            else
-            {
-                _logger.Debug($"Ubisoft connect: '{info.GameName}' does not have any DLSS dll and is being ignored.");
-            }
+                finally
+                {
+                    throttler.Release();
+                }
+            });
+            tasks.Add(task);
         }
+
+        await Task.WhenAll(tasks);
 
         return ret;
     }

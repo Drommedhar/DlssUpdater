@@ -68,7 +68,12 @@ public class SteamLibrary : ILibrary
         for (var i = 0; i < paths.Count; i++)
         {
             var path = paths[i];
-            var appIds = apps[i];
+            List<string> appIds = [];
+            foreach (var a in apps[i])
+            {
+                appIds.Add(a);
+            }
+
             LibraryFolder folder = new(Path.Combine(path, "steamapps"))
             {
                 Apps = appIds
@@ -93,26 +98,42 @@ public class SteamLibrary : ILibrary
 
     private async Task<List<GameInfo>> getGames(List<LibraryFolder> folder)
     {
+        List<Task> tasks = [];
         List<GameInfo> ret = [];
+
+        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
 
         foreach (var folderItem in folder)
         {
             foreach (var app in folderItem.Apps)
             {
-                var appPath = Path.Combine(folderItem.Path, $"appmanifest_{app}.acf");
-                if (!File.Exists(appPath))
+                var task = Task.Run(async () =>
                 {
-                    _logger.Warn($"Steam: {appPath} not found.");
-                    continue;
-                }
+                    // do an async wait until we can schedule again
+                    await throttler.WaitAsync();
 
-                var info = await getGameFromManifest(appPath, app);
-                if (info is not null)
-                {
-                    ret.Add(info);
-                }
+                    var appPath = Path.Combine(folderItem.Path, $"appmanifest_{app}.acf");
+                    if (!File.Exists(appPath))
+                    {
+                        _logger.Warn($"Steam: {appPath} not found.");
+                    }
+                    else
+                    {
+
+                        var info = await getGameFromManifest(appPath, app);
+                        if (info is not null)
+                        {
+                            ret.Add(info);
+                        }
+                    }
+
+                    throttler.Release();
+                });
+                tasks.Add(task);
             }
         }
+
+        await Task.WhenAll(tasks);
 
         return ret;
     }
@@ -136,6 +157,7 @@ public class SteamLibrary : ILibrary
             _logger.Warn($"Steam: getGameFromManifest could not find file {finalGamePath}");
             return null;
         }
+
         var info = new GameInfo(gameName[0], finalGamePath, LibraryType.Steam)
         {
             UniqueId = "steam_" + appId,
@@ -150,7 +172,6 @@ public class SteamLibrary : ILibrary
         if (info.HasInstalledDlls()) return info;
 
         _logger.Debug($"Steam: '{info.GameName}' does not have any DLSS dll and is being ignored.");
-        
         return null;
     }
 

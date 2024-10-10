@@ -32,7 +32,8 @@ namespace DLSSUpdater.Views.Windows
             ViewModel = viewModel;
             _logger = logger;
             _newGame = true;
-            if(gameInfo is not null)
+            ViewModel.GameInfo = new("", "", LibraryType.Manual);
+            if (gameInfo is not null)
             {
                 watcher.RemoveFile(gameInfo);
                 ViewModel.GameInfo = new(gameInfo);
@@ -158,6 +159,7 @@ namespace DLSSUpdater.Views.Windows
             if (dlg.ShowDialog() == true)
             {
                 ViewModel.GameInfo.SetGameImageUri(dlg.FileName);
+                ViewModel.GameInfo.GenerateGameImage();
                 updateUi();
             }
         }

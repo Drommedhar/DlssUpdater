@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text.Json;
+using DlssUpdater;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
@@ -51,47 +52,66 @@ public class GOGLibrary : ILibrary
             return ret;
         }
 
+        List<Task> tasks = [];
+        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
         foreach (var subKey in subKeys)
         {
-            var gameKey = hklm.OpenSubKey(Path.Combine(@"SOFTWARE\GOG.com\Games", subKey));
-            if (gameKey == null)
+            var task = Task.Run(async () =>
             {
-                continue;
-            }
+                try
+                {
+                    // do an async wait until we can schedule again
+                    await throttler.WaitAsync();
 
-            var dependsOn = gameKey.GetValue("dependsOn") as string;
-            if (!string.IsNullOrEmpty(dependsOn))
-            {
-                continue;
-            }
+                    var gameKey = hklm.OpenSubKey(Path.Combine(@"SOFTWARE\GOG.com\Games", subKey));
+                    if (gameKey == null)
+                    {
+                        return;
+                    }
 
-            var name = gameKey.GetValue("gameName") as string;
-            var path = gameKey.GetValue("path") as string;
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path))
-            {
-                continue;
-            }
+                    var dependsOn = gameKey.GetValue("dependsOn") as string;
+                    if (!string.IsNullOrEmpty(dependsOn))
+                    {
+                        return;
+                    }
 
-            var info = new GameInfo(name, path, GetLibraryType())
-            {
-                UniqueId = "gog_" + subKey
-            };
-            var gameImage = await getGameImage(subKey) ?? string.Empty;
-            if (!string.IsNullOrEmpty(gameImage))
-            {
-                info.SetGameImageUri(gameImage);
-            }
+                    var name = gameKey.GetValue("gameName") as string;
+                    var path = gameKey.GetValue("path") as string;
+                    if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path))
+                    {
+                        return;
+                    }
 
-            await info.GatherInstalledVersions();
-            if (info.HasInstalledDlls())
-            {
-                ret.Add(info);
-            }
-            else
-            {
-                _logger.Debug($"GOG: '{info.GameName}' does not have any DLSS dll and is being ignored.");
-            }
+                    var info = new GameInfo(name, path, GetLibraryType())
+                    {
+                        UniqueId = "gog_" + subKey
+                    };
+                    var gameImage = await getGameImage(subKey) ?? string.Empty;
+                    if (!string.IsNullOrEmpty(gameImage))
+                    {
+                        info.SetGameImageUri(gameImage);
+                    }
+
+                    await info.GatherInstalledVersions();
+                    if (info.HasInstalledDlls())
+                    {
+                        ret.Add(info);
+                    }
+                    else
+                    {
+                        _logger.Debug($"GOG: '{info.GameName}' does not have any DLSS dll and is being ignored.");
+                    }
+                }
+                finally
+                {
+                    throttler.Release();
+                }
+            });
+
+            tasks.Add(task);
         }
+        await Task.WhenAll(tasks);
+
         return ret;
     }
 

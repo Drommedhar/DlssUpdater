@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using DlssUpdater.Defines;
@@ -56,7 +57,14 @@ public class GameContainer
 
     public async Task LoadGamesAsync()
     {
+        _logger.Debug("Starting gathering games");
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
         await loadGamesAsync();
+
+        stopwatch.Stop();
+        var elapsedMs = stopwatch.ElapsedMilliseconds;
+        _logger.Debug($"Game Loading done. Took {elapsedMs} ms");
     }
 
     public void RemoveGame(GameInfo game)
@@ -129,13 +137,16 @@ public class GameContainer
                 {
                     var id = Games[index].UniqueId;
                     var isHidden = Games[index].IsHidden;
-                    Games[index] = item;
+                    Games[index] = new(item);
                     Games[index].UniqueId = id;
                     Games[index].IsHidden = isHidden;
+                    await Games[index].GatherInstalledVersions();
                 }
                 else
-                { 
-                    Games.Add(item);
+                {
+                    var info = new GameInfo(item);
+                    await info.GatherInstalledVersions();
+                    Games.Add(info);
                 }
                 _watcher.AddFile(item);
             }
