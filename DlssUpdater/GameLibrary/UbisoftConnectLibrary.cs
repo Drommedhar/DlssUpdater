@@ -64,7 +64,7 @@ public class UbisoftConnectLibrary : ILibrary
         var data = await File.ReadAllTextAsync(configPath);
         var entries = data.Split("root:", StringSplitOptions.TrimEntries);
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(initialCount: 10);
+        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
         foreach (var entry in entries)
         {
             var task = Task.Run(async () =>

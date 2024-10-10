@@ -101,7 +101,7 @@ public class SteamLibrary : ILibrary
         List<Task> tasks = [];
         List<GameInfo> ret = [];
 
-        var throttler = new SemaphoreSlim(initialCount: 10);
+        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
 
         foreach (var folderItem in folder)
         {

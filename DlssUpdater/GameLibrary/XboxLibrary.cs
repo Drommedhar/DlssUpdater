@@ -42,7 +42,7 @@ public class XboxLibrary : ILibrary
     private async Task<List<GameInfo>> getGames()
     {
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(initialCount: 10);
+        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
         List<GameInfo> ret = [];
 
         var drive = DriveInfo.GetDrives();

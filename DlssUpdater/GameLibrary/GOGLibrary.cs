@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text.Json;
+using DlssUpdater;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
@@ -52,7 +53,7 @@ public class GOGLibrary : ILibrary
         }
 
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(initialCount: 10);
+        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
         foreach (var subKey in subKeys)
         {
             var task = Task.Run(async () =>

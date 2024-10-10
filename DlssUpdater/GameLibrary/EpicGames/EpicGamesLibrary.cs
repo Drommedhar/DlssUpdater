@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
+using DlssUpdater;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
@@ -91,7 +92,7 @@ public class EpicGamesLibrary : ILibrary
         }
 
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(initialCount: 10);
+        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
         var files = Directory.GetFiles(path);
         foreach (var file in files)
         {
