@@ -72,5 +72,5 @@ jobs:
         wait-for-completion: true
         output-artifact-directory: './'
         parameters: |
-          Version: v${{ steps.project-version.outputs.version }}
+          Version: ${{ toJSON(steps.project-version.outputs.version) }}
           Release_Tag: "v${{ steps.project-version.outputs.version }}"
