@@ -67,7 +67,7 @@ jobs:
         api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
         organization-id: '755fc32c-cfd8-4e3a-9ece-1a337dd6e8c3'
         project-slug: 'DlssUpdater'
-        signing-policy-slug: 'test_certificate'
+        signing-policy-slug: 'test-signing'
         github-artifact-id: '${{steps.Artifact.outputs.artifact-id}}'
         wait-for-completion: true
         output-artifact-directory: './'
