@@ -62,17 +62,17 @@ jobs:
 
     - id: Signing
       uses: signpath/github-action-submit-signing-request@v1
-          with:
-            api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-            organization-id: '755fc32c-cfd8-4e3a-9ece-1a337dd6e8c3'
-            project-slug: 'DlssUpdater'
-            signing-policy-slug: 'test_certificate'
-            github-artifact-id: '${{steps.Artifact.outputs.artifact-id}}'
-            wait-for-completion: true
-            output-artifact-directory: './'
-            parameters: |
-              Version: v${{ steps.project-version.outputs.version }}
-              Release_Tag: "v${{ steps.project-version.outputs.version }}"
+      with:
+        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+        organization-id: '755fc32c-cfd8-4e3a-9ece-1a337dd6e8c3'
+        project-slug: 'DlssUpdater'
+        signing-policy-slug: 'test_certificate'
+        github-artifact-id: '${{steps.Artifact.outputs.artifact-id}}'
+        wait-for-completion: true
+        output-artifact-directory: './'
+        parameters: |
+          Version: v${{ steps.project-version.outputs.version }}
+          Release_Tag: "v${{ steps.project-version.outputs.version }}"
 
 
 
