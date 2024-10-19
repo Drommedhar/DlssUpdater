@@ -45,8 +45,7 @@ jobs:
       with:
         files: bin\fire\out
         recursive: true
-        dest: release.zip
-        
+        dest: release.zip        
 
     - name: Get version of the project
       id: project-version
@@ -75,6 +74,3 @@ jobs:
         parameters: |
           Version: v${{ steps.project-version.outputs.version }}
           Release_Tag: "v${{ steps.project-version.outputs.version }}"
-
-
-
