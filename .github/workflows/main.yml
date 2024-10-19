@@ -40,13 +40,6 @@ jobs:
     - name: Create the package
       run: dotnet publish --configuration Release ${Solution_Name} --self-contained false -p:PublishSingleFile=True -p:PublishReadyToRun=False --output bin\fire\out
 
-    - name: Zip Release
-      uses: vimtor/action-zip@v1.2
-      with:
-        files: bin\fire\out
-        recursive: true
-        dest: release.zip        
-
     - name: Get version of the project
       id: project-version
       uses: 'euberdeveloper/ga-project-version@main'
@@ -57,8 +50,8 @@ jobs:
       id: Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: my-artifact
-        path: release.zip
+        name: release
+        path: bin\fire\out
 
     - name: Sign the artifact
       id: Signing
