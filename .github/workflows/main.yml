@@ -54,13 +54,15 @@ jobs:
       with:
         path: DlssUpdater\version.json
 
-    - id: Artifact
+    - name: Build artifact
+      id: Artifact
       uses: actions/upload-artifact@v4
       with:
         name: my-artifact
         path: release.zip
 
-    - id: Signing
+    - name: Sign the artifact
+      id: Signing
       uses: signpath/github-action-submit-signing-request@v1
       with:
         api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
