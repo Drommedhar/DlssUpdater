@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using DlssUpdater.Defines;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
@@ -12,6 +13,8 @@ namespace DlssUpdater.Singletons;
 
 public class GameContainer
 {
+    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
+    public event EventHandler<string>? InfoMessage;
     public event EventHandler? GamesChanged;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -51,8 +54,15 @@ public class GameContainer
         Libraries.Clear();
         foreach (var library in _settings.Libraries)
         {
-            Libraries.Add(ILibrary.Create(library, _logger));
+            var lib = ILibrary.Create(library, _logger);
+            lib.LoadingProgress += Lib_LoadingProgress;
+            Libraries.Add(lib);
         }
+    }
+
+    private void Lib_LoadingProgress(object? sender, Tuple<int, int, LibraryType> e)
+    {
+        LoadingProgress?.Invoke(sender, e);
     }
 
     public async Task LoadGamesAsync()
@@ -122,6 +132,7 @@ public class GameContainer
             }
         }
 
+        List<GameInfo> totalGames = [];
         foreach (var lib in Libraries)
         {
             if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == lib.GetLibraryType())?.IsChecked ?? false)
@@ -130,26 +141,37 @@ public class GameContainer
             }
 
             var libGames = await lib.GatherGamesAsync();
-            foreach (var item in libGames)
+            totalGames.AddRange(libGames);
+        }
+
+        totalGames = totalGames.GroupBy(g => g.GamePath)
+                .Select(g => g.First())
+                .ToList();
+
+        var amount = totalGames.Count;
+        var current = 0;
+        foreach (var item in totalGames)
+        {
+            current++;
+            InfoMessage?.Invoke(this, $"Parsing games {current}/{amount}");
+
+            var index = Games.IndexOf(g => g.GamePath == item.GamePath);
+            if (index != -1)
             {
-                var index = Games.IndexOf(g => g.GamePath == item.GamePath);
-                if (index != -1)
-                {
-                    var id = Games[index].UniqueId;
-                    var isHidden = Games[index].IsHidden;
-                    Games[index] = new(item);
-                    Games[index].UniqueId = id;
-                    Games[index].IsHidden = isHidden;
-                    await Games[index].GatherInstalledVersions();
-                }
-                else
-                {
-                    var info = new GameInfo(item);
-                    await info.GatherInstalledVersions();
-                    Games.Add(info);
-                }
-                _watcher.AddFile(item);
+                var id = Games[index].UniqueId;
+                var isHidden = Games[index].IsHidden;
+                Games[index] = new(item);
+                Games[index].UniqueId = id;
+                Games[index].IsHidden = isHidden;
+                await Games[index].GatherInstalledVersions();
             }
+            else
+            {
+                var info = new GameInfo(item);
+                await info.GatherInstalledVersions();
+                Games.Add(info);
+            }
+            _watcher.AddFile(item);
         }
 
         SaveGames();

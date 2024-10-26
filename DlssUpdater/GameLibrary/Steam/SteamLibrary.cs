@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
 using DLSSUpdater.Helpers;
@@ -9,6 +10,8 @@ namespace DlssUpdater.GameLibrary.Steam;
 
 public class SteamLibrary : ILibrary
 {
+    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
+
     private readonly NLog.Logger _logger;
     private readonly LibraryConfig _config;    
 
@@ -103,6 +106,9 @@ public class SteamLibrary : ILibrary
 
         var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
 
+        int amount = folder.Sum(folderItem => folderItem.Apps.Count);
+        int current = 0;
+
         foreach (var folderItem in folder)
         {
             foreach (var app in folderItem.Apps)
@@ -111,6 +117,9 @@ public class SteamLibrary : ILibrary
                 {
                     // do an async wait until we can schedule again
                     await throttler.WaitAsync();
+
+                    current += 1;
+                    LoadingProgress?.Invoke(this, new (current, amount, GetLibraryType()));
 
                     var appPath = Path.Combine(folderItem.Path, $"appmanifest_{app}.acf");
                     if (!File.Exists(appPath))
@@ -134,7 +143,9 @@ public class SteamLibrary : ILibrary
         }
 
         await Task.WhenAll(tasks);
-
+        ret = ret.GroupBy(g => g.GamePath)
+                .Select(g => g.First())
+                .ToList();
         return ret;
     }
 

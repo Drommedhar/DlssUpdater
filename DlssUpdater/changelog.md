@@ -1,4 +1,8 @@
-﻿# 2.0.4.0
+﻿# 2.0.5.0
+* Executable is now properly signed
+* Splashscreen shows progress for each library
+
+# 2.0.4.0
 * Improve speed of game gather step
 * Fix bug after adding a new game the game will be already selected on adding another manual game
 * Changing game data in configuration view only applies if clicking apply now not in realtime
