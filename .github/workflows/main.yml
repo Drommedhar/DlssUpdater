@@ -63,7 +63,7 @@ jobs:
         signing-policy-slug: 'release-signing'
         github-artifact-id: '${{steps.Artifact.outputs.artifact-id}}'
         wait-for-completion: true
-        output-artifact-directory: './'
+        output-artifact-directory: './signed-artifacts'
         parameters: |
           Version: ${{ toJSON(steps.project-version.outputs.version) }}
           Release_Tag: "v${{ steps.project-version.outputs.version }}"
@@ -80,7 +80,7 @@ jobs:
         fail_on_unmatched_files: true
         files: |
             version.json
-            release.zip
+            signed-artifacts/*
 
     - uses: sarisia/actions-status-discord@v1
       if: success()
