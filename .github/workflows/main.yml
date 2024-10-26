@@ -63,7 +63,7 @@ jobs:
         signing-policy-slug: 'release-signing'
         github-artifact-id: '${{steps.Artifact.outputs.artifact-id}}'
         wait-for-completion: true
-        output-artifact-directory: './'
+        output-artifact-directory: './release.zip'
         parameters: |
           Version: ${{ toJSON(steps.project-version.outputs.version) }}
           Release_Tag: "v${{ steps.project-version.outputs.version }}"
