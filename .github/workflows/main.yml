@@ -63,45 +63,24 @@ jobs:
         signing-policy-slug: 'release-signing'
         github-artifact-id: '${{steps.Artifact.outputs.artifact-id}}'
         wait-for-completion: true
-        output-artifact-directory: './release.zip'
+        output-artifact-directory: './'
         parameters: |
           Version: ${{ toJSON(steps.project-version.outputs.version) }}
           Release_Tag: "v${{ steps.project-version.outputs.version }}"
 
-    - name: Create Draft Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Release
+      uses: softprops/action-gh-release@v2
       with:
+        # with permissions to create releases in the other repo
+        token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+        name: v${{ steps.project-version.outputs.version }}
         tag_name: v${{ steps.project-version.outputs.version }}
-        release_name: v${{ steps.project-version.outputs.version }}
         draft: false
         prerelease: false
-
-    - uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./release.zip
-        asset_name: dlssupdater.zip
-        asset_content_type: application/zip
-        
-    - uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./DlssUpdater/version.json
-        asset_name: version.json
-        asset_content_type: application/json
-
-    - uses: eregon/publish-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        release_id: ${{ steps.create_release.outputs.id }}
+        fail_on_unmatched_files: true
+        files: |
+            version.json
+            release.zip
 
     - uses: sarisia/actions-status-discord@v1
       if: success()
