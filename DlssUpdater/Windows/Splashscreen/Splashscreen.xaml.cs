@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime;
 using System.Security.Policy;
 using AdonisUI.Controls;
+using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
@@ -34,6 +35,8 @@ public partial class Splashscreen : Window
     {
         _updater = updater;
         _gameContainer = container;
+        _gameContainer.LoadingProgress += _gameContainer_LoadingProgress;
+        _gameContainer.InfoMessage += _gameContainer_InfoMessage;
         _versionUpdater = versionUpdater;
         _logger = logger;
         _logger.Debug("### STARTUP ###");
@@ -47,6 +50,17 @@ public partial class Splashscreen : Window
 
         _mainWindow = mainWindow;
         DataContext = SplashscreenViewModel;
+    }
+
+    private void _gameContainer_InfoMessage(object? sender, string e)
+    {
+        SplashscreenViewModel.InfoText = e;
+    }
+
+    private void _gameContainer_LoadingProgress(object? sender, Tuple<int, int, GameLibrary.LibraryType> e)
+    {
+        (var current, var amount, var libType) = e;
+        SplashscreenViewModel.InfoText = $"Gathering installed games ({ILibrary.GetName(libType)}: {current}/{amount})";
     }
 
     public SplashscreenViewModel SplashscreenViewModel { get; set; } = new();

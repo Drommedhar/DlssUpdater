@@ -1,4 +1,4 @@
-﻿﻿# 2.0.5.1
+# 2.0.5.1
 * Write dump on unhandled crash
 * Adjust logging for more readable information
 

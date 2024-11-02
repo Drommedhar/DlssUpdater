@@ -40,53 +40,54 @@ jobs:
     - name: Create the package
       run: dotnet publish --configuration Release ${Solution_Name} --self-contained false -p:PublishSingleFile=True -p:PublishReadyToRun=False --output bin\fire\out
 
-    - name: Zip Release
-      uses: vimtor/action-zip@v1.2
-      with:
-        files: bin\fire\out
-        recursive: true
-        dest: dlssupdater.zip
-        
     - name: Get version of the project
       id: project-version
       uses: 'euberdeveloper/ga-project-version@main'
       with:
         path: DlssUpdater\version.json
-       
-    - name: Create Draft Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build artifact
+      id: Artifact
+      uses: actions/upload-artifact@v4
       with:
+        name: release
+        path: bin\fire\out
+
+    - name: Sign the artifact
+      id: Signing
+      uses: signpath/github-action-submit-signing-request@v1
+      with:
+        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+        organization-id: '755fc32c-cfd8-4e3a-9ece-1a337dd6e8c3'
+        project-slug: 'DlssUpdater'
+        signing-policy-slug: 'release-signing'
+        github-artifact-id: '${{steps.Artifact.outputs.artifact-id}}'
+        wait-for-completion: true
+        output-artifact-directory: './signed-artifacts'
+        parameters: |
+          Version: ${{ toJSON(steps.project-version.outputs.version) }}
+          Release_Tag: "v${{ steps.project-version.outputs.version }}"
+
+    - name: Zip Release
+      uses: vimtor/action-zip@v1.2
+      with:
+        files: ./signed-artifacts
+        recursive: true
+        dest: dlssupdater.zip          
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        # with permissions to create releases in the other repo
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: v${{ steps.project-version.outputs.version }}
         tag_name: v${{ steps.project-version.outputs.version }}
-        release_name: v${{ steps.project-version.outputs.version }}
         draft: false
         prerelease: false
-
-    - uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dlssupdater.zip
-        asset_name: dlssupdater.zip
-        asset_content_type: application/zip
-        
-    - uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./DlssUpdater/version.json
-        asset_name: version.json
-        asset_content_type: application/json
-
-    - uses: eregon/publish-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        release_id: ${{ steps.create_release.outputs.id }}
+        fail_on_unmatched_files: true
+        files: |
+            ./DlssUpdater/version.json
+            ./dlssupdater.zip
 
     - uses: sarisia/actions-status-discord@v1
       if: success()
@@ -98,4 +99,3 @@ jobs:
           Version `${{ steps.project-version.outputs.version }}`
           Download directly inside `Dlss Updater` or [here](${{ steps.create_release.outputs.html_url }}).
         color: 0xff91a4
-

@@ -12,6 +12,7 @@ namespace DlssUpdater.GameLibrary;
 
 public class XboxLibrary : ILibrary
 {
+    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
     private readonly LibraryConfig _config;
     private readonly NLog.Logger _logger;
 
@@ -44,6 +45,9 @@ public class XboxLibrary : ILibrary
         List<Task> tasks = [];
         var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
         List<GameInfo> ret = [];
+
+        var amount = 0;
+        var current = 0;
 
         var drive = DriveInfo.GetDrives();
         foreach (var driveItem in drive)
@@ -83,8 +87,12 @@ public class XboxLibrary : ILibrary
                     }
 
                     var gameDirs = Directory.GetDirectories(gamePath);
+                    amount += gameDirs.Length;
                     foreach (var gameDir in gameDirs)
                     {
+                        current += 1;
+                        LoadingProgress?.Invoke(this, new(current, amount, GetLibraryType()));
+
                         var manifestPath = Path.Combine(gameDir, "Content", "appxmanifest.xml");
                         if (!File.Exists(manifestPath))
                         {

@@ -5,6 +5,7 @@ namespace DlssUpdater.GameLibrary;
 
 public class ManualLibrary : ILibrary
 {
+    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
     public ManualLibrary(LibraryConfig config, NLog.Logger logger)
     {
 

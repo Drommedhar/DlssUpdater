@@ -15,6 +15,7 @@ namespace DLSSUpdater.GameLibrary.EpicGames;
 
 public class EpicGamesLibrary : ILibrary
 {
+    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
     private readonly NLog.Logger _logger;
     private readonly LibraryConfig _config;
 
@@ -94,12 +95,17 @@ public class EpicGamesLibrary : ILibrary
         List<Task> tasks = [];
         var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
         var files = Directory.GetFiles(path);
+        var amount = files.Length;
+        var current = 0;
         foreach (var file in files)
         {
             var task = Task.Run(async () =>
             {
                 // do an async wait until we can schedule again
                 await throttler.WaitAsync();
+
+                current += 1;
+                LoadingProgress?.Invoke(this, new(current, amount, GetLibraryType()));
 
                 var data = await File.ReadAllBytesAsync(file);
                 var yourObject = JsonDocument.Parse(data);
