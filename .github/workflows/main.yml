@@ -72,7 +72,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         # with permissions to create releases in the other repo
-        token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         name: v${{ steps.project-version.outputs.version }}
         tag_name: v${{ steps.project-version.outputs.version }}
         draft: false
