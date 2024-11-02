@@ -122,11 +122,12 @@ public class UbisoftConnectLibrary : ILibrary
                         {
                             info.SetGameImageUri(imageUri);
                         }
+                        _logger.Debug($"Ubisoft connect: '{info.GamePath}' has DLSS dll and is being added.");
                         ret.Add(info);
                     }
                     else
                     {
-                        _logger.Debug($"Ubisoft connect: '{info.GameName}' does not have any DLSS dll and is being ignored.");
+                        _logger.Debug($"Ubisoft connect: '{info.GamePath}' does not have any DLSS dll and is being ignored.");
                     }
                 }
                 finally

@@ -39,7 +39,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
     }
     [ObservableProperty] public Visibility _removeVisible;
 
-    [JsonIgnore] public AntiCheatProvider AntiCheat;
+    [JsonIgnore] public AntiCheatProvider AntiCheat = AntiCheatProvider.None;
 
     [ObservableProperty] [JsonIgnore] public GameInfo _self;
 
@@ -98,8 +98,6 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         foreach (DllType dllType in Enum.GetValues(typeof(DllType))) InstalledDlls.Add(dllType, new InstalledPackage());
 
         Self = this;
-        AntiCheat = App.GetService<AntiCheatChecker>()!.Check(gamePath);
-        SetAntiCheatImage();
         _updater = App.GetService<DllUpdater>()!;
         _logger = App.GetService<NLog.Logger>()!;
         _libPage = App.GetService<LibraryPage>()!;
@@ -161,7 +159,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
                 foreach (var (dll, info) in InstalledDlls)
                 {
                     var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
-                    _logger.Debug($"Found '{allFiles?.Length.ToString() ?? "0"} files' for {GetDllName(dll)} in {GameName}");
+                    //_logger.Debug($"Found '{allFiles?.Length.ToString() ?? "0"} files' for {GetDllName(dll)} in {GameName}");
                     if (allFiles is null || allFiles.Length == 0)
                     {
                         continue;

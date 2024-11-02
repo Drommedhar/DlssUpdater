@@ -1,4 +1,8 @@
-﻿# 2.0.5.0
+# 2.0.5.1
+* Write dump on unhandled crash
+* Adjust logging for more readable information
+
+# 2.0.5.0
 * Executable is now properly signed
 * Splashscreen shows progress for each library
 * Correctly remove games from library if they are no logner reported by launcher
