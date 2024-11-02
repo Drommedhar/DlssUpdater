@@ -95,11 +95,12 @@ public class GOGLibrary : ILibrary
                     await info.GatherInstalledVersions();
                     if (info.HasInstalledDlls())
                     {
+                        _logger.Debug($"GOG: '{info.GamePath}' has DLSS dll and is being added.");
                         ret.Add(info);
                     }
                     else
                     {
-                        _logger.Debug($"GOG: '{info.GameName}' does not have any DLSS dll and is being ignored.");
+                        _logger.Debug($"GOG: '{info.GamePath}' does not have any DLSS dll and is being ignored.");
                     }
                 }
                 finally
