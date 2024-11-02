@@ -79,8 +79,8 @@ jobs:
         prerelease: false
         fail_on_unmatched_files: true
         files: |
-            version.json
-            signed-artifacts/*
+            ./DlssUpdater/version.json
+            ./signed-artifacts/*
 
     - uses: sarisia/actions-status-discord@v1
       if: success()
