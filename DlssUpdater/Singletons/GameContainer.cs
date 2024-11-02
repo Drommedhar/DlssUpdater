@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -148,14 +149,45 @@ public class GameContainer
                 .Select(g => g.First())
                 .ToList();
 
+        // We need to check our local list against the library games and remove
+        // the ones that are no longer reported
+        List<GameInfo> gamesToDelete = [];
+        foreach (var item in Games)
+        {
+            if (item.LibraryType == LibraryType.Manual)
+            {
+                continue;
+            }
+
+            var game = totalGames.FirstOrDefault(g => g.UniqueId == item.UniqueId);
+            if(game is null)
+            {
+                gamesToDelete.Add(item);
+            }
+        }
+        foreach (var item in gamesToDelete)
+        {
+            Games.Remove(item);
+        }
+
         var amount = totalGames.Count;
         var current = 0;
         foreach (var item in totalGames)
         {
             current++;
             InfoMessage?.Invoke(this, $"Parsing games {current}/{amount}");
+            var index = -1;
+            if(item.LibraryType != LibraryType.Manual)
+            {
+                // For library games, we check against the id, not the path
+                index = Games.IndexOf(g => g.UniqueId == item.UniqueId);
+            }
+            else
+            {
+                index = Games.IndexOf(g => g.GamePath == item.GamePath);
+            }
 
-            var index = Games.IndexOf(g => g.GamePath == item.GamePath);
+            
             if (index != -1)
             {
                 var id = Games[index].UniqueId;
@@ -164,11 +196,13 @@ public class GameContainer
                 Games[index].UniqueId = id;
                 Games[index].IsHidden = isHidden;
                 await Games[index].GatherInstalledVersions();
+                Games[index].Update();
             }
             else
             {
                 var info = new GameInfo(item);
                 await info.GatherInstalledVersions();
+                info.Update();
                 Games.Add(info);
             }
             _watcher.AddFile(item);

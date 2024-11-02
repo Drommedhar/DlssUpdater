@@ -1,6 +1,8 @@
 ﻿# 2.0.5.0
 * Executable is now properly signed
 * Splashscreen shows progress for each library
+* Correctly remove games from library if they are no logner reported by launcher
+* Detect anti cheat on startup again
 
 # 2.0.4.0
 * Improve speed of game gather step
