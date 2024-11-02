@@ -44,4 +44,4 @@ If you have further question feel free to join the official discord [here](https
 * Multiple instances of the the dll in a game folder can lead to strange behaviour. Make sure that there is only 1 instance in a game.
 
 # Code Signing Policy
-> Free code signing provided by [SignPath.io], certificate by [SignPath Foundation]
+> Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org)
