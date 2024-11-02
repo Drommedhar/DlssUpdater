@@ -10,6 +10,7 @@ namespace DlssUpdater.GameLibrary;
 
 public class UbisoftConnectLibrary : ILibrary
 {
+    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
     private readonly LibraryConfig _config;
     private readonly NLog.Logger _logger;
 
@@ -65,6 +66,8 @@ public class UbisoftConnectLibrary : ILibrary
         var entries = data.Split("root:", StringSplitOptions.TrimEntries);
         List<Task> tasks = [];
         var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
+        var amount = entries.Length;
+        var current = 0;
         foreach (var entry in entries)
         {
             var task = Task.Run(async () =>
@@ -73,6 +76,9 @@ public class UbisoftConnectLibrary : ILibrary
                 {
                     // do an async wait until we can schedule again
                     await throttler.WaitAsync();
+
+                    current += 1;
+                    LoadingProgress?.Invoke(this, new(current, amount, GetLibraryType()));
 
                     var result = entry
                      .Split("\n")

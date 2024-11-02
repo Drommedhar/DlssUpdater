@@ -21,6 +21,7 @@ public enum LibraryType
 
 public interface ILibrary
 {
+    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
     public LibraryType GetLibraryType();
     public void GetInstallationDirectory();
     public Task<List<GameInfo>> GatherGamesAsync();

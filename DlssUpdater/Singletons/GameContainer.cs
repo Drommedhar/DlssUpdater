@@ -1,7 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using DlssUpdater.Defines;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
@@ -12,6 +14,8 @@ namespace DlssUpdater.Singletons;
 
 public class GameContainer
 {
+    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
+    public event EventHandler<string>? InfoMessage;
     public event EventHandler? GamesChanged;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -51,8 +55,15 @@ public class GameContainer
         Libraries.Clear();
         foreach (var library in _settings.Libraries)
         {
-            Libraries.Add(ILibrary.Create(library, _logger));
+            var lib = ILibrary.Create(library, _logger);
+            lib.LoadingProgress += Lib_LoadingProgress;
+            Libraries.Add(lib);
         }
+    }
+
+    private void Lib_LoadingProgress(object? sender, Tuple<int, int, LibraryType> e)
+    {
+        LoadingProgress?.Invoke(sender, e);
     }
 
     public async Task LoadGamesAsync()
@@ -122,6 +133,7 @@ public class GameContainer
             }
         }
 
+        List<GameInfo> totalGames = [];
         foreach (var lib in Libraries)
         {
             if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == lib.GetLibraryType())?.IsChecked ?? false)
@@ -130,26 +142,70 @@ public class GameContainer
             }
 
             var libGames = await lib.GatherGamesAsync();
-            foreach (var item in libGames)
+            totalGames.AddRange(libGames);
+        }
+
+        totalGames = totalGames.GroupBy(g => g.GamePath)
+                .Select(g => g.First())
+                .ToList();
+
+        // We need to check our local list against the library games and remove
+        // the ones that are no longer reported
+        List<GameInfo> gamesToDelete = [];
+        foreach (var item in Games)
+        {
+            if (item.LibraryType == LibraryType.Manual)
             {
-                var index = Games.IndexOf(g => g.GamePath == item.GamePath);
-                if (index != -1)
-                {
-                    var id = Games[index].UniqueId;
-                    var isHidden = Games[index].IsHidden;
-                    Games[index] = new(item);
-                    Games[index].UniqueId = id;
-                    Games[index].IsHidden = isHidden;
-                    await Games[index].GatherInstalledVersions();
-                }
-                else
-                {
-                    var info = new GameInfo(item);
-                    await info.GatherInstalledVersions();
-                    Games.Add(info);
-                }
-                _watcher.AddFile(item);
+                continue;
             }
+
+            var game = totalGames.FirstOrDefault(g => g.UniqueId == item.UniqueId);
+            if(game is null)
+            {
+                gamesToDelete.Add(item);
+            }
+        }
+        foreach (var item in gamesToDelete)
+        {
+            Games.Remove(item);
+        }
+
+        var amount = totalGames.Count;
+        var current = 0;
+        foreach (var item in totalGames)
+        {
+            current++;
+            InfoMessage?.Invoke(this, $"Parsing games {current}/{amount}");
+            var index = -1;
+            if(item.LibraryType != LibraryType.Manual)
+            {
+                // For library games, we check against the id, not the path
+                index = Games.IndexOf(g => g.UniqueId == item.UniqueId);
+            }
+            else
+            {
+                index = Games.IndexOf(g => g.GamePath == item.GamePath);
+            }
+
+            
+            if (index != -1)
+            {
+                var id = Games[index].UniqueId;
+                var isHidden = Games[index].IsHidden;
+                Games[index] = new(item);
+                Games[index].UniqueId = id;
+                Games[index].IsHidden = isHidden;
+                await Games[index].GatherInstalledVersions();
+                Games[index].Update();
+            }
+            else
+            {
+                var info = new GameInfo(item);
+                await info.GatherInstalledVersions();
+                info.Update();
+                Games.Add(info);
+            }
+            _watcher.AddFile(item);
         }
 
         SaveGames();

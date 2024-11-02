@@ -11,6 +11,7 @@ namespace DLSSUpdater.GameLibrary;
 
 public class GOGLibrary : ILibrary
 {
+    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
     private readonly NLog.Logger _logger;
     private readonly LibraryConfig _config;
 
@@ -54,6 +55,8 @@ public class GOGLibrary : ILibrary
 
         List<Task> tasks = [];
         var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
+        var amount = subKeys.Length;
+        var current = 0;
         foreach (var subKey in subKeys)
         {
             var task = Task.Run(async () =>
@@ -62,6 +65,9 @@ public class GOGLibrary : ILibrary
                 {
                     // do an async wait until we can schedule again
                     await throttler.WaitAsync();
+
+                    current += 1;
+                    LoadingProgress?.Invoke(this, new(current, amount, GetLibraryType()));
 
                     var gameKey = hklm.OpenSubKey(Path.Combine(@"SOFTWARE\GOG.com\Games", subKey));
                     if (gameKey == null)
