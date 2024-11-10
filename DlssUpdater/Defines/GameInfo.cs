@@ -297,6 +297,13 @@ public class GameConvert : JsonConverter<GameInfo>
 
                 info.UniqueId = uniqueId!;
                 info.IsHidden = isHidden;
+
+                if (!Path.Exists(gamePath))
+                {
+                    info.GamePath = string.Empty;
+                    gameImageUri = string.Empty;
+                }
+
                 if (!string.IsNullOrEmpty(gameImageUri))
                 {
                     info.SetGameImageUri(gameImageUri);
