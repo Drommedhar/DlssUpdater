@@ -1,3 +1,10 @@
+# 2.0.5.2
+
+* Fix crash if old stored game path no longer exists
+* Fix saved library game path not being updated if changed
+* Fix crash with version string being in invalid format
+* Apply code style to whole code base
+
 # 2.0.5.1
 
 * Write dump on unhandled crash
@@ -7,7 +14,7 @@
 
 * Executable is now properly signed
 * Splashscreen shows progress for each library
-* Correctly remove games from library if they are no logner reported by launcher
+* Correctly remove games from library if they are no longer reported by launcher
 * Detect anti cheat on startup again
 
 # 2.0.4.0
