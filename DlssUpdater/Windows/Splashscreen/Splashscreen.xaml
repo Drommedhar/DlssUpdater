@@ -4,8 +4,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-    xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
-    xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
     x:Class="DlssUpdater.Windows.Splashscreen.Splashscreen"
     mc:Ignorable="d"
     Title="Splashscreen" Height="460" Width="800" WindowStartupLocation="CenterScreen"
@@ -20,10 +18,10 @@
         </Rectangle>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
             <ContentControl ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingBars}}"
-                Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
-                Width="24"
-                Height="24"
-                Focusable="False" VerticalAlignment="Center"/>
+                            Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
+                            Width="24"
+                            Height="24"
+                            Focusable="False" VerticalAlignment="Center" />
             <Label Style="{DynamicResource SplashscreenProgress}" Height="30" HorizontalAlignment="Center"
                    VerticalAlignment="Bottom" Foreground="White" FontSize="14"
                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">

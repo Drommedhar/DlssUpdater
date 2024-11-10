@@ -1,21 +1,21 @@
 ﻿using System.IO;
 using System.Text.Json;
 using DlssUpdater;
+using DLSSUpdater.Defines;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
-using DLSSUpdater.Defines;
 using Microsoft.Win32;
+using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DLSSUpdater.GameLibrary;
 
 public class GOGLibrary : ILibrary
 {
-    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
-    private readonly NLog.Logger _logger;
     private readonly LibraryConfig _config;
+    private readonly Logger _logger;
 
-    internal GOGLibrary(LibraryConfig config, NLog.Logger logger)
+    internal GOGLibrary(LibraryConfig config, Logger logger)
     {
         _config = config;
         _logger = logger;
@@ -23,6 +23,8 @@ public class GOGLibrary : ILibrary
         _config.NeedsInstallPath = false;
         _config.InstallPath = "None needed";
     }
+
+    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
 
     public LibraryType GetLibraryType()
     {
@@ -36,7 +38,6 @@ public class GOGLibrary : ILibrary
 
     public void GetInstallationDirectory()
     {
-
     }
 
     private async Task<List<GameInfo>> getGames()
@@ -49,12 +50,12 @@ public class GOGLibrary : ILibrary
         var subKeys = gogRegistryKey?.GetSubKeyNames();
         if (subKeys == null || subKeys.Length == 0)
         {
-            _logger.Error($"GOG: Could not find subkey names");
+            _logger.Error("GOG: Could not find subkey names");
             return ret;
         }
 
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
+        var throttler = new SemaphoreSlim(Settings.Constants.CoreCount);
         var amount = subKeys.Length;
         var current = 0;
         foreach (var subKey in subKeys)
@@ -67,7 +68,7 @@ public class GOGLibrary : ILibrary
                     await throttler.WaitAsync();
 
                     current += 1;
-                    LoadingProgress?.Invoke(this, new(current, amount, GetLibraryType()));
+                    LoadingProgress?.Invoke(this, new Tuple<int, int, LibraryType>(current, amount, GetLibraryType()));
 
                     var gameKey = hklm.OpenSubKey(Path.Combine(@"SOFTWARE\GOG.com\Games", subKey));
                     if (gameKey == null)
@@ -117,6 +118,7 @@ public class GOGLibrary : ILibrary
 
             tasks.Add(task);
         }
+
         await Task.WhenAll(tasks);
 
         return ret;
@@ -132,7 +134,7 @@ public class GOGLibrary : ILibrary
         try
         {
             var image = yourObject.RootElement
-                          .GetProperty("_links");
+                .GetProperty("_links");
             image = image.GetProperty("boxArtImage");
             image = image.GetProperty("href");
             return image.GetString();

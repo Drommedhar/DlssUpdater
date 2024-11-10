@@ -1,29 +1,29 @@
 ﻿using System.IO;
-using DlssUpdater.GameLibrary.Steam;
-using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
+using DlssUpdater.Helpers;
 using DLSSUpdater.Helpers;
-using Microsoft.Win32;
+using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.GameLibrary;
 
 public class UbisoftConnectLibrary : ILibrary
 {
-    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
     private readonly LibraryConfig _config;
-    private readonly NLog.Logger _logger;
+    private readonly Logger _logger;
 
-    internal UbisoftConnectLibrary(LibraryConfig config, NLog.Logger logger)
+    internal UbisoftConnectLibrary(LibraryConfig config, Logger logger)
     {
         _config = config;
         _logger = logger;
 
-        if(string.IsNullOrEmpty(config.InstallPath) )
+        if (string.IsNullOrEmpty(config.InstallPath))
         {
             GetInstallationDirectory();
         }
     }
+
+    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
 
     public LibraryType GetLibraryType()
     {
@@ -32,7 +32,10 @@ public class UbisoftConnectLibrary : ILibrary
 
     public async Task<List<GameInfo>> GatherGamesAsync()
     {
-        if (string.IsNullOrEmpty(_config.InstallPath)) return [];
+        if (string.IsNullOrEmpty(_config.InstallPath))
+        {
+            return [];
+        }
 
         return await getGames();
     }
@@ -44,19 +47,22 @@ public class UbisoftConnectLibrary : ILibrary
 
         _logger.Debug($"Ubisoft Connect install directory: {installPath ?? "N/A"}");
 
-        if (!string.IsNullOrEmpty(installPath)) _config.InstallPath = installPath;
+        if (!string.IsNullOrEmpty(installPath))
+        {
+            _config.InstallPath = installPath;
+        }
     }
 
     private async Task<List<GameInfo>> getGames()
     {
         List<GameInfo> ret = [];
-        if(string.IsNullOrEmpty(_config.InstallPath))
+        if (string.IsNullOrEmpty(_config.InstallPath))
         {
             return ret;
         }
 
         var configPath = Path.Combine(_config.InstallPath, "cache", "configuration", "configurations");
-        if(!File.Exists(configPath))
+        if (!File.Exists(configPath))
         {
             _logger.Warn($"Ubisoft connect: Could not find configurations file at {configPath}");
             return ret;
@@ -65,7 +71,7 @@ public class UbisoftConnectLibrary : ILibrary
         var data = await File.ReadAllTextAsync(configPath);
         var entries = data.Split("root:", StringSplitOptions.TrimEntries);
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
+        var throttler = new SemaphoreSlim(Settings.Constants.CoreCount);
         var amount = entries.Length;
         var current = 0;
         foreach (var entry in entries)
@@ -78,32 +84,35 @@ public class UbisoftConnectLibrary : ILibrary
                     await throttler.WaitAsync();
 
                     current += 1;
-                    LoadingProgress?.Invoke(this, new(current, amount, GetLibraryType()));
+                    LoadingProgress?.Invoke(this, new Tuple<int, int, LibraryType>(current, amount, GetLibraryType()));
 
                     var result = entry
-                     .Split("\n")
-                     .Select(x => x.Split(':'))
-                     .SafeToDictionary(x => x[0].Trim(), x => x.Length >= 2 ? x[1].Trim() : "");
+                        .Split("\n")
+                        .Select(x => x.Split(':'))
+                        .SafeToDictionary(x => x[0].Trim(), x => x.Length >= 2 ? x[1].Trim() : "");
 
                     if (!result.TryGetValue("name", out var name))
                     {
                         return;
                     }
+
                     if (!result.TryGetValue("register", out var registerKey))
                     {
                         return;
                     }
+
                     if (!result.TryGetValue("thumb_image", out var thumbImage))
                     {
                         return;
                     }
+
                     if (!result.TryGetValue("app_id", out var appId))
                     {
                         return;
                     }
 
                     var gamePath = RegistryHelper.GetRegistryValue(registerKey.Replace("HKEY_LOCAL_MACHINE\\", "")
-                                                 .Replace("\\InstallDir", ""), "InstallDir") as string;
+                        .Replace("\\InstallDir", ""), "InstallDir") as string;
                     if (string.IsNullOrEmpty(gamePath))
                     {
                         _logger.Warn($"Ubisoft connect: Could not find regkey for {registerKey}");
@@ -122,12 +131,14 @@ public class UbisoftConnectLibrary : ILibrary
                         {
                             info.SetGameImageUri(imageUri);
                         }
+
                         _logger.Debug($"Ubisoft connect: '{info.GamePath}' has DLSS dll and is being added.");
                         ret.Add(info);
                     }
                     else
                     {
-                        _logger.Debug($"Ubisoft connect: '{info.GamePath}' does not have any DLSS dll and is being ignored.");
+                        _logger.Debug(
+                            $"Ubisoft connect: '{info.GamePath}' does not have any DLSS dll and is being ignored.");
                     }
                 }
                 finally
@@ -146,12 +157,19 @@ public class UbisoftConnectLibrary : ILibrary
     private string? getGameImage(string thumbImage)
     {
         var cachedImage = Path.Combine(_config.InstallPath!, "cache", "assets", thumbImage);
-        if (File.Exists(cachedImage)) return new string(cachedImage);
+        if (File.Exists(cachedImage))
+        {
+            return new string(cachedImage);
+        }
 
         var url = $"https://ubistatic3-a.akamaihd.net/orbit/uplay_launcher_3_0/assets/{thumbImage}";
         var valid = WebHelper.UrlIsValid(url);
 
-        if (valid) return url;
+        if (valid)
+        {
+            return url;
+        }
+
         return null;
     }
 }

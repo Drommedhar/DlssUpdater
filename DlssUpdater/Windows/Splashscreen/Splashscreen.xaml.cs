@@ -1,18 +1,18 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.IO.Packaging;
 using System.Net.Http;
-using System.Reflection;
-using System.Runtime;
-using System.Security.Policy;
 using AdonisUI.Controls;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DlssUpdater.Singletons;
+using DLSSUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
 using DlssUpdater.ViewModels.Windows;
 using DlssUpdater.Views.Windows;
-using DLSSUpdater.Singletons;
+using NLog;
+using MessageBox = AdonisUI.Controls.MessageBox;
+using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
+using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 
 namespace DlssUpdater.Windows.Splashscreen;
 
@@ -22,16 +22,16 @@ namespace DlssUpdater.Windows.Splashscreen;
 public partial class Splashscreen : Window
 {
     private readonly GameContainer _gameContainer;
+    private readonly Logger _logger;
     private readonly MainWindow _mainWindow;
+    private readonly Settings _settings;
     private readonly DllUpdater _updater;
     private readonly VersionUpdater _versionUpdater;
-    private readonly Settings _settings;
-    private readonly NLog.Logger _logger;
 
     private bool _runInit = true;
 
     public Splashscreen(MainWindow mainWindow, DllUpdater updater, GameContainer container, Settings settings,
-                        AntiCheatChecker cheatChecker, VersionUpdater versionUpdater, NLog.Logger logger)
+        AntiCheatChecker cheatChecker, VersionUpdater versionUpdater, Logger logger)
     {
         _updater = updater;
         _gameContainer = container;
@@ -52,33 +52,36 @@ public partial class Splashscreen : Window
         DataContext = SplashscreenViewModel;
     }
 
+    public SplashscreenViewModel SplashscreenViewModel { get; set; } = new();
+
     private void _gameContainer_InfoMessage(object? sender, string e)
     {
         SplashscreenViewModel.InfoText = e;
     }
 
-    private void _gameContainer_LoadingProgress(object? sender, Tuple<int, int, GameLibrary.LibraryType> e)
+    private void _gameContainer_LoadingProgress(object? sender, Tuple<int, int, LibraryType> e)
     {
-        (var current, var amount, var libType) = e;
+        var (current, amount, libType) = e;
         SplashscreenViewModel.InfoText = $"Gathering installed games ({ILibrary.GetName(libType)}: {current}/{amount})";
     }
-
-    public SplashscreenViewModel SplashscreenViewModel { get; set; } = new();
 
     protected override async void OnContentRendered(EventArgs e)
     {
         base.OnContentRendered(e);
 
-        if (!_runInit) return;
+        if (!_runInit)
+        {
+            return;
+        }
 
         _runInit = false;
 
-        if(File.Exists(Path.Combine(AppContext.BaseDirectory, "update.txt")))
+        if (File.Exists(Path.Combine(AppContext.BaseDirectory, "update.txt")))
         {
             SplashscreenViewModel.InfoText = "Updating...";
             var data = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "update.txt"));
             var args = data.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-            if(args.Length == 3)
+            if (args.Length == 3)
             {
                 // We are in update mode
                 await _versionUpdater.DoUpdate(args[0], args[1], int.Parse(args[2]));
@@ -89,27 +92,27 @@ public partial class Splashscreen : Window
         SplashscreenViewModel.InfoText = "Checking for update...";
 
         // Clear download folder
-        if(Directory.Exists(_settings.Directories.DownloadPath))
+        if (Directory.Exists(_settings.Directories.DownloadPath))
         {
             Directory.Delete(_settings.Directories.DownloadPath, true);
         }
 
         var updateAvailable = await _versionUpdater.CheckForUpdate();
-        bool installUpdate = false;
-        if(updateAvailable)
+        var installUpdate = false;
+        if (updateAvailable)
         {
             var messageBox = new MessageBoxModel
             {
                 Caption = "Update available",
                 Text = "An update for Dlss Updater is available.\nDo you want to download the update?",
-                Icon = AdonisUI.Controls.MessageBoxImage.Question,
+                Icon = MessageBoxImage.Question,
                 Buttons = MessageBoxButtons.YesNo()
             };
 
-            installUpdate = AdonisUI.Controls.MessageBox.Show(messageBox) == AdonisUI.Controls.MessageBoxResult.Yes;
+            installUpdate = MessageBox.Show(messageBox) == MessageBoxResult.Yes;
         }
 
-        if(installUpdate)
+        if (installUpdate)
         {
             _settings.ShowChangelogOnStartup = true;
             _settings.Save();
@@ -125,12 +128,12 @@ public partial class Splashscreen : Window
             {
                 SplashscreenViewModel.InfoText = $"Downloading update ({progressPercentage}%)...";
             };
-            
+
             await client.StartDownload();
 
             // Copy over the application updater files
             var files = Directory.GetFiles(AppContext.BaseDirectory, "*.*", SearchOption.TopDirectoryOnly);
-            foreach ( var file in files)
+            foreach (var file in files)
             {
                 var fileName = Path.GetFileName(file);
                 File.Copy(file, Path.Combine(_settings.Directories.DownloadPath, fileName), true);

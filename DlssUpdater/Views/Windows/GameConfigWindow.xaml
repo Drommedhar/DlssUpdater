@@ -1,72 +1,73 @@
 ﻿<adonisControls:AdonisWindow x:Class="DLSSUpdater.Views.Windows.GameConfigWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DLSSUpdater.Views.Windows"
-        xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-        xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
-        xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI" 
-        xmlns:controls="clr-namespace:DLSSUpdater.Controls"        
-        mc:Ignorable="d"
-        Title="GameConfigWindow"
-        WindowStyle="None" WindowStartupLocation="Manual" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
+                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+                             xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+                             mc:Ignorable="d"
+                             Title="GameConfigWindow"
+                             WindowStyle="None" WindowStartupLocation="Manual" ResizeMode="NoResize"
+                             SizeToContent="WidthAndHeight">
     <adonisControls:AdonisWindow.Effect>
-        <DropShadowEffect BlurRadius="5" ShadowDepth="0"/>
+        <DropShadowEffect BlurRadius="5" ShadowDepth="0" />
     </adonisControls:AdonisWindow.Effect>
-    
+
     <Grid Background="#FF2f3540">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0" Margin="10,10,40,10" Width="100" Height="150" VerticalAlignment="Top">
-            <Rectangle Width="100" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="#0FFFFFFF" StrokeThickness="2">
+            <Rectangle Width="100" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="#0FFFFFFF"
+                       StrokeThickness="2">
                 <Rectangle.Fill>
-                    <ImageBrush ImageSource="{Binding ViewModel.GameInfo.GameImage}"  Stretch="UniformToFill"/>
+                    <ImageBrush ImageSource="{Binding ViewModel.GameInfo.GameImage}" Stretch="UniformToFill" />
                 </Rectangle.Fill>
             </Rectangle>
-            <Button x:Name="btnImage" 
-                BorderBrush="{x:Null}"
-                adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
-                adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
-                adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
-                adonisExtensions:RippleExtension.BackgroundBrush="#0AFFFFFF"
-                adonisExtensions:RippleExtension.BorderBrush="#14FFFFFF"
-                Background="#00000000" Margin="0,0,0,0" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" 
-                    Click="btnImage_Click" IsEnabled="{Binding ViewModel.IsManualGame}"/>
+            <Button x:Name="btnImage"
+                    BorderBrush="{x:Null}"
+                    adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
+                    adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
+                    adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
+                    adonisExtensions:RippleExtension.BackgroundBrush="#0AFFFFFF"
+                    adonisExtensions:RippleExtension.BorderBrush="#14FFFFFF"
+                    Background="#00000000" Margin="0,0,0,0" MouseEnter="Button_MouseEnter"
+                    MouseLeave="Button_MouseLeave"
+                    Click="btnImage_Click" IsEnabled="{Binding ViewModel.IsManualGame}" />
             <Grid Background="#7F000000" VerticalAlignment="Top" IsHitTestVisible="False">
-                <Label Content="Edit" Background="#00000000" HorizontalAlignment="Center" VerticalAlignment="Top" 
-                       IsHitTestVisible="False" Visibility="{Binding ViewModel.EditTextVisible}" Opacity="0.25"/>
+                <Label Content="Edit" Background="#00000000" HorizontalAlignment="Center" VerticalAlignment="Top"
+                       IsHitTestVisible="False" Visibility="{Binding ViewModel.EditTextVisible}" Opacity="0.25" />
             </Grid>
         </Grid>
 
         <Grid Grid.Column="1" Margin="10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Label Content="Name:" Grid.Row="0" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"/>
+            <Label Content="Name:" Grid.Row="0" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center" />
             <TextBox Grid.Row="0" Grid.Column="1" Width="250" IsEnabled="{Binding ViewModel.IsManualGame}"
-                        adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
-                        adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
-                        adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
-                        Background="#FF1d263c" BorderBrush="#00000000"
-                        Text="{Binding ViewModel.GameInfo.GameName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" VerticalAlignment="Center"/>
-            <Label Content="Path:" Grid.Row="1" Grid.Column="0" Margin="0,4,10,0" VerticalAlignment="Center"/>
-            <Button x:Name="btnPath" Grid.Row="1" Grid.Column="1"  Content="{Binding ViewModel.PathText}"
+                     adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
+                     adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
+                     adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
+                     Background="#FF1d263c" BorderBrush="#00000000"
+                     Text="{Binding ViewModel.GameInfo.GameName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                     VerticalAlignment="Center" />
+            <Label Content="Path:" Grid.Row="1" Grid.Column="0" Margin="0,4,10,0" VerticalAlignment="Center" />
+            <Button x:Name="btnPath" Grid.Row="1" Grid.Column="1" Content="{Binding ViewModel.PathText}"
                     Foreground="White" IsEnabled="{Binding ViewModel.IsManualGame}"
                     BorderBrush="{x:Null}"
                     Background="#00000000"
@@ -76,61 +77,68 @@
                     adonisExtensions:RippleExtension.BackgroundBrush="#0AFFFFFF"
                     adonisExtensions:RippleExtension.BorderBrush="#14FFFFFF"
                     FontFamily="Segoe UI"
-                    FontSize="14" VerticalAlignment="Center" Click="btnPath_Click" Margin="0,4,0,0"/>
-            <Label Content="Upscaling:" Grid.Row="2" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    FontSize="14" VerticalAlignment="Center" Click="btnPath_Click" Margin="0,4,0,0" />
+            <Label Content="Upscaling:" Grid.Row="2" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center" />
             <ComboBox Grid.Column="1" Grid.Row="2" IsEnabled="{Binding ViewModel.DlssEnabled}"
                       ItemsSource="{Binding ViewModel.InstalledVersionsDlss}"
                       DisplayMemberPath="VersionDetailed"
                       SelectedValuePath="VersionDetailed"
                       adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
-                        adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
-                        adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
-                      SelectedValue="{Binding ViewModel.DlssItem, Mode=TwoWay}" Margin="0,5,0,5" 
-                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000"/>
-            <Label Content="Frame Generation:" Grid.Row="3" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                      adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
+                      adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
+                      SelectedValue="{Binding ViewModel.DlssItem, Mode=TwoWay}" Margin="0,5,0,5"
+                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000" />
+            <Label Content="Frame Generation:" Grid.Row="3" Grid.Column="0" Margin="0,0,10,0"
+                   VerticalAlignment="Center" />
             <ComboBox Grid.Column="1" Grid.Row="3" IsEnabled="{Binding ViewModel.DlssGEnabled}"
                       ItemsSource="{Binding ViewModel.InstalledVersionsDlssG}"
                       DisplayMemberPath="VersionDetailed"
                       SelectedValuePath="VersionDetailed"
                       adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
-                        adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
-                        adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
-                      SelectedValue="{Binding ViewModel.DlssGItem, Mode=TwoWay}" Margin="0,5,0,5" 
-                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000"/>            
-            <Label Content="Ray Reconstruction:" Grid.Row="4" Grid.Column="0" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                      adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
+                      adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
+                      SelectedValue="{Binding ViewModel.DlssGItem, Mode=TwoWay}" Margin="0,5,0,5"
+                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000" />
+            <Label Content="Ray Reconstruction:" Grid.Row="4" Grid.Column="0" Margin="0,0,20,0"
+                   VerticalAlignment="Center" />
             <ComboBox Grid.Column="1" Grid.Row="4" IsEnabled="{Binding ViewModel.DlssDEnabled}"
                       ItemsSource="{Binding ViewModel.InstalledVersionsDlssD}"
                       DisplayMemberPath="VersionDetailed"
                       SelectedValuePath="VersionDetailed"
                       adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
+                      adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
+                      adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
+                      SelectedValue="{Binding ViewModel.DlssDItem, Mode=TwoWay}" Margin="0,5,0,5"
+                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000" />
+            <CheckBox Grid.Column="1" Grid.Row="5" Margin="0,10,0,0" Content="Save current versions as default"
+                      VerticalAlignment="Top" HorizontalAlignment="Right"
+                      IsChecked="{Binding ViewModel.SaveAsDefault, Mode=TwoWay}" Background="#00000000" FontSize="12"
+                      Focusable="False" />
+            <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.ColumnSpan="3" HorizontalAlignment="Right"
+                        Margin="0,0,0,0">
+                <Button x:Name="btnApply" Content="Apply"
+                        Foreground="White"
+                        BorderBrush="{x:Null}"
+                        Background="#00000000"
+                        adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
                         adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
-                        adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.5"
-                      SelectedValue="{Binding ViewModel.DlssDItem, Mode=TwoWay}" Margin="0,5,0,5" 
-                      VerticalAlignment="Center" Background="#FF1d263c" BorderBrush="#00000000"/>
-            <CheckBox Grid.Column="1" Grid.Row="5" Margin="0,10,0,0" Content="Save current versions as default" VerticalAlignment="Top" HorizontalAlignment="Right" IsChecked="{Binding ViewModel.SaveAsDefault, Mode=TwoWay}" Background="#00000000" FontSize="12" Focusable="False"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.ColumnSpan="3" HorizontalAlignment="Right" Margin="0,0,0,0">
-                <Button x:Name="btnApply" Grid.Row="1" Grid.Column="1"  Content="Apply"
-                    Foreground="White"
-                    BorderBrush="{x:Null}"
-                    Background="#00000000"
-                    adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
-                    adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
-                    adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.50"
-                    adonisExtensions:RippleExtension.BackgroundBrush="#0AFFFFFF"
-                    adonisExtensions:RippleExtension.BorderBrush="#14FFFFFF"
-                    FontFamily="Segoe UI"
-                    FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0" Height="50" Width="100" Click="btnApply_Click"/>
-                <Button x:Name="btnClose" Grid.Row="1" Grid.Column="1"  Content="Close"
-                    Foreground="White"
-                    BorderBrush="{x:Null}"
-                    Background="#00000000"
-                    adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
-                    adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
-                    adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.50"
-                    adonisExtensions:RippleExtension.BackgroundBrush="#0AFFFFFF"
-                    adonisExtensions:RippleExtension.BorderBrush="#14FFFFFF"
-                    FontFamily="Segoe UI"
-                    FontSize="14" VerticalAlignment="Center" Height="50" Width="100" Click="btnClose_Click"/>                
+                        adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.50"
+                        adonisExtensions:RippleExtension.BackgroundBrush="#0AFFFFFF"
+                        adonisExtensions:RippleExtension.BorderBrush="#14FFFFFF"
+                        FontFamily="Segoe UI"
+                        FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0" Height="50" Width="100"
+                        Click="btnApply_Click" />
+                <Button x:Name="btnClose" Content="Close"
+                        Foreground="White"
+                        BorderBrush="{x:Null}"
+                        Background="#00000000"
+                        adonisExtensions:CursorSpotlightExtension.BackgroundBrush="#0AFFFFFF"
+                        adonisExtensions:CursorSpotlightExtension.BorderBrush="#0FFFFFFF"
+                        adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.50"
+                        adonisExtensions:RippleExtension.BackgroundBrush="#0AFFFFFF"
+                        adonisExtensions:RippleExtension.BorderBrush="#14FFFFFF"
+                        FontFamily="Segoe UI"
+                        FontSize="14" VerticalAlignment="Center" Height="50" Width="100" Click="btnClose_Click" />
             </StackPanel>
         </Grid>
     </Grid>

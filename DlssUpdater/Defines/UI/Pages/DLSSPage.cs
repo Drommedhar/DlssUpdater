@@ -1,110 +1,102 @@
-﻿using DlssUpdater.Singletons;
-using DlssUpdater;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Controls;
-using static DlssUpdater.Defines.DlssTypes;
-using DLSSUpdater.Views.Pages;
-using System.Runtime.CompilerServices;
-using System.Windows.Documents;
+using DlssUpdater;
+using DlssUpdater.Singletons;
 using DLSSUpdater.ViewModels.Windows;
+using DLSSUpdater.Views.Pages;
+using static DlssUpdater.Defines.DlssTypes;
 
-namespace DLSSUpdater.Defines.UI.Pages
+namespace DLSSUpdater.Defines.UI.Pages;
+
+public partial class DLSSPage : ObservableObject, IContentPage
 {
-    public partial class DLSSPage : ObservableObject, IContentPage
+    private readonly DllUpdater _dllUpdater;
+    private readonly ObservableCollection<NavigationButton> _navigationButtons = [];
+
+    private readonly Dictionary<NavigationButton, DllType> _navigationButtonsByType = [];
+    private readonly Settings _settings;
+
+    [ObservableProperty] private DlssPageControl _pageControl;
+
+    public MainWindowViewModel? MainWindowViewModel;
+
+    public DLSSPage(DllUpdater updater, Settings settings)
     {
-        [ObservableProperty]
-        private DlssPageControl _pageControl;
+        _dllUpdater = updater;
+        _settings = settings;
+        _dllUpdater.DlssFilesChanged += _dllUpdater_DlssFilesChanged;
 
-        private readonly Dictionary<NavigationButton, DllType> _navigationButtonsByType = [];
-        private readonly ObservableCollection<NavigationButton> _navigationButtons = [];
-        private readonly DllUpdater _dllUpdater;
-        private readonly Settings _settings;
-        public MainWindowViewModel? MainWindowViewModel;
-
-        public DLSSPage(DllUpdater updater, Settings settings)
+        foreach (DllType dllType in Enum.GetValues(typeof(DllType)))
         {
-            _dllUpdater = updater;
-            _settings = settings;
-            _dllUpdater.DlssFilesChanged += _dllUpdater_DlssFilesChanged;
+            NavigationButton navButton = new(GetUIName(dllType), () => { ShowSubPage(dllType); }, false);
+            _navigationButtonsByType.Add(navButton, dllType);
+            _navigationButtons.Add(navButton);
+        }
 
-            foreach (DllType dllType in Enum.GetValues(typeof(DllType)))
+        PageControl = App.GetService<DlssPageControl>()!;
+    }
+
+    public UserControl GetPageControl()
+    {
+        return PageControl;
+    }
+
+    ObservableCollection<NavigationButton> IContentPage.GetNavigationButtons()
+    {
+        foreach (var button in _navigationButtons)
+        {
+            button.Control = null;
+        }
+
+        return _navigationButtons;
+    }
+
+    public HorizontalAlignment GetAlignment()
+    {
+        return HorizontalAlignment.Left;
+    }
+
+    private void _dllUpdater_DlssFilesChanged(object? sender, EventArgs e)
+    {
+        UpdateNotificationInfo();
+    }
+
+    public void UpdateNotificationInfo()
+    {
+        var count = 0;
+        foreach (var button in _navigationButtons)
+        {
+            var dllType = _navigationButtonsByType[button];
+            var hasUpdate = _dllUpdater.IsNewerVersionAvailable(dllType);
+            if (hasUpdate)
             {
-                NavigationButton navButton = new(GetUIName(dllType), () => { ShowSubPage(dllType); }, false);
-                _navigationButtonsByType.Add(navButton, dllType);
-                _navigationButtons.Add(navButton);
+                count++;
             }
 
-            PageControl = App.GetService<DlssPageControl>()!;
-        }
-
-        private void _dllUpdater_DlssFilesChanged(object? sender, EventArgs e)
-        {
-            UpdateNotificationInfo();
-        }
-
-        public UserControl GetPageControl()
-        {
-            return PageControl;
-        }
-
-        ObservableCollection<NavigationButton> IContentPage.GetNavigationButtons()
-        {
-            foreach (var button in _navigationButtons)
+            var navigationButton = button.Control;
+            if (navigationButton is null)
             {
-                button.Control = null;
+                continue;
             }
 
-            return _navigationButtons;
-        }
-
-        public HorizontalAlignment GetAlignment()
-        {
-            return HorizontalAlignment.Left;
-        }
-
-        public void UpdateNotificationInfo()
-        {
-            int count = 0;
-            foreach (var button in _navigationButtons)
+            navigationButton.NotificationCount = hasUpdate ? "" : "0";
+            if (_settings.ShowNotifications)
             {
-                var dllType = _navigationButtonsByType[button];
-                var hasUpdate = _dllUpdater.IsNewerVersionAvailable(dllType);
-                if(hasUpdate)
-                {
-                    count++;
-                }
-
-                var navigationButton = button.Control;
-                if (navigationButton is null)
-                {
-                    continue;
-                }
-
-                navigationButton.NotificationCount = hasUpdate ? "" : "0";
-                if (_settings.ShowNotifications)
-                {
-                    navigationButton.NotificationVisibility = hasUpdate ? Visibility.Visible : Visibility.Collapsed;
-                }
-                else
-                {
-                    navigationButton.NotificationVisibility = Visibility.Collapsed;
-                }
-
+                navigationButton.NotificationVisibility = hasUpdate ? Visibility.Visible : Visibility.Collapsed;
             }
-
-            MainWindowViewModel?.UpdateDllsNotification(count);
+            else
+            {
+                navigationButton.NotificationVisibility = Visibility.Collapsed;
+            }
         }
 
-        private void ShowSubPage(DllType dllType)
-        {
-            PageControl.SetDllType(dllType);
+        MainWindowViewModel?.UpdateDllsNotification(count);
+    }
 
-            UpdateNotificationInfo();
-        }
+    private void ShowSubPage(DllType dllType)
+    {
+        PageControl.SetDllType(dllType);
+
+        UpdateNotificationInfo();
     }
 }

@@ -14,7 +14,10 @@ public class VdfParser
 
     public async Task<bool> Load()
     {
-        if (!File.Exists(_path)) return false;
+        if (!File.Exists(_path))
+        {
+            return false;
+        }
 
         _data = await File.ReadAllTextAsync(_path);
         return true;
@@ -32,9 +35,15 @@ public class VdfParser
             {
                 // Only parse the next string we can find
                 var value = getString(item + key.Length);
-                if (value is null) continue;
+                if (value is null)
+                {
+                    continue;
+                }
 
-                if (value is T convertedValue) values.Add(convertedValue);
+                if (value is T convertedValue)
+                {
+                    values.Add(convertedValue);
+                }
             }
 
             if (genericType == typeof(List<string>))
@@ -42,7 +51,10 @@ public class VdfParser
                 // We know there needs to be some kind of object here
                 var objectValues = getObject(item + key.Length);
 
-                if (objectValues is T convertedValue) values.Add(convertedValue);
+                if (objectValues is T convertedValue)
+                {
+                    values.Add(convertedValue);
+                }
             }
         }
 
@@ -53,7 +65,10 @@ public class VdfParser
     {
         var startIndex = _data!.IndexOf('\"', start + 1);
         var endIndex = _data!.IndexOf('\"', startIndex + 1);
-        if (startIndex == -1 || endIndex == -1) return null;
+        if (startIndex == -1 || endIndex == -1)
+        {
+            return null;
+        }
 
         return _data!.Substring(startIndex + 1, endIndex - startIndex - 1);
     }
@@ -64,7 +79,10 @@ public class VdfParser
 
         var objectStart = _data!.IndexOf('{', start + 1);
         var objectEnd = _data!.IndexOf('}', start + 1);
-        if (objectStart == -1 || objectEnd == -1) return objects;
+        if (objectStart == -1 || objectEnd == -1)
+        {
+            return objects;
+        }
 
         var startIndex = objectStart;
         int index;
@@ -74,7 +92,9 @@ public class VdfParser
             var valueEndIndex = _data!.IndexOf('\"', index + 1);
             if (valueEndIndex == -1)
                 // Should not happen, but better be safe
+            {
                 break;
+            }
 
             var value = _data!.Substring(index + 1, valueEndIndex - index - 1);
             objects.Add(value.Trim());

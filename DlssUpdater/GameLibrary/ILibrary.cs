@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel;
-using DlssUpdater.GameLibrary.Steam;
 using DLSSUpdater.Defines;
 using DLSSUpdater.GameLibrary;
 using DLSSUpdater.GameLibrary.EpicGames;
+using DlssUpdater.GameLibrary.Steam;
+using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.GameLibrary;
@@ -15,7 +16,8 @@ public enum LibraryType
     Ubisoft,
     EpicGames,
     GOG,
-    Xbox,
+
+    Xbox
     // TODO: More launchers
 }
 
@@ -26,7 +28,7 @@ public interface ILibrary
     public void GetInstallationDirectory();
     public Task<List<GameInfo>> GatherGamesAsync();
 
-    static ILibrary Create(LibraryConfig config, NLog.Logger logger)
+    static ILibrary Create(LibraryConfig config, Logger logger)
     {
         return config.LibraryType switch
         {
@@ -36,7 +38,8 @@ public interface ILibrary
             LibraryType.GOG => new GOGLibrary(config, logger),
             LibraryType.EpicGames => new EpicGamesLibrary(config, logger),
             LibraryType.Xbox => new XboxLibrary(config, logger),
-            _ => throw new InvalidEnumArgumentException(nameof(config.LibraryType), (int)config.LibraryType, typeof(LibraryType))
+            _ => throw new InvalidEnumArgumentException(nameof(config.LibraryType), (int)config.LibraryType,
+                typeof(LibraryType))
         };
     }
 

@@ -1,25 +1,22 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 using DlssUpdater;
+using DLSSUpdater.Defines;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
-using DLSSUpdater.Defines;
 using DLSSUpdater.Helpers;
-using Microsoft.Win32;
+using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DLSSUpdater.GameLibrary.EpicGames;
 
 public class EpicGamesLibrary : ILibrary
 {
-    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
-    private readonly NLog.Logger _logger;
     private readonly LibraryConfig _config;
+    private readonly Logger _logger;
 
-    internal EpicGamesLibrary(LibraryConfig config, NLog.Logger logger)
+    internal EpicGamesLibrary(LibraryConfig config, Logger logger)
     {
         _config = config;
         _logger = logger;
@@ -30,6 +27,8 @@ public class EpicGamesLibrary : ILibrary
         }
     }
 
+    public event EventHandler<Tuple<int, int, LibraryType>>? LoadingProgress;
+
     public LibraryType GetLibraryType()
     {
         return _config.LibraryType;
@@ -37,7 +36,10 @@ public class EpicGamesLibrary : ILibrary
 
     public async Task<List<GameInfo>> GatherGamesAsync()
     {
-        if (string.IsNullOrEmpty(_config.InstallPath)) return [];
+        if (string.IsNullOrEmpty(_config.InstallPath))
+        {
+            return [];
+        }
 
         return await getGames();
     }
@@ -45,11 +47,15 @@ public class EpicGamesLibrary : ILibrary
     public void GetInstallationDirectory()
     {
         // We are getting the steam installation path from the user registry (if it exists)
-        var installPath = RegistryHelper.GetRegistryValue(@"SOFTWARE\Epic Games\EpicGamesLauncher", "AppDataPath") as string;
+        var installPath =
+            RegistryHelper.GetRegistryValue(@"SOFTWARE\Epic Games\EpicGamesLauncher", "AppDataPath") as string;
 
         _logger.Debug($"Epic Games install directory: {installPath ?? "N/A"}");
 
-        if (!string.IsNullOrEmpty(installPath)) _config.InstallPath = installPath;
+        if (!string.IsNullOrEmpty(installPath))
+        {
+            _config.InstallPath = installPath;
+        }
     }
 
     private async Task<List<GameInfo>> getGames()
@@ -93,7 +99,7 @@ public class EpicGamesLibrary : ILibrary
         }
 
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
+        var throttler = new SemaphoreSlim(Settings.Constants.CoreCount);
         var files = Directory.GetFiles(path);
         var amount = files.Length;
         var current = 0;
@@ -105,7 +111,7 @@ public class EpicGamesLibrary : ILibrary
                 await throttler.WaitAsync();
 
                 current += 1;
-                LoadingProgress?.Invoke(this, new(current, amount, GetLibraryType()));
+                LoadingProgress?.Invoke(this, new Tuple<int, int, LibraryType>(current, amount, GetLibraryType()));
 
                 var data = await File.ReadAllBytesAsync(file);
                 var yourObject = JsonDocument.Parse(data);
@@ -119,11 +125,13 @@ public class EpicGamesLibrary : ILibrary
                     }
 
                     var displayName = yourObject.RootElement.GetProperty("DisplayName").GetString();
-                    var location = yourObject.RootElement.GetProperty("InstallLocation").GetString()?.Replace('/', '\\');
+                    var location = yourObject.RootElement.GetProperty("InstallLocation").GetString()
+                        ?.Replace('/', '\\');
                     var catalogId = yourObject.RootElement.GetProperty("CatalogItemId").GetString();
 
                     var cachedData = cachedGames.FirstOrDefault(g => g.Id == catalogId);
-                    if (cachedData is null || string.IsNullOrEmpty(displayName) || string.IsNullOrEmpty(location))
+                    if (cachedData is null || string.IsNullOrEmpty(displayName) ||
+                        string.IsNullOrEmpty(location))
                     {
                         return;
                     }
@@ -154,7 +162,7 @@ public class EpicGamesLibrary : ILibrary
                 {
                     _logger.Warn($"EpicGames Parsing manifest failed with:  {ex}");
                 }
-                finally 
+                finally
                 {
                     throttler.Release();
                 }
@@ -177,7 +185,7 @@ public class EpicGamesLibrary : ILibrary
         try
         {
             var image = yourObject.RootElement
-                          .GetProperty("_links");
+                .GetProperty("_links");
             image = image.GetProperty("boxArtImage");
             image = image.GetProperty("href");
             return image.GetString();

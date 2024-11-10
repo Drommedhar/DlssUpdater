@@ -1,6 +1,7 @@
-﻿using AdonisUI.Controls;
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
+using AdonisUI.Controls;
+using MessageBox = AdonisUI.Controls.MessageBox;
 
 namespace DlssUpdater.Helpers;
 
@@ -53,10 +54,10 @@ public class HttpClientDownloadWithProgress : IDisposable
             {
                 Caption = "Download error",
                 Text = $"Download for dll failed with code: {response.StatusCode}",
-                Buttons = [ MessageBoxButtons.Ok() ]
+                Buttons = [MessageBoxButtons.Ok()]
             };
-            
-            _ = AdonisUI.Controls.MessageBox.Show(messageBox);
+
+            _ = MessageBox.Show(messageBox);
             return;
         }
 
@@ -94,7 +95,9 @@ public class HttpClientDownloadWithProgress : IDisposable
                 readCount += 1;
 
                 if (readCount % 100 == 0)
+                {
                     TriggerProgressChanged(totalDownloadSize, totalBytesRead);
+                }
             } while (isMoreToRead);
         }
     }
@@ -102,11 +105,15 @@ public class HttpClientDownloadWithProgress : IDisposable
     private void TriggerProgressChanged(long? totalDownloadSize, long totalBytesRead)
     {
         if (ProgressChanged == null)
+        {
             return;
+        }
 
         double? progressPercentage = null;
         if (totalDownloadSize.HasValue)
+        {
             progressPercentage = Math.Round((double)totalBytesRead / totalDownloadSize.Value * 100, 2);
+        }
 
         ProgressChanged(totalDownloadSize, totalBytesRead, progressPercentage);
     }

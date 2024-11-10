@@ -1,26 +1,25 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Policy;
 using System.Windows.Threading;
 using AdonisUI.Controls;
+using DLSSUpdater.Defines.UI.Pages;
 using DlssUpdater.Helpers;
 using DlssUpdater.Services;
 using DlssUpdater.Singletons;
-using DlssUpdater.Singletons.AntiCheatChecker;
-using DlssUpdater.Views.Windows;
-using DlssUpdater.Windows.Splashscreen;
-using DLSSUpdater.Defines.UI.Pages;
 using DLSSUpdater.Singletons;
+using DlssUpdater.Singletons.AntiCheatChecker;
 using DLSSUpdater.ViewModels.Pages;
 using DLSSUpdater.ViewModels.Windows;
 using DLSSUpdater.Views.Pages;
-using DLSSUpdater.Views.Windows;
+using DlssUpdater.Views.Windows;
+using DlssUpdater.Windows.Splashscreen;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
 using WpfBindingErrors;
+using MessageBox = AdonisUI.Controls.MessageBox;
 
 namespace DlssUpdater;
 
@@ -29,6 +28,8 @@ namespace DlssUpdater;
 /// </summary>
 public partial class App
 {
+    private const string ISSUE_BUTTON_ID = "GithubIssue";
+
     // The.NET Generic Host provides dependency injection, configuration, logging, and other services.
     // https://docs.microsoft.com/dotnet/core/extensions/generic-host
     // https://docs.microsoft.com/dotnet/core/extensions/dependency-injection
@@ -54,7 +55,7 @@ public partial class App
             services.AddSingleton<SettingsCommonPageViewModel>();
             services.AddSingleton<ChangelogPageViewModel>();
 
-            services.AddSingleton(NLog.LogManager.GetCurrentClassLogger());
+            services.AddSingleton(LogManager.GetCurrentClassLogger());
 
             services.AddSingleton<Settings>();
             services.AddSingleton<DllUpdater>();
@@ -106,7 +107,6 @@ public partial class App
         _host.Dispose();
     }
 
-    const string ISSUE_BUTTON_ID = "GithubIssue";
     /// <summary>
     ///     Occurs when an exception is thrown by an application but not handled.
     /// </summary>
@@ -119,26 +119,52 @@ public partial class App
         var messageBox = new MessageBoxModel
         {
             Caption = "Fatal error",
-            Text = $"Application has crashed unexpectedly. A dump file was created at '{file}'. Please provide this in your github issue (as a download link).\n" +
-            $"To open a new issue click the corresponding button below.",
-            Buttons = [
+            Text =
+                $"Application has crashed unexpectedly. A dump file was created at '{file}'. Please provide this in your github issue (as a download link).\n" +
+                $"To open a new issue click the corresponding button below.",
+            Buttons =
+            [
                 MessageBoxButtons.Ok(),
-                MessageBoxButtons.Custom("Open github issue", ISSUE_BUTTON_ID),
+                MessageBoxButtons.Custom("Open github issue", ISSUE_BUTTON_ID)
             ]
         };
 
-        _ = AdonisUI.Controls.MessageBox.Show(messageBox);
-        if((string)messageBox.ButtonPressed.Id == ISSUE_BUTTON_ID)
+        _ = MessageBox.Show(messageBox);
+        if ((string)messageBox.ButtonPressed.Id == ISSUE_BUTTON_ID)
         {
             var body = $"&body={Uri.EscapeDataString($"Encountered an unhandled exception: \n ```{e.Exception}```")}";
             var labels = "&labels=exception";
             var title = $"&title=Unhandled%20Exception - '{e.Exception.Message}'";
-            var url = $"https://github.com/Drommedhar/DlssUpdater/issues/new?assignees=&labels=bug&projects=&template=bug_report.md" +
+            var url =
+                $"https://github.com/Drommedhar/DlssUpdater/issues/new?assignees=&labels=bug&projects=&template=bug_report.md" +
                 $"{title}{labels}{body}";
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
 
         e.Handled = true;
+    }
+
+    [DllImport("dbghelp.dll")]
+    public static extern bool MiniDumpWriteDump(IntPtr hProcess,
+        int ProcessId,
+        IntPtr hFile,
+        int DumpType,
+        IntPtr ExceptionParam,
+        IntPtr UserStreamParam,
+        IntPtr CallackParam);
+
+    private static void CreateMiniDump(string file)
+    {
+        DirectoryHelper.EnsureDirectoryExists("Dumps");
+        using FileStream fs = new(file, FileMode.Create);
+        using var process = Process.GetCurrentProcess();
+        MiniDumpWriteDump(process.Handle,
+            process.Id,
+            fs.SafeFileHandle.DangerousGetHandle(),
+            MINIDUMP_TYPE.MiniDumpWithFullMemory,
+            IntPtr.Zero,
+            IntPtr.Zero,
+            IntPtr.Zero);
     }
 
     public static class MINIDUMP_TYPE
@@ -158,28 +184,5 @@ public partial class App
         public const int MiniDumpWithFullMemoryInfo = 0x00000800;
         public const int MiniDumpWithThreadInfo = 0x00001000;
         public const int MiniDumpWithCodeSegs = 0x00002000;
-    }
-
-    [DllImport("dbghelp.dll")]
-    public static extern bool MiniDumpWriteDump(IntPtr hProcess,
-                                                Int32 ProcessId,
-                                                IntPtr hFile,
-                                                int DumpType,
-                                                IntPtr ExceptionParam,
-                                                IntPtr UserStreamParam,
-                                                IntPtr CallackParam);
-
-    private static void CreateMiniDump(string file)
-    {
-        DirectoryHelper.EnsureDirectoryExists("Dumps");
-        using FileStream fs = new(file, FileMode.Create);
-        using Process process = Process.GetCurrentProcess();
-        MiniDumpWriteDump(process.Handle,
-                                         process.Id,
-                                         fs.SafeFileHandle.DangerousGetHandle(),
-                                         MINIDUMP_TYPE.MiniDumpWithFullMemory,
-                                         IntPtr.Zero,
-                                         IntPtr.Zero,
-                                         IntPtr.Zero);
     }
 }
