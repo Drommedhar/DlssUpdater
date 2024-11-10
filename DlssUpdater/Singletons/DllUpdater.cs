@@ -4,13 +4,12 @@ using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DlssUpdater.Defines;
 using DlssUpdater.Helpers;
 using Microsoft.Security.Extensions;
+using NLog;
 using static DlssUpdater.Defines.DlssTypes;
 using static DlssUpdater.Helpers.HttpClientDownloadWithProgress;
 using static DlssUpdater.Settings;
@@ -26,28 +25,29 @@ public class DllUpdater
         Failure
     }
 
-    [JsonIgnore]
-    private readonly Settings _settings;
-    [JsonIgnore]
-    private readonly NLog.Logger _logger;
-
     public static string DefaultVersion = "Restore default";
-    public DateTime LastUpdate { get; set; } = DateTime.MinValue;
-    public event EventHandler? DlssFilesChanged;
+
+    [JsonIgnore] private readonly Logger _logger;
+
+    [JsonIgnore] private readonly Settings _settings;
 
     public DllUpdater()
     {
     }
 
-    public DllUpdater(Settings settings, NLog.Logger logger)
+    public DllUpdater(Settings settings, Logger logger)
     {
         _settings = settings;
         _logger = logger;
     }
 
+    public DateTime LastUpdate { get; set; } = DateTime.MinValue;
+
     public Dictionary<DllType, ObservableCollection<OnlinePackage>> OnlinePackages { get; set; } = [];
-    [JsonIgnore]
-    public Dictionary<DllType, ObservableCollection<InstalledPackage>> InstalledPackages { get; } = [];
+
+    [JsonIgnore] public Dictionary<DllType, ObservableCollection<InstalledPackage>> InstalledPackages { get; } = [];
+
+    public event EventHandler? DlssFilesChanged;
 
     public event EventHandler<string>? OnInfo;
     public event ProgressChangedHandler? ProgressChanged;
@@ -56,7 +56,7 @@ public class DllUpdater
     {
         foreach (DllType dllType in Enum.GetValues(typeof(DllType)))
         {
-            if(IsNewerVersionAvailable(dllType))
+            if (IsNewerVersionAvailable(dllType))
             {
                 return true;
             }
@@ -67,11 +67,12 @@ public class DllUpdater
 
     public bool IsNewerVersionAvailable(DllType type)
     {
-        if(InstalledPackages.TryGetValue(type, out var highestInstalled) && 
+        if (InstalledPackages.TryGetValue(type, out var highestInstalled) &&
             OnlinePackages.TryGetValue(type, out var highestOnline) && highestInstalled.FirstOrDefault() != null
             && highestOnline.FirstOrDefault() != null)
         {
-            return new Version(highestInstalled.FirstOrDefault()!.Version) < new Version(highestOnline.FirstOrDefault()!.Version);
+            return new Version(highestInstalled.FirstOrDefault()!.Version) <
+                   new Version(highestOnline.FirstOrDefault()!.Version);
         }
 
         return false;
@@ -82,7 +83,8 @@ public class DllUpdater
         if (InstalledPackages.TryGetValue(type, out var highestInstalled)
             && highestInstalled.FirstOrDefault(p => p.Version != DefaultVersion) != null)
         {
-            return new Version(installed.Version) < new Version(highestInstalled.FirstOrDefault(p => p.Version != DefaultVersion)!.Version);
+            return new Version(installed.Version) <
+                   new Version(highestInstalled.FirstOrDefault(p => p.Version != DefaultVersion)!.Version);
         }
 
         return true;
@@ -92,9 +94,9 @@ public class DllUpdater
     {
         Load();
         var nextCheck = LastUpdate.Add(Constants.CacheTime);
-        if(DateTime.UtcNow > nextCheck)
+        if (DateTime.UtcNow > nextCheck)
         {
-            _logger.Debug($"Updating online DLSS libs.");
+            _logger.Debug("Updating online DLSS libs.");
             OnlinePackages.Clear();
             foreach (DllType dllType in Enum.GetValues(typeof(DllType)))
             {
@@ -104,6 +106,7 @@ public class DllUpdater
             DlssFilesChanged?.Invoke(this, EventArgs.Empty);
             LastUpdate = DateTime.UtcNow;
         }
+
         Save();
     }
 
@@ -112,10 +115,16 @@ public class DllUpdater
         try
         {
             var package = OnlinePackages[dllType].FirstOrDefault(p => p.Version == version);
-            if (package is null) return new(false, "Online package not found.");
+            if (package is null)
+            {
+                return new Tuple<bool, string?>(false, "Online package not found.");
+            }
 
             var url = GetUrl(package.DllType);
-            if (url == null) return new(false, "Dll url not found.");
+            if (url == null)
+            {
+                return new Tuple<bool, string?>(false, "Dll url not found.");
+            }
 
             url += $"id={package.DownloadId}";
             KeyValuePair<string, string>[] formData = [new("id", package.DownloadId)];
@@ -148,18 +157,18 @@ public class DllUpdater
             if (!File.Exists(outputPath))
             {
                 _logger.Warn($"DllUpdater: Could not download file to {outputPath}");
-                return new(false, $"Could not download file to {outputPath}.");
+                return new Tuple<bool, string?>(false, $"Could not download file to {outputPath}.");
             }
 
             using (var sha256 = SHA256.Create())
             {
                 using var stream = File.OpenRead(outputPath);
                 var onlineHashArray = sha256.ComputeHash(stream);
-                var onlineHash = BitConverter.ToString(onlineHashArray).Replace("-","").ToLowerInvariant();
+                var onlineHash = BitConverter.ToString(onlineHashArray).Replace("-", "").ToLowerInvariant();
                 if (package.SHA256.ToLower() != onlineHash)
                 {
                     _logger.Error($"DllUpdater: SHA256 check failed for {outputPath}");
-                    return new(false, $"SHA256 check failed for {outputPath}.");
+                    return new Tuple<bool, string?>(false, $"SHA256 check failed for {outputPath}.");
                 }
             }
 
@@ -169,20 +178,22 @@ public class DllUpdater
             File.Delete(outputPath);
 
             var dllPath = Path.Combine(dllTargetPath, GetDllName(dllType));
-            using var fileStream = new FileStream(dllPath, FileMode.Open, FileAccess.Read, FileShare.Read); 
+            using var fileStream = new FileStream(dllPath, FileMode.Open, FileAccess.Read, FileShare.Read);
             var fileSignatureInfo = FileSignatureInfo.GetFromFileStream(fileStream);
             if (fileSignatureInfo.State != SignatureState.SignedAndTrusted)
             {
                 File.Delete(dllPath);
                 _logger.Warn($"Could not verify signature of '{dllPath}'");
-                return new(false, $"Could not verify signature of '{dllPath}'.");
+                return new Tuple<bool, string?>(false, $"Could not verify signature of '{dllPath}'.");
             }
 
             var fileInfo = FileVersionInfo.GetVersionInfo(dllPath);
             var versionString = fileInfo.FileVersion!.Replace(',', '.');
             var versionParsed = Version.Parse(versionString);
             if (versionParsed.Revision == -1)
+            {
                 versionParsed = new Version(versionParsed.Major, versionParsed.Minor, versionParsed.Build, 0);
+            }
 
             if (!InstalledPackages.TryGetValue(dllType, out var value))
             {
@@ -201,13 +212,17 @@ public class DllUpdater
             var installed = value.ToList();
             value.Clear();
             installed.Sort((first, second) => second.VersionDetailed.CompareTo(first.VersionDetailed));
-            foreach (var ver in installed) value.Add(ver);
+            foreach (var ver in installed)
+            {
+                value.Add(ver);
+            }
+
             DlssFilesChanged?.Invoke(this, EventArgs.Empty);
-            return new(true, string.Empty);
+            return new Tuple<bool, string?>(true, string.Empty);
         }
         catch (HttpRequestException ex)
         {
-            return new(false, $"Download failed: {ex}");
+            return new Tuple<bool, string?>(false, $"Download failed: {ex}");
         }
     }
 
@@ -216,7 +231,10 @@ public class DllUpdater
         if (InstalledPackages.TryGetValue(dllType, out var installedPackages))
         {
             var package = installedPackages.FirstOrDefault(p => p.VersionDetailed == version);
-            if (package is null) return;
+            if (package is null)
+            {
+                return;
+            }
 
             File.Delete(package.Path);
             Directory.Delete(Path.GetDirectoryName(package.Path)!);
@@ -243,19 +261,25 @@ public class DllUpdater
         var result = UpdateResult.NothingDone;
         foreach (var (dll, info) in gameInfo.InstalledDlls)
         {
-            if (string.IsNullOrEmpty(info.Version)) continue;
+            if (string.IsNullOrEmpty(info.Version))
+            {
+                continue;
+            }
 
-            if(info.Version == DefaultVersion)
+            if (info.Version == DefaultVersion)
             {
                 RestoreDefaultDll(dll, gameInfo);
                 continue;
             }
 
             var package = InstalledPackages[dll].FirstOrDefault(p => p.VersionDetailed == info.Version);
-            if (package is null) continue;
+            if (package is null)
+            {
+                continue;
+            }
 
             // Now detect if we need to save this as a default
-            if(saveAsDefault)
+            if (saveAsDefault)
             {
                 // We need to save this, so we do that
                 var defaultPath = GetGameDefaultDllPath(gameInfo);
@@ -300,15 +324,15 @@ public class DllUpdater
     public void RestoreDefaultDll(DllType dllType, GameInfo gameInfo)
     {
         var defaultPath = GetGameDefaultDllPath(gameInfo);
-        if(gameInfo.InstalledDlls.TryGetValue(dllType, out var package))
+        if (gameInfo.InstalledDlls.TryGetValue(dllType, out var package))
         {
-            if(package is null || string.IsNullOrEmpty(package.Path))
+            if (package is null || string.IsNullOrEmpty(package.Path))
             {
                 return;
             }
 
             var defaultDll = Path.Combine(defaultPath, GetDllName(dllType));
-            if(!File.Exists(defaultDll))
+            if (!File.Exists(defaultDll))
             {
                 return;
             }
@@ -320,7 +344,7 @@ public class DllUpdater
 
     public void Load()
     {
-        var cachePath = Path.Combine(_settings.Directories.SettingsPath, Settings.Constants.CacheFile);
+        var cachePath = Path.Combine(_settings.Directories.SettingsPath, Constants.CacheFile);
 
         if (File.Exists(cachePath))
         {
@@ -367,7 +391,10 @@ public class DllUpdater
                 continue;
             }
 
-            if (!parseFiles) continue;
+            if (!parseFiles)
+            {
+                continue;
+            }
 
             // Parse filename
             if (line.Contains("class=\"filename\""))
@@ -377,7 +404,9 @@ public class DllUpdater
                 var startIndex = line.IndexOf('>') + 1;
                 var endIndex = line.LastIndexOf("<");
                 if (startIndex == -1 && endIndex == -1)
+                {
                     continue;
+                }
 
                 curPackage.Version = line.Substring(startIndex, endIndex - startIndex).Replace(dllName, "")
                     .Replace(".zip", "");
@@ -393,9 +422,12 @@ public class DllUpdater
                 var startIndex = line.LastIndexOf(startToken) + 1;
                 var endIndex = line.LastIndexOf("</div>");
                 if (startIndex == -1 && endIndex == -1)
+                {
                     continue;
+                }
 
-                curPackage!.SHA256 = line.Substring(startIndex + startToken.Length - 1, endIndex - startIndex - startToken.Length + 1);
+                curPackage!.SHA256 = line.Substring(startIndex + startToken.Length - 1,
+                    endIndex - startIndex - startToken.Length + 1);
             }
 
             // Parse download id
@@ -405,7 +437,9 @@ public class DllUpdater
                 var startIndex = line.IndexOf("value=") + 7;
                 var endIndex = line.LastIndexOf('"');
                 if (startIndex == -1 && endIndex == -1)
+                {
                     continue;
+                }
 
                 curPackage!.DownloadId = line.Substring(startIndex, endIndex - startIndex);
                 curPackage!.DllType = dllType;
@@ -417,6 +451,7 @@ public class DllUpdater
                 {
                     onlinePackages.Add(curPackage);
                 }
+
                 curPackage = null;
             }
         }
@@ -453,8 +488,12 @@ public class DllUpdater
             }
 
             installedPackages.Sort((first, second) => second.VersionDetailed.CompareTo(first.VersionDetailed));
-            foreach (var package in installedPackages) value.Add(package);
+            foreach (var package in installedPackages)
+            {
+                value.Add(package);
+            }
         }
+
         DlssFilesChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -466,7 +505,10 @@ public class DllUpdater
     internal bool IsInstalled(DllType dllType, string versionText)
     {
         if (InstalledPackages.TryGetValue(dllType, out var installedPackages))
+        {
             return installedPackages.Any(p => p.VersionDetailed == versionText);
+        }
+
         return false;
     }
 }

@@ -1,33 +1,21 @@
-﻿using DlssUpdater.Defines;
-using DlssUpdater.GameLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json;
-using System.Threading.Tasks;
 using DLSSUpdater.Defines;
+using DlssUpdater.GameLibrary;
 
 namespace DLSSUpdater.Defines
 {
     public partial class LibraryConfig : ObservableObject
     {
-        public LibraryType LibraryType { get; set; }
+        [ObservableProperty] private string _installPath;
 
-        [ObservableProperty]
-        private bool _isChecked;
+        [ObservableProperty] private bool _isChecked;
 
-        [ObservableProperty]
-        private string _libraryName;
+        [ObservableProperty] private string _libraryName;
 
-        [ObservableProperty]
-        private string _installPath;
+        [ObservableProperty] private bool _needsInstallPath;
 
-        [ObservableProperty]
-        private bool _needsInstallPath;
-
-        [ObservableProperty][JsonIgnore] public LibraryConfig _self;
+        [ObservableProperty] [JsonIgnore] public LibraryConfig _self;
 
         public LibraryConfig(LibraryType type, string name)
         {
@@ -38,6 +26,8 @@ namespace DLSSUpdater.Defines
             _needsInstallPath = true;
             Self = this;
         }
+
+        public LibraryType LibraryType { get; set; }
     }
 }
 
@@ -45,11 +35,11 @@ public class LibraryConvert : JsonConverter<LibraryConfig>
 {
     public override LibraryConfig? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        bool isChecked = false;
-        string libraryName = "";
-        string installPath = "";
-        bool needsInstallPath = true;
-        LibraryType libraryType = LibraryType.Manual;
+        var isChecked = false;
+        var libraryName = "";
+        var installPath = "";
+        var needsInstallPath = true;
+        var libraryType = LibraryType.Manual;
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
@@ -58,10 +48,11 @@ public class LibraryConvert : JsonConverter<LibraryConfig>
                 {
                     IsChecked = isChecked,
                     InstallPath = installPath,
-                    NeedsInstallPath = needsInstallPath,
+                    NeedsInstallPath = needsInstallPath
                 };
                 return config;
             }
+
             // TODO: More
             var propName = reader.GetString();
             reader.Read();
@@ -69,18 +60,22 @@ public class LibraryConvert : JsonConverter<LibraryConfig>
             {
                 isChecked = reader.GetBoolean();
             }
-            if(propName == "LibraryName")
+
+            if (propName == "LibraryName")
             {
                 libraryName = reader.GetString()!;
             }
-            if(propName == "LibraryType")
+
+            if (propName == "LibraryType")
             {
                 libraryType = (LibraryType)Enum.Parse(typeof(LibraryType), reader.GetString()!);
             }
-            if(propName == "InstallPath")
+
+            if (propName == "InstallPath")
             {
                 installPath = reader.GetString()!;
             }
+
             if (propName == "NeedsInstallPath")
             {
                 needsInstallPath = reader.GetBoolean()!;

@@ -1,15 +1,16 @@
 ﻿using DLSSUpdater.Defines;
+using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.GameLibrary;
 
 public class ManualLibrary : ILibrary
 {
-    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
-    public ManualLibrary(LibraryConfig config, NLog.Logger logger)
+    public ManualLibrary(LibraryConfig config, Logger logger)
     {
-
     }
+
+    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
 
     public LibraryType GetLibraryType()
     {
@@ -18,7 +19,6 @@ public class ManualLibrary : ILibrary
 
     public void GetInstallationDirectory()
     {
-        
     }
 
     public async Task<List<GameInfo>> GatherGamesAsync()

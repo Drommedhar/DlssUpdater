@@ -1,22 +1,18 @@
 ﻿using System.IO;
-using System.Security.Principal;
-using System.Xml;
 using System.Xml.Linq;
-using DlssUpdater.GameLibrary.Steam;
-using DlssUpdater.Helpers;
 using DLSSUpdater.Defines;
-using Microsoft.Win32;
+using DlssUpdater.Helpers;
+using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.GameLibrary;
 
 public class XboxLibrary : ILibrary
 {
-    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
     private readonly LibraryConfig _config;
-    private readonly NLog.Logger _logger;
+    private readonly Logger _logger;
 
-    internal XboxLibrary(LibraryConfig config, NLog.Logger logger)
+    internal XboxLibrary(LibraryConfig config, Logger logger)
     {
         _config = config;
         _logger = logger;
@@ -24,6 +20,8 @@ public class XboxLibrary : ILibrary
         _config.NeedsInstallPath = false;
         _config.InstallPath = "None needed";
     }
+
+    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
 
     public LibraryType GetLibraryType()
     {
@@ -37,13 +35,12 @@ public class XboxLibrary : ILibrary
 
     public void GetInstallationDirectory()
     {
-        
     }
 
     private async Task<List<GameInfo>> getGames()
     {
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(initialCount: Settings.Constants.CoreCount);
+        var throttler = new SemaphoreSlim(Settings.Constants.CoreCount);
         List<GameInfo> ret = [];
 
         var amount = 0;
@@ -91,7 +88,8 @@ public class XboxLibrary : ILibrary
                     foreach (var gameDir in gameDirs)
                     {
                         current += 1;
-                        LoadingProgress?.Invoke(this, new(current, amount, GetLibraryType()));
+                        LoadingProgress?.Invoke(this,
+                            new Tuple<int, int, LibraryType>(current, amount, GetLibraryType()));
 
                         var manifestPath = Path.Combine(gameDir, "Content", "appxmanifest.xml");
                         if (!File.Exists(manifestPath))
@@ -100,10 +98,10 @@ public class XboxLibrary : ILibrary
                         }
 
                         // Load the XML file
-                        XDocument xmlDoc = XDocument.Load(manifestPath);
+                        var xmlDoc = XDocument.Load(manifestPath);
 
                         // Extract the "uap" namespace dynamically from the XML
-                        XNamespace uap = xmlDoc.Root?.GetNamespaceOfPrefix("uap")!;
+                        var uap = xmlDoc.Root?.GetNamespaceOfPrefix("uap")!;
 
                         // Query the SplashScreen element and get the Image attribute
                         var splashScreenImage = xmlDoc
@@ -116,14 +114,14 @@ public class XboxLibrary : ILibrary
                             .FirstOrDefault()?.Attribute("DisplayName")?.Value;
 
                         // Extract the namespace (if any is necessary)
-                        XNamespace ns = xmlDoc.Root!.Name.Namespace;
+                        var ns = xmlDoc.Root!.Name.Namespace;
 
                         // Query all Application elements and get their Id attributes
                         var id = xmlDoc
-                            .Descendants(ns + "Application")  // Include the namespace for the Application element
+                            .Descendants(ns + "Application") // Include the namespace for the Application element
                             .Select(app => app.Attribute("Id")?.Value).FirstOrDefault();
 
-                        string imagePathFinal = "";
+                        var imagePathFinal = "";
                         if (splashScreenImage != null)
                         {
                             imagePathFinal = Path.Combine(gameDir, "Content", splashScreenImage);
@@ -133,7 +131,7 @@ public class XboxLibrary : ILibrary
                         {
                             var info = new GameInfo(displayName, gameDir, GetLibraryType())
                             {
-                                UniqueId = "xbox_" + id,
+                                UniqueId = "xbox_" + id
                             };
                             if (!string.IsNullOrEmpty(imagePathFinal))
                             {
@@ -148,7 +146,8 @@ public class XboxLibrary : ILibrary
                             }
                             else
                             {
-                                _logger.Debug($"Xbox: '{info.GamePath}' does not have any DLSS dll and is being ignored.");
+                                _logger.Debug(
+                                    $"Xbox: '{info.GamePath}' does not have any DLSS dll and is being ignored.");
                             }
                         }
                     }
@@ -169,12 +168,19 @@ public class XboxLibrary : ILibrary
     private string? getGameImage(string thumbImage)
     {
         var cachedImage = Path.Combine(_config.InstallPath!, "cache", "assets", thumbImage);
-        if (File.Exists(cachedImage)) return new string(cachedImage);
+        if (File.Exists(cachedImage))
+        {
+            return new string(cachedImage);
+        }
 
         var url = $"https://ubistatic3-a.akamaihd.net/orbit/uplay_launcher_3_0/assets/{thumbImage}";
         var valid = WebHelper.UrlIsValid(url);
 
-        if (valid) return url;
+        if (valid)
+        {
+            return url;
+        }
+
         return null;
     }
 }

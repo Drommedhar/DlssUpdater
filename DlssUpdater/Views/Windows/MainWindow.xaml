@@ -4,11 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:windows="clr-namespace:DlssUpdater.Views.Windows"
-    xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
-    xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI" 
     xmlns:controls="clr-namespace:DLSSUpdater.Controls"
     Title=""
     Width="1100"
@@ -18,55 +15,58 @@
     d:DataContext="{d:DesignInstance windows:MainWindow,
                                  IsDesignTimeCreatable=True}"
     WindowStartupLocation="CenterScreen"
-    mc:Ignorable="d" MinWidth="1100" MinHeight="650" WindowState="{Binding ViewModel.WindowState}" SizeChanged="FluentWindow_SizeChanged" TitleBarBackground="#FF0E141B" ShrinkTitleBarWhenMaximized="False" Loaded="AdonisWindow_Loaded">
-    
+    mc:Ignorable="d" MinWidth="1100" MinHeight="650" WindowState="{Binding ViewModel.WindowState}"
+    SizeChanged="FluentWindow_SizeChanged" TitleBarBackground="#FF0E141B" ShrinkTitleBarWhenMaximized="False"
+    Loaded="AdonisWindow_Loaded">
+
     <Grid Background="#FF212B45">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal"
-            HorizontalAlignment="{Binding ViewModel.SubNavigationAlignment}">
-            <ItemsControl ItemsSource="{Binding ViewModel.SubNavigationButtons}" >
+                    HorizontalAlignment="{Binding ViewModel.SubNavigationAlignment}">
+            <ItemsControl ItemsSource="{Binding ViewModel.SubNavigationButtons}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <controls:NavButton Title="{Binding Title}"
-                        Background="#FF212B45"
-                        ButtonForeground="{Binding Foreground}"
-                        NavigationButton="{Binding Instance}"
-                        Height="50" Margin="0,0,0,0" Click="SubNavigationButton_Clicked"/>
+                                            Background="#FF212B45"
+                                            ButtonForeground="{Binding Foreground}"
+                                            NavigationButton="{Binding Instance}"
+                                            Height="50" Margin="0,0,0,0" Click="SubNavigationButton_Clicked" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
+                        <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
         </StackPanel>
 
-        <Grid x:Name="GridContent" Grid.Row="1" Background="#FF2f3540"/>
+        <Grid x:Name="GridContent" Grid.Row="1" Background="#FF2f3540" />
     </Grid>
 
     <adonisControls:AdonisWindow.TitleBarContent>
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Left" Margin="-21,0,0,0">
-            <ItemsControl ItemsSource="{Binding ViewModel.NavigationButtons}" >
+            <ItemsControl ItemsSource="{Binding ViewModel.NavigationButtons}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <controls:NavButton Title="{Binding Title}"
-                                Background="#FF0E141B"
-                                ButtonForeground="{Binding Foreground}"
-                                NavigationButton="{Binding Instance}"
-                                Height="50" Margin="0,5,0,5" FontWeight="Bold" Click="NavigationButton_Clicked" HorizontalAlignment="Center"/>
+                                            Background="#FF0E141B"
+                                            ButtonForeground="{Binding Foreground}"
+                                            NavigationButton="{Binding Instance}"
+                                            Height="50" Margin="0,5,0,5" FontWeight="Bold"
+                                            Click="NavigationButton_Clicked" HorizontalAlignment="Center" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
+                        <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>

@@ -14,7 +14,9 @@ public class SortableObservableCollection<T> : ObservableCollection<T>
         if (SortingSelector == null
             || e.Action == NotifyCollectionChangedAction.Remove
             || e.Action == NotifyCollectionChangedAction.Reset)
+        {
             return;
+        }
 
         var query = this.Select((item, index) => (Item: item, Index: index));
         query = Descending
@@ -25,15 +27,22 @@ public class SortableObservableCollection<T> : ObservableCollection<T>
             .Where(o => o.OldIndex != o.NewIndex);
 
         using var enumerator = map.GetEnumerator();
-        if (enumerator.MoveNext()) Move(enumerator.Current.OldIndex, enumerator.Current.NewIndex);
+        if (enumerator.MoveNext())
+        {
+            Move(enumerator.Current.OldIndex, enumerator.Current.NewIndex);
+        }
     }
 
     public int IndexOf(Func<T, bool> predicate)
     {
-        int index = 0;
+        var index = 0;
         foreach (var item in this)
         {
-            if (predicate(item)) return index;
+            if (predicate(item))
+            {
+                return index;
+            }
+
             index++;
         }
 

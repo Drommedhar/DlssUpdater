@@ -1,17 +1,18 @@
 ﻿using System.IO;
+using NLog;
 
 namespace DlssUpdater.Singletons.AntiCheatChecker;
 
 public class BattlEyeProvider : IAntiCheatProvider
 {
-    public AntiCheatProvider ProviderType => AntiCheatProvider.BattlEye;
+    private readonly Logger _logger;
 
-    private readonly NLog.Logger _logger;
-
-    public BattlEyeProvider(NLog.Logger logger)
+    public BattlEyeProvider(Logger logger)
     {
         _logger = logger;
     }
+
+    public AntiCheatProvider ProviderType => AntiCheatProvider.BattlEye;
 
     public bool Check(string directory)
     {

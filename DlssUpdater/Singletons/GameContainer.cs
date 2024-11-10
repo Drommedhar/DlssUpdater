@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using DlssUpdater.Defines;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DLSSUpdater.Singletons;
+using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.Singletons;
 
 public class GameContainer
 {
-    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
-    public event EventHandler<string>? InfoMessage;
-    public event EventHandler? GamesChanged;
+    private readonly AntiCheatChecker.AntiCheatChecker _antiCheatChecker;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -26,14 +24,15 @@ public class GameContainer
         }
     };
 
-    public readonly List<ILibrary> Libraries = [];
+    private readonly Logger _logger;
 
     private readonly Settings _settings;
-    private readonly AntiCheatChecker.AntiCheatChecker _antiCheatChecker;
-    private readonly NLog.Logger _logger;
     private readonly AsyncFileWatcher _watcher;
 
-    public GameContainer(Settings settings, AntiCheatChecker.AntiCheatChecker antiCheatChecker, NLog.Logger logger, AsyncFileWatcher watcher)
+    public readonly List<ILibrary> Libraries = [];
+
+    public GameContainer(Settings settings, AntiCheatChecker.AntiCheatChecker antiCheatChecker, Logger logger,
+        AsyncFileWatcher watcher)
     {
         _settings = settings;
         _antiCheatChecker = antiCheatChecker;
@@ -49,6 +48,10 @@ public class GameContainer
     {
         SortingSelector = g => g.GameName
     };
+
+    public event EventHandler<Tuple<int, int, LibraryType>> LoadingProgress;
+    public event EventHandler<string>? InfoMessage;
+    public event EventHandler? GamesChanged;
 
     public void UpdateLibraries()
     {
@@ -69,7 +72,7 @@ public class GameContainer
     public async Task LoadGamesAsync()
     {
         _logger.Debug("Starting gathering games");
-        Stopwatch stopwatch = Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
 
         await loadGamesAsync();
 
@@ -108,11 +111,14 @@ public class GameContainer
 
     public bool IsUpdateAvailable()
     {
-        foreach(var game in Games)
+        foreach (var game in Games)
         {
             if (!game.IsHidden && game.UpdateVisible == Visibility.Visible)
+            {
                 return true;
+            }
         }
+
         return false;
         //return Games.Any(g => !g.IsHidden && g.UpdateVisible == Visibility.Visible);
     }
@@ -136,7 +142,8 @@ public class GameContainer
         List<GameInfo> totalGames = [];
         foreach (var lib in Libraries)
         {
-            if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == lib.GetLibraryType())?.IsChecked ?? false)
+            if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == lib.GetLibraryType())?.IsChecked ??
+                false)
             {
                 continue;
             }
@@ -146,8 +153,8 @@ public class GameContainer
         }
 
         totalGames = totalGames.GroupBy(g => g.GamePath)
-                .Select(g => g.First())
-                .ToList();
+            .Select(g => g.First())
+            .ToList();
 
         // We need to check our local list against the library games and remove
         // the ones that are no longer reported
@@ -160,11 +167,12 @@ public class GameContainer
             }
 
             var game = totalGames.FirstOrDefault(g => g.UniqueId == item.UniqueId);
-            if(game is null)
+            if (game is null)
             {
                 gamesToDelete.Add(item);
             }
         }
+
         foreach (var item in gamesToDelete)
         {
             Games.Remove(item);
@@ -177,9 +185,9 @@ public class GameContainer
             current++;
             InfoMessage?.Invoke(this, $"Parsing games {current}/{amount}");
             var index = -1;
-            if(item.LibraryType != LibraryType.Manual)
-            {
+            if (item.LibraryType != LibraryType.Manual)
                 // For library games, we check against the id, not the path
+            {
                 index = Games.IndexOf(g => g.UniqueId == item.UniqueId);
             }
             else
@@ -187,12 +195,12 @@ public class GameContainer
                 index = Games.IndexOf(g => g.GamePath == item.GamePath);
             }
 
-            
+
             if (index != -1)
             {
                 var id = Games[index].UniqueId;
                 var isHidden = Games[index].IsHidden;
-                Games[index] = new(item);
+                Games[index] = new GameInfo(item);
                 Games[index].UniqueId = id;
                 Games[index].IsHidden = isHidden;
                 await Games[index].GatherInstalledVersions();
@@ -205,6 +213,7 @@ public class GameContainer
                 info.Update();
                 Games.Add(info);
             }
+
             _watcher.AddFile(item);
         }
 
@@ -244,7 +253,7 @@ public class GameContainer
         SaveGames();
     }
 
-    private void Games_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private void Games_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         GamesChanged?.Invoke(this, e);
     }

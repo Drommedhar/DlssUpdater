@@ -7,7 +7,7 @@ public enum AntiCheatProvider
     EasyAntiCheat = 1,
     BattlEye = 2,
 
-    All = EasyAntiCheat | BattlEye,
+    All = EasyAntiCheat | BattlEye
     // TODO: More
 }
 

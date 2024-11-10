@@ -17,116 +17,116 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="icon.ico" />
+        <Content Include="icon.ico"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AdonisUI" Version="1.17.1" />
-        <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
-        <PackageReference Include="Microsoft.Security.Extensions" Version="1.3.0" />
-        <PackageReference Include="NLog" Version="5.3.4" />
-        <PackageReference Include="Octokit" Version="13.0.1" />
-        <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.1" />
-        <PackageReference Include="WpfBindingErrors" Version="1.1.0" />
+        <PackageReference Include="AdonisUI" Version="1.17.1"/>
+        <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1"/>
+        <PackageReference Include="Microsoft.Security.Extensions" Version="1.3.0"/>
+        <PackageReference Include="NLog" Version="5.3.4"/>
+        <PackageReference Include="Octokit" Version="13.0.1"/>
+        <PackageReference Include="System.Drawing.Common" Version="8.0.8"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.1"/>
+        <PackageReference Include="WpfBindingErrors" Version="1.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Icons\battleye.png" />
-        <None Remove="Icons\config.png" />
-        <None Remove="Icons\cross.png" />
-        <None Remove="Icons\eac.png" />
-        <None Remove="Icons\epic.png" />
-        <None Remove="Icons\filter.png" />
-        <None Remove="Icons\folder.png" />
-        <None Remove="Icons\gog.png" />
-        <None Remove="Icons\hide.png" />
-        <None Remove="Icons\steam.png" />
-        <None Remove="Icons\trashcan.png" />
-        <None Remove="Icons\ubi.png" />
-        <None Remove="Icons\unhide.png" />
-        <None Remove="Icons\update.png" />
-        <None Remove="Icons\xbox.png" />
-        <None Remove="Windows\Splashscreen\splash.png" />
+        <None Remove="Icons\battleye.png"/>
+        <None Remove="Icons\config.png"/>
+        <None Remove="Icons\cross.png"/>
+        <None Remove="Icons\eac.png"/>
+        <None Remove="Icons\epic.png"/>
+        <None Remove="Icons\filter.png"/>
+        <None Remove="Icons\folder.png"/>
+        <None Remove="Icons\gog.png"/>
+        <None Remove="Icons\hide.png"/>
+        <None Remove="Icons\steam.png"/>
+        <None Remove="Icons\trashcan.png"/>
+        <None Remove="Icons\ubi.png"/>
+        <None Remove="Icons\unhide.png"/>
+        <None Remove="Icons\update.png"/>
+        <None Remove="Icons\xbox.png"/>
+        <None Remove="Windows\Splashscreen\splash.png"/>
     </ItemGroup>
 
     <ItemGroup>
         <Resource Include="Icons\battleye.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\config.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\cross.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\eac.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\epic.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\filter.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\folder.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\gog.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\hide.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\steam.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\trashcan.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\ubi.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\unhide.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\update.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Icons\xbox.png">
-          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
-        <Resource Include="Windows\Splashscreen\splash.png" />
+        <Resource Include="Windows\Splashscreen\splash.png"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Views\Pages\GamePageControl.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Pages\ChangelogPageControl.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
+        <Compile Update="Views\Pages\GamePageControl.xaml.cs">
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Pages\ChangelogPageControl.xaml.cs">
+            <SubType>Code</SubType>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="changelog.md">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="NLog.config">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="version.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Update="changelog.md">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="NLog.config">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="version.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

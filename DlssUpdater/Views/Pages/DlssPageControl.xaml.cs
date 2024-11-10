@@ -1,34 +1,28 @@
-﻿using DlssUpdater.Defines;
-using DLSSUpdater.Controls;
+﻿using System.Windows.Controls;
 using DLSSUpdater.ViewModels.Pages;
-using System.ComponentModel;
-using System.Reflection;
-using System.Windows.Controls;
-using System.Windows.Media;
 using static DlssUpdater.Defines.DlssTypes;
 
-namespace DLSSUpdater.Views.Pages
+namespace DLSSUpdater.Views.Pages;
+
+/// <summary>
+///     Interaction logic for DlssPageControl.xaml
+/// </summary>
+public partial class DlssPageControl : UserControl
 {
-    /// <summary>
-    /// Interaction logic for DlssPageControl.xaml
-    /// </summary>
-    public partial class DlssPageControl : UserControl
+    public DlssPageControl(DlssPageViewModel viewModel)
     {
-        public DlssPageViewModel ViewModel { get; }
+        ViewModel = viewModel;
 
-        public DlssPageControl(DlssPageViewModel viewModel)
-        {
-            ViewModel = viewModel;
+        InitializeComponent();
 
-            InitializeComponent();
+        DataContext = this;
+    }
 
-            DataContext = this;
-        }
+    public DlssPageViewModel ViewModel { get; }
 
-        public void SetDllType(DllType dllType)
-        {
-            ViewModel.SetDllType(dllType);
-            scrollGrid.ScrollToTop();
-        }
+    public void SetDllType(DllType dllType)
+    {
+        ViewModel.SetDllType(dllType);
+        scrollGrid.ScrollToTop();
     }
 }

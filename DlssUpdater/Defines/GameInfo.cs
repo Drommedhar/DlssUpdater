@@ -1,59 +1,47 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using DLSSUpdater.Defines.UI.Pages;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Singletons;
 using DlssUpdater.Singletons.AntiCheatChecker;
-using DLSSUpdater.Defines.UI.Pages;
+using NLog;
 using static DlssUpdater.Defines.DlssTypes;
 
 namespace DlssUpdater.Defines;
 
 public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
 {
-    public string UniqueId { get; set; }
+    [JsonIgnore] public readonly LibraryPage _libPage;
+    [JsonIgnore] public readonly Logger _logger;
+    [JsonIgnore] public readonly DllUpdater _updater;
+    [ObservableProperty] [JsonIgnore] public ImageSource? _antiCheatImage;
     [ObservableProperty] [JsonIgnore] public ImageSource? _gameImage;
-    [ObservableProperty] [JsonIgnore] public ImageSource? _libraryImage;
-    [ObservableProperty][JsonIgnore] public ImageSource? _antiCheatImage;
-    [ObservableProperty][JsonIgnore] public ImageSource? _hideImage;
-    [ObservableProperty][JsonIgnore] public Visibility _hasAntiCheat = Visibility.Collapsed;
 
     [ObservableProperty] public string? _gameImageUri;
 
     [ObservableProperty] public string _gameName;
 
     [ObservableProperty] public string _gamePath;
+    [ObservableProperty] [JsonIgnore] public Visibility _hasAntiCheat = Visibility.Collapsed;
+    [ObservableProperty] [JsonIgnore] public ImageSource? _hideImage;
+    [ObservableProperty] [JsonIgnore] public string _installedVersionDlss;
+    [ObservableProperty] [JsonIgnore] public string _installedVersionDlssD;
+    [ObservableProperty] [JsonIgnore] public string _installedVersionDlssG;
     private bool _isHidden;
-    public bool IsHidden { get => _isHidden; set
-        {
-            if (value != _isHidden)
-            {
-                _isHidden = value;
-                setHideImage();
-            }
-        }
-    }
+    [ObservableProperty] [JsonIgnore] public ImageSource? _libraryImage;
     [ObservableProperty] public Visibility _removeVisible;
-
-    [JsonIgnore] public AntiCheatProvider AntiCheat = AntiCheatProvider.None;
 
     [ObservableProperty] [JsonIgnore] public GameInfo _self;
 
     [ObservableProperty] [JsonIgnore] public Visibility _updateVisible;
-    [ObservableProperty][JsonIgnore] public string _installedVersionDlss;
-    [ObservableProperty][JsonIgnore] public string _installedVersionDlssD;
-    [ObservableProperty][JsonIgnore] public string _installedVersionDlssG;
-    public Dictionary<DllType, bool> DefaultDlls { get; set; } = [];
-    [JsonIgnore] public Dictionary<DllType, InstalledPackage> InstalledDlls { get; set; } = [];
+
+    [JsonIgnore] public AntiCheatProvider AntiCheat = AntiCheatProvider.None;
 
     [JsonIgnore] public LibraryType LibraryType;
-    [JsonIgnore] public readonly DllUpdater _updater;
-    [JsonIgnore] public readonly NLog.Logger _logger;
-    [JsonIgnore] public readonly LibraryPage _libPage;
 
     public GameInfo(GameInfo gameInfo)
     {
@@ -64,10 +52,11 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         UniqueId = gameInfo.UniqueId;
         IsHidden = gameInfo.IsHidden;
         GameImageUri = gameInfo.GameImageUri;
-        foreach(var kvp in gameInfo.InstalledDlls)
+        foreach (var kvp in gameInfo.InstalledDlls)
         {
             InstalledDlls.Add(kvp.Key, kvp.Value);
         }
+
         _updater = gameInfo._updater;
         _logger = gameInfo._logger;
         _libPage = gameInfo._libPage;
@@ -95,12 +84,38 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         setLibraryImage();
         setHideImage();
 
-        foreach (DllType dllType in Enum.GetValues(typeof(DllType))) InstalledDlls.Add(dllType, new InstalledPackage());
+        foreach (DllType dllType in Enum.GetValues(typeof(DllType)))
+        {
+            InstalledDlls.Add(dllType, new InstalledPackage());
+        }
 
         Self = this;
         _updater = App.GetService<DllUpdater>()!;
-        _logger = App.GetService<NLog.Logger>()!;
+        _logger = App.GetService<Logger>()!;
         _libPage = App.GetService<LibraryPage>()!;
+    }
+
+    public string UniqueId { get; set; }
+
+    public bool IsHidden
+    {
+        get => _isHidden;
+        set
+        {
+            if (value != _isHidden)
+            {
+                _isHidden = value;
+                setHideImage();
+            }
+        }
+    }
+
+    public Dictionary<DllType, bool> DefaultDlls { get; set; } = [];
+    [JsonIgnore] public Dictionary<DllType, InstalledPackage> InstalledDlls { get; set; } = [];
+
+    public bool Equals(GameInfo? other)
+    {
+        return UniqueId == other?.UniqueId;
     }
 
     public void Update()
@@ -116,7 +131,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         HideImage = _isHidden switch
         {
             true => new BitmapImage(new Uri("pack://application:,,,/Icons/unhide.png")),
-            false => new BitmapImage(new Uri("pack://application:,,,/Icons/hide.png")),
+            false => new BitmapImage(new Uri("pack://application:,,,/Icons/hide.png"))
         };
     }
 
@@ -130,7 +145,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
             LibraryType.EpicGames => new BitmapImage(new Uri("pack://application:,,,/Icons/epic.png")),
             LibraryType.GOG => new BitmapImage(new Uri("pack://application:,,,/Icons/gog.png")),
             LibraryType.Xbox => new BitmapImage(new Uri("pack://application:,,,/Icons/xbox.png")),
-            _ => null,
+            _ => null
         };
     }
 
@@ -140,7 +155,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         {
             AntiCheatProvider.EasyAntiCheat => new BitmapImage(new Uri("pack://application:,,,/Icons/eac.png")),
             AntiCheatProvider.BattlEye => new BitmapImage(new Uri("pack://application:,,,/Icons/battleye.png")),
-            _ => null,
+            _ => null
         };
 
         HasAntiCheat = AntiCheatImage != null ? Visibility.Visible : Visibility.Collapsed;
@@ -148,14 +163,17 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
 
     public async Task<(bool, Exception?)> GatherInstalledVersions()
     {
-        if (!Directory.Exists(GamePath)) return (false, null);
+        if (!Directory.Exists(GamePath))
+        {
+            return (false, null);
+        }
 
-        bool bChanged = false;
+        var bChanged = false;
         try
         {
             await Task.Run(() =>
             {
-                bool bUpdateAvailable = false;
+                var bUpdateAvailable = false;
                 foreach (var (dll, info) in InstalledDlls)
                 {
                     var allFiles = Directory.GetFiles(GamePath, GetDllName(dll), SearchOption.AllDirectories);
@@ -175,6 +193,7 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
                         info.Version = fileInfo.FileVersion?.Replace(',', '.') ?? "0.0.0.0";
                         bChanged = true;
                     }
+
                     if (_updater.IsNewerVersionAvailable(dll, info))
                     {
                         bUpdateAvailable = true;
@@ -182,14 +201,19 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
 
                     switch (dll)
                     {
-                        case DllType.Dlss: InstalledVersionDlss = info.Version; break;
-                        case DllType.DlssD: InstalledVersionDlssD = info.Version; break;
-                        case DllType.DlssG: InstalledVersionDlssG = info.Version; break;
+                        case DllType.Dlss:
+                            InstalledVersionDlss = info.Version;
+                            break;
+                        case DllType.DlssD:
+                            InstalledVersionDlssD = info.Version;
+                            break;
+                        case DllType.DlssG:
+                            InstalledVersionDlssG = info.Version;
+                            break;
                     }
                 }
 
                 UpdateVisible = bUpdateAvailable ? Visibility.Visible : Visibility.Hidden;
-
             });
         }
         catch (UnauthorizedAccessException ex)
@@ -197,11 +221,11 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
             _logger.Error($"GameInfo.GatherInstalledVersions failed with: {ex}");
             InstalledDlls.Clear();
             return (false, ex);
-        }        
+        }
 
-        if(bChanged)
+        if (bChanged)
         {
-            Application.Current.Dispatcher.Invoke(new Action(() => { _libPage.UpdateNotificationInfo(); }));
+            Application.Current.Dispatcher.Invoke(() => { _libPage.UpdateNotificationInfo(); });
         }
 
         return (bChanged, null);
@@ -232,15 +256,13 @@ public partial class GameInfo : ObservableObject, IEquatable<GameInfo>
         }
     }
 
-    public bool Equals(GameInfo? other)
-    {
-        return UniqueId == other?.UniqueId;
-    }
-
     public override bool Equals(object? obj)
     {
         if (obj == null)
+        {
             return false;
+        }
+
         return Equals(obj as GameInfo);
     }
 
@@ -264,12 +286,15 @@ public class GameConvert : JsonConverter<GameInfo>
         {
             if (reader.TokenType == JsonTokenType.EndObject)
             {
-                LibraryType type = string.IsNullOrEmpty(libraryType) ? LibraryType.Manual : (LibraryType)Enum.Parse(typeof(LibraryType), libraryType);
+                var type = string.IsNullOrEmpty(libraryType)
+                    ? LibraryType.Manual
+                    : (LibraryType)Enum.Parse(typeof(LibraryType), libraryType);
                 var info = new GameInfo(gameName!, gamePath!, type);
-                if(type == LibraryType.Manual && string.IsNullOrEmpty(uniqueId))
+                if (type == LibraryType.Manual && string.IsNullOrEmpty(uniqueId))
                 {
                     uniqueId = Guid.NewGuid().ToString();
                 }
+
                 info.UniqueId = uniqueId!;
                 info.IsHidden = isHidden;
                 if (!string.IsNullOrEmpty(gameImageUri))
@@ -277,23 +302,36 @@ public class GameConvert : JsonConverter<GameInfo>
                     info.SetGameImageUri(gameImageUri);
                     info.GenerateGameImage();
                 }
+
                 return info;
             }
 
             var propName = reader.GetString();
             reader.Read();
             if (propName == "GameName")
+            {
                 gameName = reader.GetString();
+            }
             else if (propName == "GamePath")
+            {
                 gamePath = reader.GetString();
+            }
             else if (propName == "GameImageUri")
+            {
                 gameImageUri = reader.GetString();
-            else if(propName == "LibraryType")
+            }
+            else if (propName == "LibraryType")
+            {
                 libraryType = reader.GetString();
-            else if(propName == "UniqueId")
+            }
+            else if (propName == "UniqueId")
+            {
                 uniqueId = reader.GetString();
-            else if(propName == "IsHidden")
+            }
+            else if (propName == "IsHidden")
+            {
                 isHidden = reader.GetBoolean();
+            }
         }
 
         return null;

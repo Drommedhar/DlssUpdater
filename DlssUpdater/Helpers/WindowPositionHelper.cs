@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Interop;
+﻿using System.Runtime.InteropServices;
 
 namespace DlssUpdater.Helpers;
 
@@ -16,19 +14,19 @@ public static class WindowPositionHelper
             var childDpiScale = GetDpiScale(childWindow);
 
             // Check if the parent window is maximized
-            bool isParentMaximized = parentWindow.WindowState == WindowState.Maximized;
+            var isParentMaximized = parentWindow.WindowState == WindowState.Maximized;
 
             // Get the parent window's bounds
             Rect parentBounds;
-                // Get the parent window's position and size in screen coordinates
-                var parentPosition = parentWindow.PointToScreen(new Point(0, 0));
-                double parentWidthInPx = parentWindow.ActualWidth * parentDpiScale.X;
-                double parentHeightInPx = parentWindow.ActualHeight * parentDpiScale.Y;
-                parentBounds = new Rect(parentPosition.X, parentPosition.Y, parentWidthInPx, parentHeightInPx);
+            // Get the parent window's position and size in screen coordinates
+            var parentPosition = parentWindow.PointToScreen(new Point(0, 0));
+            var parentWidthInPx = parentWindow.ActualWidth * parentDpiScale.X;
+            var parentHeightInPx = parentWindow.ActualHeight * parentDpiScale.Y;
+            parentBounds = new Rect(parentPosition.X, parentPosition.Y, parentWidthInPx, parentHeightInPx);
 
             // Get the child window's actual size in physical pixels
-            double childWidthInPx = childWindow.ActualWidth * childDpiScale.X;
-            double childHeightInPx = childWindow.ActualHeight * childDpiScale.Y;
+            var childWidthInPx = childWindow.ActualWidth * childDpiScale.X;
+            var childHeightInPx = childWindow.ActualHeight * childDpiScale.Y;
 
             // Ensure the child window size is available
             if (childWidthInPx == 0 || childHeightInPx == 0)
@@ -37,8 +35,8 @@ public static class WindowPositionHelper
             }
 
             // Calculate the centered position relative to the parent
-            double childLeft = parentBounds.X + (parentBounds.Width - childWidthInPx) / 2;
-            double childTop = parentBounds.Y + (parentBounds.Height - childHeightInPx) / 2;
+            var childLeft = parentBounds.X + (parentBounds.Width - childWidthInPx) / 2;
+            var childTop = parentBounds.Y + (parentBounds.Height - childHeightInPx) / 2;
 
             // Convert the position back to logical units for the child window
             childWindow.Left = childLeft / childDpiScale.X;
@@ -51,22 +49,23 @@ public static class WindowPositionHelper
         // Get the window's presentation source
         var source = PresentationSource.FromVisual(window);
         if (source?.CompositionTarget != null)
-        {
             // Return the DPI scale factor (logical units to physical pixels)
+        {
             return new Point(source.CompositionTarget.TransformToDevice.M11,
-                             source.CompositionTarget.TransformToDevice.M22);
+                source.CompositionTarget.TransformToDevice.M22);
         }
+
         return new Point(1.0, 1.0); // Default scale if source is not available
     }
 
     // P/Invoke declarations to work with monitor information
-    [System.Runtime.InteropServices.DllImport("User32.dll")]
+    [DllImport("User32.dll")]
     private static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorOptions dwFlags);
 
-    [System.Runtime.InteropServices.DllImport("User32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    [DllImport("User32.dll", CharSet = CharSet.Auto)]
     private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct RECT
     {
         public int Left;
@@ -75,12 +74,12 @@ public static class WindowPositionHelper
         public int Bottom;
     }
 
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     public class MONITORINFO
     {
-        public int cbSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(MONITORINFO));
-        public RECT rcMonitor = new RECT();
-        public RECT rcWork = new RECT();
+        public int cbSize = Marshal.SizeOf(typeof(MONITORINFO));
+        public RECT rcMonitor = new();
+        public RECT rcWork = new();
         public int dwFlags = 0;
     }
 

@@ -1,93 +1,87 @@
-﻿using DlssUpdater;
-using DlssUpdater.Defines;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Controls;
+using DlssUpdater;
 using DlssUpdater.Helpers;
 using DlssUpdater.Singletons;
-using DlssUpdater.Views.Windows;
 using DLSSUpdater.Singletons;
 using DLSSUpdater.ViewModels.Windows;
 using DLSSUpdater.Views.Pages;
+using DlssUpdater.Views.Windows;
 using DLSSUpdater.Views.Windows;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+using NLog;
 
-namespace DLSSUpdater.Defines.UI.Pages
+namespace DLSSUpdater.Defines.UI.Pages;
+
+public partial class LibraryPage : ObservableObject, IContentPage
 {
-    public partial class LibraryPage : ObservableObject, IContentPage
+    private readonly AsyncFileWatcher _fileWatcher;
+
+    private readonly GameContainer _gameContainer;
+    private readonly Logger _logger;
+    private readonly DllUpdater _updater;
+
+    [ObservableProperty] private GamePageControl _pageControl;
+
+    public MainWindowViewModel? MainWindowViewModel;
+
+    public LibraryPage(GameContainer gameContainer, AsyncFileWatcher watcher, DllUpdater updater, Logger logger)
     {
-        public MainWindowViewModel? MainWindowViewModel;
+        PageControl = App.GetService<GamePageControl>()!;
+        _logger = logger;
+        _gameContainer = gameContainer;
+        _gameContainer.GamesChanged += _gameContainer_GamesChanged;
+        _fileWatcher = watcher;
+        watcher.FilesChanged += Watcher_FilesChanged;
+        _updater = updater;
+    }
 
-        [ObservableProperty]
-        private GamePageControl _pageControl;
+    public UserControl GetPageControl()
+    {
+        return PageControl;
+    }
 
-        private readonly GameContainer _gameContainer;
-        private readonly AsyncFileWatcher _fileWatcher;
-        private readonly DllUpdater _updater;
-        private readonly NLog.Logger _logger;
+    ObservableCollection<NavigationButton> IContentPage.GetNavigationButtons()
+    {
+        return
+        [
+            new NavigationButton("Add game", () => { ShowGameConfig(); }, true)
+        ];
+    }
 
-        public LibraryPage(GameContainer gameContainer, AsyncFileWatcher watcher, DllUpdater updater, NLog.Logger logger)
+    public HorizontalAlignment GetAlignment()
+    {
+        return HorizontalAlignment.Right;
+    }
+
+    private void _gameContainer_GamesChanged(object? sender, EventArgs e)
+    {
+        UpdateNotificationInfo();
+    }
+
+    private void Watcher_FilesChanged(object? sender, EventArgs e)
+    {
+        Application.Current.Dispatcher.Invoke(() => { UpdateNotificationInfo(); });
+    }
+
+    public void UpdateNotificationInfo()
+    {
+        var hasUpdate = _gameContainer.IsUpdateAvailable();
+        MainWindowViewModel?.UpdateLibraryNotification(hasUpdate);
+    }
+
+    private void ShowGameConfig()
+    {
+        var wndMain = App.GetService<MainWindow>();
+        wndMain?.SetEffect(true);
+        var wndConfig = new GameConfigWindow(App.GetService<GameConfigWindowViewModel>()!, _gameContainer, _fileWatcher,
+            _updater, _logger, null)
         {
-            PageControl = App.GetService<GamePageControl>()!;
-            _logger = logger;
-            _gameContainer = gameContainer;
-            _gameContainer.GamesChanged += _gameContainer_GamesChanged;
-            _fileWatcher = watcher;
-            watcher.FilesChanged += Watcher_FilesChanged;
-            _updater = updater;
-        }
-
-        private void _gameContainer_GamesChanged(object? sender, EventArgs e)
-        {
-            UpdateNotificationInfo();
-        }
-
-        private void Watcher_FilesChanged(object? sender, EventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke(new Action(() => { UpdateNotificationInfo(); }));
-        }
-
-        public UserControl GetPageControl()
-        {
-            return PageControl;
-        }
-
-        ObservableCollection<NavigationButton> IContentPage.GetNavigationButtons()
-        {
-            return
-            [
-                new("Add game", () => { ShowGameConfig(); }, true),
-            ];
-        }
-
-        public HorizontalAlignment GetAlignment()
-        {
-            return HorizontalAlignment.Right;
-        }
-
-        public void UpdateNotificationInfo()
-        {
-            var hasUpdate = _gameContainer.IsUpdateAvailable();            
-            MainWindowViewModel?.UpdateLibraryNotification(hasUpdate);
-        }
-
-        private void ShowGameConfig()
-        {
-            var wndMain = App.GetService<MainWindow>();
-            wndMain?.SetEffect(true);
-            var wndConfig = new GameConfigWindow(App.GetService<GameConfigWindowViewModel>()!, _gameContainer, _fileWatcher, _updater, _logger, null)
-            {
-                Width = 0,
-                Height = 0,
-                Owner = wndMain
-            };
-            WindowPositionHelper.CenterWindowToParent(wndConfig, wndMain!);
-            wndConfig.ShowDialog();
-            wndMain?.SetEffect(false);
-        }
+            Width = 0,
+            Height = 0,
+            Owner = wndMain
+        };
+        WindowPositionHelper.CenterWindowToParent(wndConfig, wndMain!);
+        wndConfig.ShowDialog();
+        wndMain?.SetEffect(false);
     }
 }

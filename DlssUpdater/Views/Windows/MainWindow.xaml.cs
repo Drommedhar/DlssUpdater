@@ -1,26 +1,17 @@
-﻿using AdonisUI.Controls;
-using DlssUpdater.Helpers;
-using DLSSUpdater.Controls;
-using DLSSUpdater.Defines.UI;
+﻿using System.Windows.Media.Effects;
+using AdonisUI.Controls;
 using DLSSUpdater.Defines.UI.Pages;
 using DLSSUpdater.Singletons;
 using DLSSUpdater.ViewModels.Windows;
-using Microsoft.Extensions.FileSystemGlobbing;
-using System.Drawing;
-using System.Runtime;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Effects;
+
 namespace DlssUpdater.Views.Windows;
 
 public partial class MainWindow : AdonisWindow
 {
-    private readonly Settings _settings;
     private readonly AsyncFileWatcher _fileWatcher;
+    private readonly Settings _settings;
 
-    public MainWindowViewModel ViewModel { get; }
-
-    private bool _isInitialized = false;
+    private bool _isInitialized;
 
     public MainWindow(MainWindowViewModel viewModel, Settings settings, AsyncFileWatcher watcher)
     {
@@ -33,15 +24,17 @@ public partial class MainWindow : AdonisWindow
         DataContext = this;
     }
 
+    public MainWindowViewModel ViewModel { get; }
+
     public void SetEffect(bool active)
     {
-        if(active)
+        if (active)
         {
-            Effect = new BlurEffect()
+            Effect = new BlurEffect
             {
                 KernelType = KernelType.Gaussian,
                 Radius = 10,
-                RenderingBias = RenderingBias.Performance,
+                RenderingBias = RenderingBias.Performance
             };
         }
         else
@@ -63,7 +56,7 @@ public partial class MainWindow : AdonisWindow
 
     private void FluentWindow_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if(!_isInitialized)
+        if (!_isInitialized)
         {
             return;
         }
@@ -86,7 +79,7 @@ public partial class MainWindow : AdonisWindow
     {
         // We delay all Loaded calls until the main navigation buttons are actually present
         var navButtons = ViewModel.NavigationButtons.ToList();
-        while(navButtons.Any(b => b.Control is null))
+        while (navButtons.Any(b => b.Control is null))
         {
             await Task.Delay(10);
         }
