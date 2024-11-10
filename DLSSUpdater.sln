@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DLSSUpdater", "DlssUpdater\DLSSUpdater.csproj", "{891674A2-74FE-4E71-A18E-859680E25E98}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DLSSUpdater.Tests", "DLSSUpdater.Tests\DLSSUpdater.Tests.csproj", "{43C6713F-2567-4400-A617-0684C22F987C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +17,10 @@ Global
 		{891674A2-74FE-4E71-A18E-859680E25E98}.Debug|x64.Build.0 = Debug|x64
 		{891674A2-74FE-4E71-A18E-859680E25E98}.Release|x64.ActiveCfg = Release|x64
 		{891674A2-74FE-4E71-A18E-859680E25E98}.Release|x64.Build.0 = Release|x64
+		{43C6713F-2567-4400-A617-0684C22F987C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{43C6713F-2567-4400-A617-0684C22F987C}.Debug|x64.Build.0 = Debug|Any CPU
+		{43C6713F-2567-4400-A617-0684C22F987C}.Release|x64.ActiveCfg = Release|Any CPU
+		{43C6713F-2567-4400-A617-0684C22F987C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

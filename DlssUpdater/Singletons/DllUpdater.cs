@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using DlssUpdater.Defines;
 using DlssUpdater.Helpers;
+using DLSSUpdater.Helpers;
 using Microsoft.Security.Extensions;
 using NLog;
 using static DlssUpdater.Defines.DlssTypes;
@@ -71,8 +72,8 @@ public class DllUpdater
             OnlinePackages.TryGetValue(type, out var highestOnline) && highestInstalled.FirstOrDefault() != null
             && highestOnline.FirstOrDefault() != null)
         {
-            return new Version(highestInstalled.FirstOrDefault()!.Version) <
-                   new Version(highestOnline.FirstOrDefault()!.Version);
+            return new SafeVersion(highestInstalled.FirstOrDefault()!.Version) <
+                   new SafeVersion(highestOnline.FirstOrDefault()!.Version);
         }
 
         return false;
@@ -83,8 +84,8 @@ public class DllUpdater
         if (InstalledPackages.TryGetValue(type, out var highestInstalled)
             && highestInstalled.FirstOrDefault(p => p.Version != DefaultVersion) != null)
         {
-            return new Version(installed.Version) <
-                   new Version(highestInstalled.FirstOrDefault(p => p.Version != DefaultVersion)!.Version);
+            return new SafeVersion(installed.Version) <
+                   new SafeVersion(highestInstalled.FirstOrDefault(p => p.Version != DefaultVersion)!.Version);
         }
 
         return true;
@@ -188,12 +189,7 @@ public class DllUpdater
             }
 
             var fileInfo = FileVersionInfo.GetVersionInfo(dllPath);
-            var versionString = fileInfo.FileVersion!.Replace(',', '.');
-            var versionParsed = Version.Parse(versionString);
-            if (versionParsed.Revision == -1)
-            {
-                versionParsed = new Version(versionParsed.Major, versionParsed.Minor, versionParsed.Build, 0);
-            }
+            var versionParsed = new SafeVersion(fileInfo.FileVersion!);
 
             if (!InstalledPackages.TryGetValue(dllType, out var value))
             {
