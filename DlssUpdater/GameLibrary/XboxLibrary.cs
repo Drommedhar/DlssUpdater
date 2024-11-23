@@ -40,7 +40,7 @@ public class XboxLibrary : ILibrary
     private async Task<List<GameInfo>> getGames()
     {
         List<Task> tasks = [];
-        var throttler = new SemaphoreSlim(Settings.Constants.CoreCount);
+        var throttler = new SemaphoreSlim(1);
         List<GameInfo> ret = [];
 
         var amount = 0;
@@ -94,7 +94,7 @@ public class XboxLibrary : ILibrary
                         var manifestPath = Path.Combine(gameDir, "Content", "appxmanifest.xml");
                         if (!File.Exists(manifestPath))
                         {
-                            return;
+                            continue;
                         }
 
                         // Load the XML file
