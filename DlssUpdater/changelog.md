@@ -1,7 +1,10 @@
+# 2.0.5.4
+* Fix Xbox games showing wrong name
+
 # 2.0.5.3
 
 * Fix bug that caused xbox games not showing up
-* 
+
 # 2.0.5.2
 
 * Fix crash if old stored game path no longer exists

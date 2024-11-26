@@ -113,6 +113,12 @@ public class XboxLibrary : ILibrary
                             .Descendants(uap + "VisualElements")
                             .FirstOrDefault()?.Attribute("DisplayName")?.Value;
 
+                        if (displayName is not null && displayName.Contains("AppDisplayName") || displayName is null)
+                        {
+                            displayName = xmlDoc.Descendants("{http://schemas.microsoft.com/appx/manifest/foundation/windows10}DisplayName")
+                                .FirstOrDefault()?.Value;
+                        }
+
                         // Extract the namespace (if any is necessary)
                         var ns = xmlDoc.Root!.Name.Namespace;
 
