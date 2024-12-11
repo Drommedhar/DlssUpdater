@@ -1,3 +1,6 @@
+# 2.0.5.5
+* Fix Xbox games showing wrong name finally (thanks to SilyNoMeta)
+
 # 2.0.5.4
 * Fix Xbox games showing wrong name
 
