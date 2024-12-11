@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using System.Xml.Linq;
 using DLSSUpdater.Defines;
 using DlssUpdater.Helpers;
+using DLSSUpdater.Helpers;
 using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
@@ -46,6 +46,8 @@ public class XboxLibrary : ILibrary
         var amount = 0;
         var current = 0;
 
+        List<ApplicationInfo> windowsStoreApps = WindowsAppHelper.GetInstalledAppsFromWindowsStore();
+
         var drive = DriveInfo.GetDrives();
         foreach (var driveItem in drive)
         {
@@ -82,7 +84,7 @@ public class XboxLibrary : ILibrary
                     {
                         return;
                     }
-
+                    
                     var gameDirs = Directory.GetDirectories(gamePath);
                     amount += gameDirs.Length;
                     foreach (var gameDir in gameDirs)
@@ -91,69 +93,65 @@ public class XboxLibrary : ILibrary
                         LoadingProgress?.Invoke(this,
                             new Tuple<int, int, LibraryType>(current, amount, GetLibraryType()));
 
-                        var manifestPath = Path.Combine(gameDir, "Content", "appxmanifest.xml");
-                        if (!File.Exists(manifestPath))
+                        string? identityName = null;
+                        string? displayName = null;
+                        var xmlDoc = WindowsAppHelper.InitXDocumentFromManifest(Path.Combine(gameDir, "Content", "appxmanifest.xml"), out var uap);
+                        if (xmlDoc != null)
+                        {
+                            identityName = WindowsAppHelper.GetIdentityNameFromXml(xmlDoc, uap!);
+                        }                                             
+                        else
                         {
                             continue;
                         }
 
-                        // Load the XML file
-                        var xmlDoc = XDocument.Load(manifestPath);
-
-                        // Extract the "uap" namespace dynamically from the XML
-                        var uap = xmlDoc.Root?.GetNamespaceOfPrefix("uap")!;
-
-                        // Query the SplashScreen element and get the Image attribute
-                        var splashScreenImage = xmlDoc
-                            .Descendants(uap + "SplashScreen")
-                            .FirstOrDefault()?.Attribute("Image")?.Value;
-
-                        // Query the DisplayName inside uap:VisualElements
-                        var displayName = xmlDoc
-                            .Descendants(uap + "VisualElements")
-                            .FirstOrDefault()?.Attribute("DisplayName")?.Value;
-
-                        if (displayName is not null && displayName.Contains("AppDisplayName") || displayName is null)
+                        if (identityName != null)
                         {
-                            displayName = xmlDoc.Descendants("{http://schemas.microsoft.com/appx/manifest/foundation/windows10}DisplayName")
-                                .FirstOrDefault()?.Value;
-                        }
+                            // Query the SplashScreen element and get the Image attribute
+                            var splashScreenImage = xmlDoc
+                                .Descendants(uap! + "SplashScreen")
+                                .FirstOrDefault()?.Attribute("Image")?.Value;
+                            
+                            ApplicationInfo? windowsStoreApp = windowsStoreApps.Find(f => f.identityName.Equals(identityName));
 
-                        // Extract the namespace (if any is necessary)
-                        var ns = xmlDoc.Root!.Name.Namespace;
+                            displayName = windowsStoreApp?.displayName ?? WindowsAppHelper.GetDisplayNameFromXml(xmlDoc, uap!);
 
-                        // Query all Application elements and get their Id attributes
-                        var id = xmlDoc
-                            .Descendants(ns + "Application") // Include the namespace for the Application element
-                            .Select(app => app.Attribute("Id")?.Value).FirstOrDefault();
+                            // Extract the namespace (if any is necessary)
+                            var ns = xmlDoc.Root!.Name.Namespace;
 
-                        var imagePathFinal = "";
-                        if (splashScreenImage != null)
-                        {
-                            imagePathFinal = Path.Combine(gameDir, "Content", splashScreenImage);
-                        }
+                            // Query all Application elements and get their Id attributes
+                            var id = xmlDoc
+                                .Descendants(ns + "Application") // Include the namespace for the Application element
+                                .Select(app => app.Attribute("Id")?.Value).FirstOrDefault();
 
-                        if (!string.IsNullOrEmpty(displayName))
-                        {
-                            var info = new GameInfo(displayName, gameDir, GetLibraryType())
+                            var imagePathFinal = "";
+                            if (splashScreenImage != null)
                             {
-                                UniqueId = "xbox_" + id
-                            };
-                            if (!string.IsNullOrEmpty(imagePathFinal))
-                            {
-                                info.SetGameImageUri(imagePathFinal);
+                                imagePathFinal = Path.Combine(gameDir, "Content", splashScreenImage);
                             }
 
-                            await info.GatherInstalledVersions();
-                            if (info.HasInstalledDlls())
+                            if (!string.IsNullOrEmpty(displayName))
                             {
-                                _logger.Debug($"Xbox: '{info.GamePath}' has DLSS dll and is being added.");
-                                ret.Add(info);
-                            }
-                            else
-                            {
-                                _logger.Debug(
-                                    $"Xbox: '{info.GamePath}' does not have any DLSS dll and is being ignored.");
+                                var info = new GameInfo(displayName, gameDir, GetLibraryType())
+                                {
+                                    UniqueId = "xbox_" + id
+                                };
+                                if (!string.IsNullOrEmpty(imagePathFinal))
+                                {
+                                    info.SetGameImageUri(imagePathFinal);
+                                }
+
+                                await info.GatherInstalledVersions();
+                                if (info.HasInstalledDlls())
+                                {
+                                    _logger.Debug($"Xbox: '{info.GamePath}' has DLSS dll and is being added.");
+                                    ret.Add(info);
+                                }
+                                else
+                                {
+                                    _logger.Debug(
+                                        $"Xbox: '{info.GamePath}' does not have any DLSS dll and is being ignored.");
+                                }
                             }
                         }
                     }
