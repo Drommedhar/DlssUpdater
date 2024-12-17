@@ -159,6 +159,8 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DlssUpdater\DLSSUpdater.csproj" />
+    <ProjectReference Include="..\DlssUpdater\DLSSUpdater.csproj">
+      <TrustLevel>Full</TrustLevel>
+    </ProjectReference>
   </ItemGroup>
 </Project>
