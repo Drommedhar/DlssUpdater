@@ -94,9 +94,9 @@ public class GameContainer
 
     public void SaveGames()
     {
-        DirectoryHelper.EnsureDirectoryExists(_settings.Directories.SettingsPath);
+        DirectoryHelper.EnsureDirectoryExists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath));
         var json = JsonSerializer.Serialize(Games, _jsonOptions);
-        File.WriteAllText(Path.Combine(_settings.Directories.SettingsPath, Settings.Constants.GamesFile), json);
+        File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Settings.Constants.GamesFile), json);
     }
 
     public void RescanAntiCheat()
@@ -125,7 +125,7 @@ public class GameContainer
 
     private async Task loadGamesAsync()
     {
-        var gameDataPath = Path.Combine(_settings.Directories.SettingsPath, Settings.Constants.GamesFile);
+        var gameDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Settings.Constants.GamesFile);
 
         if (File.Exists(gameDataPath))
         {

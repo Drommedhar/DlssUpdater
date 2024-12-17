@@ -40,15 +40,17 @@ public class Settings
 
     public void Save()
     {
-        DirectoryHelper.EnsureDirectoryExists(Directories.SettingsPath);
-        var settingsPath = Path.Combine(Directories.SettingsPath, Constants.SettingsFile);
+        DirectoryHelper.EnsureDirectoryExists(Path.Combine(Environment.GetFolderPath(
+    Environment.SpecialFolder.ApplicationData), Directories.SettingsPath));
+        var settingsPath = Path.Combine(Environment.GetFolderPath(
+    Environment.SpecialFolder.ApplicationData), Directories.SettingsPath, Constants.SettingsFile);
         var json = JsonSerializer.Serialize(this, _jsonOptions);
         File.WriteAllText(settingsPath, json);
     }
 
     public void Load()
     {
-        var settingsPath = Path.Combine(Directories.SettingsPath, Constants.SettingsFile);
+        var settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Directories.SettingsPath, Constants.SettingsFile);
 
         if (File.Exists(settingsPath))
         {
@@ -88,11 +90,11 @@ public class Settings
 
     public class Paths
     {
-        [JsonIgnore] public string InstallPath { get; set; } = "installed";
+        [JsonIgnore] public string InstallPath { get; set; } = "DlssUpdater/installed";
 
-        [JsonIgnore] public string DownloadPath { get; set; } = "download";
+        [JsonIgnore] public string DownloadPath { get; set; } = "DlssUpdater/download";
 
-        [JsonIgnore] public string SettingsPath { get; set; } = "settings";
+        [JsonIgnore] public string SettingsPath { get; set; } = "DlssUpdater/settings";
     }
 
     public class AntiCheat

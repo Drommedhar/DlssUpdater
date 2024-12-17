@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller
+	Uri="https://www.none.de/DlssUpdaterPackage.appinstaller"
+	Version="1.0.0.0" xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">
+	<MainBundle
+		Name="b7618602-1758-4a61-ae3d-b93410d5c3cc"
+		Version="1.0.0.0"
+		Publisher="CN=domin"
+		Uri="https://www.none.de/DlssUpdaterPackage_1.0.0.0_Test/DlssUpdaterPackage_1.0.0.0_x64.msixbundle" />
+	<UpdateSettings>
+		<OnLaunch
+			HoursBetweenUpdateChecks="0" />
+	</UpdateSettings>
+</AppInstaller>

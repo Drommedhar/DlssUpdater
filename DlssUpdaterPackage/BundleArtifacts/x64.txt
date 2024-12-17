@@ -1,0 +1,6 @@
+MainPackage=D:\git\DlssUpdater\DlssUpdaterPackage\bin\x64\Release\DlssUpdaterPackage_1.0.0.0_x64.msix
+SymbolPackage=D:\git\DlssUpdater\DlssUpdaterPackage\obj\x64\Release\Symbols\DlssUpdaterPackage_1.0.0.0_x64.appxsym
+ResourcePack=D:\git\DlssUpdater\DlssUpdaterPackage\bin\x64\Release\DlssUpdaterPackage_1.0.0.0_scale-100.msix
+ResourcePack=D:\git\DlssUpdater\DlssUpdaterPackage\bin\x64\Release\DlssUpdaterPackage_1.0.0.0_scale-125.msix
+ResourcePack=D:\git\DlssUpdater\DlssUpdaterPackage\bin\x64\Release\DlssUpdaterPackage_1.0.0.0_scale-150.msix
+ResourcePack=D:\git\DlssUpdater\DlssUpdaterPackage\bin\x64\Release\DlssUpdaterPackage_1.0.0.0_scale-400.msix

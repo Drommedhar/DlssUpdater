@@ -141,7 +141,8 @@ public class DllUpdater
                 new("id", package.DownloadId),
                 new("server_id", serverId)
             ];
-            var outputPath = Path.Combine(_settings.Directories.DownloadPath, GetName(package.DllType));
+            var outputPath = Path.Combine(Environment.GetFolderPath(
+    Environment.SpecialFolder.ApplicationData), _settings.Directories.DownloadPath, GetName(package.DllType));
             DirectoryHelper.EnsureDirectoryExists(outputPath);
             outputPath = Path.Combine(outputPath, package.Version + ".zip");
             using (var client = new HttpClientDownloadWithProgress(url, outputPath))
@@ -173,7 +174,8 @@ public class DllUpdater
                 }
             }
 
-            var dllTargetPath = Path.Combine(_settings.Directories.InstallPath, GetName(package.DllType),
+            var dllTargetPath = Path.Combine(Environment.GetFolderPath(
+    Environment.SpecialFolder.ApplicationData), _settings.Directories.InstallPath, GetName(package.DllType),
                 package.Version.Replace(' ', '_'));
             ZipFile.ExtractToDirectory(outputPath, dllTargetPath, true);
             File.Delete(outputPath);
@@ -314,7 +316,8 @@ public class DllUpdater
 
     public string GetGameDefaultDllPath(GameInfo gameInfo)
     {
-        return Path.Combine(_settings.Directories.InstallPath, "Games", gameInfo.UniqueId);
+        return Path.Combine(Environment.GetFolderPath(
+    Environment.SpecialFolder.ApplicationData), _settings.Directories.InstallPath, "Games", gameInfo.UniqueId);
     }
 
     public void RestoreDefaultDll(DllType dllType, GameInfo gameInfo)
@@ -340,7 +343,7 @@ public class DllUpdater
 
     public void Load()
     {
-        var cachePath = Path.Combine(_settings.Directories.SettingsPath, Constants.CacheFile);
+        var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Constants.CacheFile);
 
         if (File.Exists(cachePath))
         {
@@ -354,8 +357,8 @@ public class DllUpdater
 
     public void Save()
     {
-        DirectoryHelper.EnsureDirectoryExists(_settings.Directories.SettingsPath);
-        var cachePath = Path.Combine(_settings.Directories.SettingsPath, Constants.CacheFile);
+        DirectoryHelper.EnsureDirectoryExists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath));
+        var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Constants.CacheFile);
         var json = JsonSerializer.Serialize(this, new JsonSerializerOptions());
         File.WriteAllText(cachePath, json);
     }
@@ -495,7 +498,8 @@ public class DllUpdater
 
     private string getInstallPath(DllType dllType)
     {
-        return Path.Combine(_settings.Directories.InstallPath, GetName(dllType));
+        return Path.Combine(Environment.GetFolderPath(
+    Environment.SpecialFolder.ApplicationData), _settings.Directories.InstallPath, GetName(dllType));
     }
 
     internal bool IsInstalled(DllType dllType, string versionText)
