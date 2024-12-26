@@ -16,11 +16,25 @@ public static class RegistryHelper
         return retVal;
     }
 
-    private static object? ReadRegistryValue(string key, string value, RegistryHive hive, RegistryView view)
+    public static object? ReadRegistryValue(string key, string value, RegistryHive hive, RegistryView view)
     {
         using var hklm = RegistryKey.OpenBaseKey(hive, view);
         using var regKey = hklm.OpenSubKey(key);
         var ret = regKey?.GetValue(value) as string;
         return ret;
+    }
+
+    public static List<string> ReadRegistrySubKeys(string key, RegistryHive hive, RegistryView view)
+    {
+        using var hklm = RegistryKey.OpenBaseKey(hive, view);
+        using var regKey = hklm.OpenSubKey(key);
+        return regKey?.GetSubKeyNames().ToList() ?? [];
+    }
+
+    public static void WriteRegistryValue(string key, string valueName, object valueValue, RegistryHive hive, RegistryView view)
+    {
+        using var hklm = RegistryKey.OpenBaseKey(hive, view);
+        using var regKey = hklm.CreateSubKey(key);
+        regKey?.SetValue(valueName, valueValue);
     }
 }

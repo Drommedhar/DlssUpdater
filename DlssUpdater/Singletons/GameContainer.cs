@@ -3,10 +3,13 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Windows.Shapes;
 using DlssUpdater.Defines;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
+using DLSSUpdater.Helpers;
 using DLSSUpdater.Singletons;
+using Microsoft.Win32;
 using NLog;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
@@ -94,9 +97,18 @@ public class GameContainer
 
     public void SaveGames()
     {
-        DirectoryHelper.EnsureDirectoryExists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath));
-        var json = JsonSerializer.Serialize(Games, _jsonOptions);
-        File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Settings.Constants.GamesFile), json);
+        foreach (var game in Games)
+        {
+            var path = GetGameRegistryPath(game.GameName);
+            RegistryHelper.WriteRegistryValue(path, nameof(game.UniqueId), game.UniqueId, RegistryHive.CurrentUser, RegistryView.Registry64);
+            RegistryHelper.WriteRegistryValue(path, nameof(game.GamePath), game.GamePath, RegistryHive.CurrentUser, RegistryView.Registry64);
+            RegistryHelper.WriteRegistryValue(path, nameof(game.LibraryType), game.LibraryType, RegistryHive.CurrentUser, RegistryView.Registry64);
+            RegistryHelper.WriteRegistryValue(path, nameof(game.IsHidden), game.IsHidden, RegistryHive.CurrentUser, RegistryView.Registry64);
+            if (game.GameImageUri is not null)
+            {
+                RegistryHelper.WriteRegistryValue(path, nameof(game.GameImageUri), game.GameImageUri, RegistryHive.CurrentUser, RegistryView.Registry64);
+            }
+        }
     }
 
     public void RescanAntiCheat()
@@ -125,18 +137,27 @@ public class GameContainer
 
     private async Task loadGamesAsync()
     {
-        var gameDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Settings.Constants.GamesFile);
-
-        if (File.Exists(gameDataPath))
+        var gameNames = RegistryHelper.ReadRegistrySubKeys(Settings.Constants.RegistryPath + @$"\Games", RegistryHive.CurrentUser, RegistryView.Registry64);
+        Games.Clear();
+        foreach (var gameName in gameNames)
         {
-            var jsonData = File.ReadAllText(gameDataPath);
-            var data = JsonSerializer.Deserialize<ObservableCollection<GameInfo>>(jsonData, _jsonOptions)!;
-            Games.Clear();
-            foreach (var item in data)
+            var path = GetGameRegistryPath(gameName);
+            var gamePath = RegistryHelper.ReadRegistryValue(path, nameof(GameInfo.GamePath), RegistryHive.CurrentUser, RegistryView.Registry64) as string;
+            var uniqueId = RegistryHelper.ReadRegistryValue(path, nameof(GameInfo.UniqueId), RegistryHive.CurrentUser, RegistryView.Registry64) as string;
+            var libType = (LibraryType)Enum.Parse(typeof(LibraryType), RegistryHelper.ReadRegistryValue(path, nameof(GameInfo.LibraryType), RegistryHive.CurrentUser, RegistryView.Registry64)! as string);
+            var gameImagePath = RegistryHelper.ReadRegistryValue(path, nameof(GameInfo.GameImageUri), RegistryHive.CurrentUser, RegistryView.Registry64) as string;
+            var isHidden = bool.Parse(RegistryHelper.ReadRegistryValue(path, nameof(GameInfo.IsHidden), RegistryHive.CurrentUser, RegistryView.Registry64) as string ?? "False");
+            if (gamePath is null)
             {
-                Games.Add(item);
-                _watcher.AddFile(item);
+                continue;
             }
+
+            var game = new GameInfo(gameName, gamePath, libType);
+            game.UniqueId = uniqueId!;
+            game.IsHidden = isHidden;
+            game.GameImageUri = gameImagePath;
+            Games.Add(game);
+            _watcher.AddFile(game);
         }
 
         List<GameInfo> totalGames = [];
@@ -256,5 +277,10 @@ public class GameContainer
     private void Games_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         GamesChanged?.Invoke(this, e);
+    }
+
+    private static string GetGameRegistryPath(string gameName)
+    {
+        return Settings.Constants.RegistryPath + @$"\Games\{gameName}";
     }
 }

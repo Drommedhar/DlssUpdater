@@ -5,6 +5,8 @@ using DLSSUpdater.Defines;
 using DlssUpdater.GameLibrary;
 using DlssUpdater.Helpers;
 using DlssUpdater.Singletons.AntiCheatChecker;
+using DLSSUpdater.Helpers;
+using Microsoft.Win32;
 
 namespace DlssUpdater;
 
@@ -40,65 +42,64 @@ public class Settings
 
     public void Save()
     {
-        DirectoryHelper.EnsureDirectoryExists(Path.Combine(Environment.GetFolderPath(
-    Environment.SpecialFolder.ApplicationData), Directories.SettingsPath));
-        var settingsPath = Path.Combine(Environment.GetFolderPath(
-    Environment.SpecialFolder.ApplicationData), Directories.SettingsPath, Constants.SettingsFile);
-        var json = JsonSerializer.Serialize(this, _jsonOptions);
-        File.WriteAllText(settingsPath, json);
+        RegistryHelper.WriteRegistryValue(Constants.RegistryPath, AntiCheat.RegistryName, AntiCheatSettings.ActiveAntiCheatChecks, RegistryHive.CurrentUser, RegistryView.Registry64);
+        RegistryHelper.WriteRegistryValue(Constants.RegistryPath, "WindowState", WindowState, RegistryHive.CurrentUser, RegistryView.Registry64);
+        RegistryHelper.WriteRegistryValue(Constants.RegistryPath, "ShowNotifications", ShowNotifications, RegistryHive.CurrentUser, RegistryView.Registry64);
+        foreach (var lib in Libraries)
+        {
+            RegistryHelper.WriteRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib.LibraryType.ToString()}", "Enabled", lib.IsChecked, RegistryHive.CurrentUser, RegistryView.Registry64);
+            if(lib.NeedsInstallPath)
+            {
+                RegistryHelper.WriteRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib.LibraryType.ToString()}", "InstallPath", lib.InstallPath, RegistryHive.CurrentUser, RegistryView.Registry64);
+            }
+        }
     }
 
     public void Load()
     {
-        var settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Directories.SettingsPath, Constants.SettingsFile);
-
-        if (File.Exists(settingsPath))
+        AntiCheatSettings.ActiveAntiCheatChecks = (AntiCheatProvider)Enum.Parse(typeof(AntiCheatProvider), RegistryHelper.ReadRegistryValue(Constants.RegistryPath, AntiCheat.RegistryName, RegistryHive.CurrentUser, RegistryView.Registry64) as string);
+        WindowState = (WindowState)Enum.Parse(typeof(WindowState), RegistryHelper.ReadRegistryValue(Constants.RegistryPath, "WindowState", RegistryHive.CurrentUser, RegistryView.Registry64) as string);
+        ShowNotifications = bool.Parse(RegistryHelper.ReadRegistryValue(Constants.RegistryPath, "ShowNotifications", RegistryHive.CurrentUser, RegistryView.Registry64) as string);
+        var libNames = RegistryHelper.ReadRegistrySubKeys(Settings.Constants.RegistryPath + @$"\Libraries", RegistryHive.CurrentUser, RegistryView.Registry64);
+        foreach (var lib in libNames)
         {
-            var jsonData = File.ReadAllText(settingsPath);
-            var data = JsonSerializer.Deserialize<Settings>(jsonData, _jsonOptions)!;
-            copyData(data);
-        }
-    }
-
-    private void copyData(Settings other)
-    {
-        Directories = other.Directories;
-        AntiCheatSettings = other.AntiCheatSettings;
-        ShowChangelogOnStartup = other.ShowChangelogOnStartup;
-        WindowState = other.WindowState;
-        ShowNotifications = other.ShowNotifications;
-        foreach (var lib in other.Libraries)
-        {
-            var index = Libraries.IndexOf(l => l.LibraryType == lib.LibraryType);
-            if (index == -1)
+            var enabled = bool.Parse(RegistryHelper.ReadRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib}", "Enabled", RegistryHive.CurrentUser, RegistryView.Registry64) as string);
+            var library = Libraries.FirstOrDefault(l => l.LibraryType.ToString().Equals(lib, StringComparison.OrdinalIgnoreCase));
+            if(library is null)
             {
                 continue;
             }
 
-            Libraries[index] = lib;
+            library.IsChecked = enabled;
+            if (library.NeedsInstallPath)
+            {
+                library.InstallPath = RegistryHelper.ReadRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib}", "InstallPath", RegistryHive.CurrentUser, RegistryView.Registry64) as string;
+            }
         }
     }
 
     public static class Constants
     {
-        public static string GamesFile { get; } = "games.json";
+        //public static string GamesFile { get; } = "games.json";
         public static string CacheFile { get; } = "cache.json";
-        public static string SettingsFile { get; } = "settings.json";
+        //public static string SettingsFile { get; } = "settings.json";
         public static TimeSpan CacheTime { get; } = TimeSpan.FromMinutes(30);
         public static int CoreCount { get; } = Environment.ProcessorCount;
+        public static string RegistryPath { get; } = @"SOFTWARE\DlssUpdater";
     }
 
     public class Paths
     {
-        [JsonIgnore] public string InstallPath { get; set; } = "DlssUpdater/installed";
+        [JsonIgnore] public string InstallPath { get; } = "DlssUpdater/installed";
 
-        [JsonIgnore] public string DownloadPath { get; set; } = "DlssUpdater/download";
+        [JsonIgnore] public string DownloadPath { get; } = "DlssUpdater/download";
 
-        [JsonIgnore] public string SettingsPath { get; set; } = "DlssUpdater/settings";
+        //[JsonIgnore] public string SettingsPath { get; set; } = "DlssUpdater/settings";
     }
 
     public class AntiCheat
     {
+        public static string RegistryName { get; } = @"AntiCheatChecks";
         public AntiCheatProvider ActiveAntiCheatChecks { get; set; } = AntiCheatProvider.All;
     }
 }

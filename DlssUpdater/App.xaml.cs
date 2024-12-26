@@ -112,36 +112,36 @@ public partial class App
     /// </summary>
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        var time = DateTime.UtcNow.ToString("s").Replace(":", ".");
-        var file = $"Dumps/{time}.dmp";
-        CreateMiniDump(file);
-
-        var messageBox = new MessageBoxModel
-        {
-            Caption = "Fatal error",
-            Text =
-                $"Application has crashed unexpectedly. A dump file was created at '{file}'. Please provide this in your github issue (as a download link).\n" +
-                $"To open a new issue click the corresponding button below.",
-            Buttons =
-            [
-                MessageBoxButtons.Ok(),
-                MessageBoxButtons.Custom("Open github issue", ISSUE_BUTTON_ID)
-            ]
-        };
-
-        _ = MessageBox.Show(messageBox);
-        if ((string)messageBox.ButtonPressed.Id == ISSUE_BUTTON_ID)
-        {
-            var body = $"&body={Uri.EscapeDataString($"Encountered an unhandled exception: \n ```{e.Exception}```")}";
-            var labels = "&labels=exception";
-            var title = $"&title=Unhandled%20Exception - '{e.Exception.Message}'";
-            var url =
-                $"https://github.com/Drommedhar/DlssUpdater/issues/new?assignees=&labels=bug&projects=&template=bug_report.md" +
-                $"{title}{labels}{body}";
-            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        }
-
-        e.Handled = true;
+        //var time = DateTime.UtcNow.ToString("s").Replace(":", ".");
+        //var file = $"Dumps/{time}.dmp";
+        //CreateMiniDump(file);
+        //
+        //var messageBox = new MessageBoxModel
+        //{
+        //    Caption = "Fatal error",
+        //    Text =
+        //        $"Application has crashed unexpectedly. A dump file was created at '{file}'. Please provide this in your github issue (as a download link).\n" +
+        //        $"To open a new issue click the corresponding button below.",
+        //    Buttons =
+        //    [
+        //        MessageBoxButtons.Ok(),
+        //        MessageBoxButtons.Custom("Open github issue", ISSUE_BUTTON_ID)
+        //    ]
+        //};
+        //
+        //_ = MessageBox.Show(messageBox);
+        //if ((string)messageBox.ButtonPressed.Id == ISSUE_BUTTON_ID)
+        //{
+        //    var body = $"&body={Uri.EscapeDataString($"Encountered an unhandled exception: \n ```{e.Exception}```")}";
+        //    var labels = "&labels=exception";
+        //    var title = $"&title=Unhandled%20Exception - '{e.Exception.Message}'";
+        //    var url =
+        //        $"https://github.com/Drommedhar/DlssUpdater/issues/new?assignees=&labels=bug&projects=&template=bug_report.md" +
+        //        $"{title}{labels}{body}";
+        //    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        //}
+        //
+        //e.Handled = true;
     }
 
     [DllImport("dbghelp.dll")]

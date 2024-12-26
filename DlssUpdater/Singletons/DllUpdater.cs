@@ -343,24 +343,24 @@ public class DllUpdater
 
     public void Load()
     {
-        var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Constants.CacheFile);
-
-        if (File.Exists(cachePath))
-        {
-            var jsonData = File.ReadAllText(cachePath);
-            var data = JsonSerializer.Deserialize<DllUpdater>(jsonData, new JsonSerializerOptions())!;
-            LastUpdate = data.LastUpdate;
-            OnlinePackages = data.OnlinePackages;
-            DlssFilesChanged?.Invoke(this, EventArgs.Empty);
-        }
+        //var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Constants.CacheFile);
+        //
+        //if (File.Exists(cachePath))
+        //{
+        //    var jsonData = File.ReadAllText(cachePath);
+        //    var data = JsonSerializer.Deserialize<DllUpdater>(jsonData, new JsonSerializerOptions())!;
+        //    LastUpdate = data.LastUpdate;
+        //    OnlinePackages = data.OnlinePackages;
+        //    DlssFilesChanged?.Invoke(this, EventArgs.Empty);
+        //}
     }
 
     public void Save()
     {
-        DirectoryHelper.EnsureDirectoryExists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath));
-        var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Constants.CacheFile);
-        var json = JsonSerializer.Serialize(this, new JsonSerializerOptions());
-        File.WriteAllText(cachePath, json);
+        //DirectoryHelper.EnsureDirectoryExists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath));
+        //var cachePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _settings.Directories.SettingsPath, Constants.CacheFile);
+        //var json = JsonSerializer.Serialize(this, new JsonSerializerOptions());
+        //File.WriteAllText(cachePath, json);
     }
 
     private async Task updateDlssVersionAsync(DllType dllType)
