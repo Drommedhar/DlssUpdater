@@ -183,6 +183,7 @@ public class DllUpdater
             var dllPath = Path.Combine(dllTargetPath, GetDllName(dllType));
             using var fileStream = new FileStream(dllPath, FileMode.Open, FileAccess.Read, FileShare.Read);
             var fileSignatureInfo = FileSignatureInfo.GetFromFileStream(fileStream);
+            fileStream.Close();
             if (fileSignatureInfo.State != SignatureState.SignedAndTrusted)
             {
                 File.Delete(dllPath);

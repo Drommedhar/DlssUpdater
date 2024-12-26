@@ -47,23 +47,23 @@ public class Settings
         RegistryHelper.WriteRegistryValue(Constants.RegistryPath, "ShowNotifications", ShowNotifications, RegistryHive.CurrentUser, RegistryView.Registry64);
         foreach (var lib in Libraries)
         {
-            RegistryHelper.WriteRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib.LibraryType.ToString()}", "Enabled", lib.IsChecked, RegistryHive.CurrentUser, RegistryView.Registry64);
+            RegistryHelper.WriteRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib.LibraryType}", "Enabled", lib.IsChecked, RegistryHive.CurrentUser, RegistryView.Registry64);
             if(lib.NeedsInstallPath)
             {
-                RegistryHelper.WriteRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib.LibraryType.ToString()}", "InstallPath", lib.InstallPath, RegistryHive.CurrentUser, RegistryView.Registry64);
+                RegistryHelper.WriteRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib.LibraryType}", "InstallPath", lib.InstallPath, RegistryHive.CurrentUser, RegistryView.Registry64);
             }
         }
     }
 
     public void Load()
     {
-        AntiCheatSettings.ActiveAntiCheatChecks = (AntiCheatProvider)Enum.Parse(typeof(AntiCheatProvider), RegistryHelper.ReadRegistryValue(Constants.RegistryPath, AntiCheat.RegistryName, RegistryHive.CurrentUser, RegistryView.Registry64) as string);
-        WindowState = (WindowState)Enum.Parse(typeof(WindowState), RegistryHelper.ReadRegistryValue(Constants.RegistryPath, "WindowState", RegistryHive.CurrentUser, RegistryView.Registry64) as string);
-        ShowNotifications = bool.Parse(RegistryHelper.ReadRegistryValue(Constants.RegistryPath, "ShowNotifications", RegistryHive.CurrentUser, RegistryView.Registry64) as string);
+        AntiCheatSettings.ActiveAntiCheatChecks = EnumHelper.GetAs<AntiCheatProvider>(RegistryHelper.ReadRegistryValue(Constants.RegistryPath, AntiCheat.RegistryName, RegistryHive.CurrentUser, RegistryView.Registry64) as string);
+        WindowState = EnumHelper.GetAs<WindowState>(RegistryHelper.ReadRegistryValue(Constants.RegistryPath, "WindowState", RegistryHive.CurrentUser, RegistryView.Registry64) as string);
+        ShowNotifications = bool.Parse((RegistryHelper.ReadRegistryValue(Constants.RegistryPath, "ShowNotifications", RegistryHive.CurrentUser, RegistryView.Registry64) as string) ?? "True");
         var libNames = RegistryHelper.ReadRegistrySubKeys(Settings.Constants.RegistryPath + @$"\Libraries", RegistryHive.CurrentUser, RegistryView.Registry64);
         foreach (var lib in libNames)
         {
-            var enabled = bool.Parse(RegistryHelper.ReadRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib}", "Enabled", RegistryHive.CurrentUser, RegistryView.Registry64) as string);
+            var enabled = bool.Parse((RegistryHelper.ReadRegistryValue(Constants.RegistryPath + $@"\Libraries\{lib}", "Enabled", RegistryHive.CurrentUser, RegistryView.Registry64) as string) ?? "True");
             var library = Libraries.FirstOrDefault(l => l.LibraryType.ToString().Equals(lib, StringComparison.OrdinalIgnoreCase));
             if(library is null)
             {
@@ -73,7 +73,7 @@ public class Settings
             library.IsChecked = enabled;
             if (library.NeedsInstallPath)
             {
-                library.InstallPath = RegistryHelper.ReadRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib}", "InstallPath", RegistryHive.CurrentUser, RegistryView.Registry64) as string;
+                library.InstallPath = (RegistryHelper.ReadRegistryValue(Constants.RegistryPath + @$"\Libraries\{lib}", "InstallPath", RegistryHive.CurrentUser, RegistryView.Registry64) as string) ?? "";
             }
         }
     }

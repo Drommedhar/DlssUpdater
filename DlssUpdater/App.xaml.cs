@@ -112,77 +112,32 @@ public partial class App
     /// </summary>
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        //var time = DateTime.UtcNow.ToString("s").Replace(":", ".");
-        //var file = $"Dumps/{time}.dmp";
-        //CreateMiniDump(file);
-        //
-        //var messageBox = new MessageBoxModel
-        //{
-        //    Caption = "Fatal error",
-        //    Text =
-        //        $"Application has crashed unexpectedly. A dump file was created at '{file}'. Please provide this in your github issue (as a download link).\n" +
-        //        $"To open a new issue click the corresponding button below.",
-        //    Buttons =
-        //    [
-        //        MessageBoxButtons.Ok(),
-        //        MessageBoxButtons.Custom("Open github issue", ISSUE_BUTTON_ID)
-        //    ]
-        //};
-        //
-        //_ = MessageBox.Show(messageBox);
-        //if ((string)messageBox.ButtonPressed.Id == ISSUE_BUTTON_ID)
-        //{
-        //    var body = $"&body={Uri.EscapeDataString($"Encountered an unhandled exception: \n ```{e.Exception}```")}";
-        //    var labels = "&labels=exception";
-        //    var title = $"&title=Unhandled%20Exception - '{e.Exception.Message}'";
-        //    var url =
-        //        $"https://github.com/Drommedhar/DlssUpdater/issues/new?assignees=&labels=bug&projects=&template=bug_report.md" +
-        //        $"{title}{labels}{body}";
-        //    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        //}
-        //
-        //e.Handled = true;
-    }
-
-    [DllImport("dbghelp.dll")]
-    public static extern bool MiniDumpWriteDump(IntPtr hProcess,
-        int ProcessId,
-        IntPtr hFile,
-        int DumpType,
-        IntPtr ExceptionParam,
-        IntPtr UserStreamParam,
-        IntPtr CallackParam);
-
-    private static void CreateMiniDump(string file)
-    {
-        DirectoryHelper.EnsureDirectoryExists("Dumps");
-        using FileStream fs = new(file, FileMode.Create);
-        using var process = Process.GetCurrentProcess();
-        MiniDumpWriteDump(process.Handle,
-            process.Id,
-            fs.SafeFileHandle.DangerousGetHandle(),
-            MINIDUMP_TYPE.MiniDumpWithFullMemory,
-            IntPtr.Zero,
-            IntPtr.Zero,
-            IntPtr.Zero);
-    }
-
-    public static class MINIDUMP_TYPE
-    {
-        public const int MiniDumpNormal = 0x00000000;
-        public const int MiniDumpWithDataSegs = 0x00000001;
-        public const int MiniDumpWithFullMemory = 0x00000002;
-        public const int MiniDumpWithHandleData = 0x00000004;
-        public const int MiniDumpFilterMemory = 0x00000008;
-        public const int MiniDumpScanMemory = 0x00000010;
-        public const int MiniDumpWithUnloadedModules = 0x00000020;
-        public const int MiniDumpWithIndirectlyReferencedMemory = 0x00000040;
-        public const int MiniDumpFilterModulePaths = 0x00000080;
-        public const int MiniDumpWithProcessThreadData = 0x00000100;
-        public const int MiniDumpWithPrivateReadWriteMemory = 0x00000200;
-        public const int MiniDumpWithoutOptionalData = 0x00000400;
-        public const int MiniDumpWithFullMemoryInfo = 0x00000800;
-        public const int MiniDumpWithThreadInfo = 0x00001000;
-        public const int MiniDumpWithCodeSegs = 0x00002000;
+        var messageBox = new MessageBoxModel
+        {
+            Caption = "Fatal error",
+            Text =
+                $"Application has crashed unexpectedly.\n" +
+                $"To open a new issue click the corresponding button below.",
+            Buttons =
+            [
+                MessageBoxButtons.Ok(),
+                MessageBoxButtons.Custom("Open github issue", ISSUE_BUTTON_ID)
+            ]
+        };
+        
+        _ = MessageBox.Show(messageBox);
+        if (messageBox.ButtonPressed?.Id as string == ISSUE_BUTTON_ID)
+        {
+            var body = $"&body={Uri.EscapeDataString($"Encountered an unhandled exception: \n ```{e.Exception}```")}";
+            var labels = "&labels=exception";
+            var title = $"&title=Unhandled%20Exception - '{e.Exception.Message}'";
+            var url =
+                $"https://github.com/Drommedhar/DlssUpdater/issues/new?assignees=&labels=bug&projects=&template=bug_report.md" +
+                $"{title}{labels}{body}";
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        
+        e.Handled = true;
+        Application.Current?.Shutdown();
     }
 }

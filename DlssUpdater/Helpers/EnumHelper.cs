@@ -1,4 +1,7 @@
-﻿namespace DlssUpdater.Helpers;
+﻿using DLSSUpdater.Helpers;
+using Microsoft.Win32;
+
+namespace DlssUpdater.Helpers;
 
 public static class EnumHelper
 {
@@ -19,5 +22,14 @@ public static class EnumHelper
         }
 
         return (T)valueAsInt;
+    }
+
+    public static T GetAs<T>(string? value)
+    {
+        if(value is null)
+        {
+            return default;
+        }
+        return (T)Enum.Parse(typeof(T), value);
     }
 }

@@ -121,8 +121,8 @@ public class XboxLibrary : ILibrary
 
                             // Query all Application elements and get their Id attributes
                             var id = xmlDoc
-                                .Descendants(ns + "Application") // Include the namespace for the Application element
-                                .Select(app => app.Attribute("Id")?.Value).FirstOrDefault();
+                                .Descendants(ns + "Identity") // Include the namespace for the Application element
+                                .Select(app => app.Attribute("Name")?.Value).FirstOrDefault();
 
                             var imagePathFinal = "";
                             if (splashScreenImage != null)
