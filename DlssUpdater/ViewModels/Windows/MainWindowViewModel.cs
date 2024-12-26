@@ -18,7 +18,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private WindowState _windowState;
 
     public MainWindowViewModel(LibraryPage libraryPage, DLSSPage dlssPage, SettingsPage settingsPage,
-        ChangelogPage changelogPage, Settings settings)
+        AboutPage AboutPage, Settings settings)
     {
         _settings = settings;
         libraryPage.MainWindowViewModel = this;
@@ -27,7 +27,7 @@ public partial class MainWindowViewModel : ObservableObject
         NavigationButtons.Add(new NavigationButton("Library", () => ShowPage(libraryPage), false));
         NavigationButtons.Add(new NavigationButton("DLSS", () => ShowPage(dlssPage), false));
         NavigationButtons.Add(new NavigationButton("Settings", () => ShowPage(settingsPage), false));
-        NavigationButtons.Add(new NavigationButton("Changelog", () => ShowPage(changelogPage), false));
+        NavigationButtons.Add(new NavigationButton("About", () => ShowPage(AboutPage), false));
     }
 
     public MainWindow? Window { get; set; }

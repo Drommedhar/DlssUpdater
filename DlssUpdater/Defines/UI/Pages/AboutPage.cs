@@ -7,13 +7,13 @@ using DLSSUpdater.Views.Pages;
 
 namespace DLSSUpdater.Defines.UI.Pages;
 
-public partial class ChangelogPage : ObservableObject, IContentPage
+public partial class AboutPage : ObservableObject, IContentPage
 {
-    private readonly ChangelogPageViewModel _viewModel;
+    private readonly AboutPageViewModel _viewModel;
 
     [ObservableProperty] private UserControl _pageControl;
 
-    public ChangelogPage(ChangelogPageViewModel viewModel)
+    public AboutPage(AboutPageViewModel viewModel)
     {
         PageControl = new UserControl();
         _viewModel = viewModel;
@@ -28,9 +28,9 @@ public partial class ChangelogPage : ObservableObject, IContentPage
     {
         return
         [
-            new NavigationButton("Changes", () =>
+            new NavigationButton("About", () =>
             {
-                PageControl = new ChangelogPageControl(_viewModel);
+                PageControl = new AboutPageControl(_viewModel);
                 App.GetService<MainWindowViewModel>()!.ReinitPageControl(this);
             }, false)
         ];

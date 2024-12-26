@@ -5,22 +5,22 @@ using System.Windows.Media;
 namespace DLSSUpdater.Controls;
 
 /// <summary>
-///     Interaction logic for ChangelogPanel.xaml
+///     Interaction logic for AboutPanel.xaml
 /// </summary>
-public partial class ChangelogPanel : UserControl
+public partial class AboutPanel : UserControl
 {
     public static readonly DependencyProperty HeaderTextProperty =
-        DependencyProperty.Register("HeaderText", typeof(string), typeof(ChangelogPanel));
+        DependencyProperty.Register("HeaderText", typeof(string), typeof(AboutPanel));
 
     public static readonly DependencyProperty ContentTextProperty =
-        DependencyProperty.Register("ContentText", typeof(string), typeof(ChangelogPanel));
+        DependencyProperty.Register("ContentText", typeof(string), typeof(AboutPanel));
 
     public static readonly DependencyProperty ExpandedProperty =
-        DependencyProperty.Register("Expanded", typeof(Visibility), typeof(ChangelogPanel));
+        DependencyProperty.Register("Expanded", typeof(Visibility), typeof(AboutPanel));
 
     private int indentSize = 30; // Indentation size for wrapped lines
 
-    public ChangelogPanel()
+    public AboutPanel()
     {
         InitializeComponent();
     }
@@ -133,12 +133,12 @@ public partial class ChangelogPanel : UserControl
         TextBlockContainer.Children.Add(textBlock);
     }
 
-    private void ctrlChangelog_Loaded(object sender, RoutedEventArgs e)
+    private void ctrlAbout_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateTextBlocks();
     }
 
-    private void ctrlChangelog_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void ctrlAbout_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         UpdateTextBlocks();
     }

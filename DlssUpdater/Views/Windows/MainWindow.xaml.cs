@@ -87,9 +87,9 @@ public partial class MainWindow : AdonisWindow
         ViewModel.WindowState = _settings.WindowState;
         _fileWatcher.Start();
 
-        if (_settings.ShowChangelogOnStartup)
+        if (_settings.ShowAboutOnStartup)
         {
-            _settings.ShowChangelogOnStartup = false;
+            _settings.ShowAboutOnStartup = false;
             _settings.Save();
             ViewModel.SelectNavigationButton(ViewModel.NavigationButtons[3], ViewModel.NavigationButtons);
         }

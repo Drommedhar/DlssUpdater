@@ -53,7 +53,7 @@ public partial class App
             services.AddSingleton<GamePageViewModel>();
             services.AddSingleton<GameConfigWindowViewModel>();
             services.AddSingleton<SettingsCommonPageViewModel>();
-            services.AddSingleton<ChangelogPageViewModel>();
+            services.AddSingleton<AboutPageViewModel>();
 
             services.AddSingleton(LogManager.GetCurrentClassLogger());
 
@@ -68,7 +68,7 @@ public partial class App
             services.AddSingleton<LibraryPage>();
             services.AddSingleton<DLSSPage>();
             services.AddSingleton<SettingsPage>();
-            services.AddSingleton<ChangelogPage>();
+            services.AddSingleton<AboutPage>();
             services.AddSingleton<DlssPageControl>();
             services.AddSingleton<GamePageControl>();
         }).Build();

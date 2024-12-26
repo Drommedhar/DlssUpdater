@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="DLSSUpdater.Views.Pages.AboutPageControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+             xmlns:controls="clr-namespace:DLSSUpdater.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
+    <Grid Margin="0,10,0,0">
+        <ScrollViewer x:Name="scrollGrid"
+                      adonisExtensions:ScrollViewerExtension.VerticalScrollBarExpansionMode="NeverExpand">
+            <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                <GroupBox Margin="15,0,15,10" Background="#FF1d263c"
+              adonisExtensions:GroupBoxExtension.HeaderBackground="#FF0e141b">
+                    <GroupBox.Header>
+                        <Label Content="Developed by" />
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Developer: " FontWeight="Bold" FontSize="16" Margin="0,0,0,0" />
+                        <Label Content="Drommedhar" FontSize="16" Margin="0,0,0,0" />
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Margin="15,0,15,10" Background="#FF1d263c"
+              adonisExtensions:GroupBoxExtension.HeaderBackground="#FF0e141b">
+                    <GroupBox.Header>
+                        <Label Content="Support me" />
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Patreon: " FontSize="16" FontWeight="Bold"/>
+                            <TextBlock>
+                                <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+                                           NavigateUri="https://www.patreon.com/DlssUpdater">Click here</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Buy Me a Coffee: " FontSize="16" FontWeight="Bold"/>
+                            <TextBlock>
+                                <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+                                           NavigateUri="https://buymeacoffee.com/dlssupdater">Click here</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>                        
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Margin="15,0,15,10" Background="#FF1d263c"
+              adonisExtensions:GroupBoxExtension.HeaderBackground="#FF0e141b">
+                    <GroupBox.Header>
+                        <Label Content="Community" />
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Discord: " FontSize="16" FontWeight="Bold"/>
+                            <TextBlock>
+                                <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+                                           NavigateUri="https://discord.gg/WShdqSDSvu">Click here</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

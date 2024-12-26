@@ -113,15 +113,12 @@
         <Compile Update="Views\Pages\GamePageControl.xaml.cs">
             <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\Pages\ChangelogPageControl.xaml.cs">
+        <Compile Update="Views\Pages\AboutPageControl.xaml.cs">
             <SubType>Code</SubType>
         </Compile>
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="changelog.md">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
         <None Update="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>

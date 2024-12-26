@@ -35,7 +35,7 @@ public class Settings
 
     public Paths Directories { get; set; } = new();
     public AntiCheat AntiCheatSettings { get; set; } = new();
-    public bool ShowChangelogOnStartup { get; set; }
+    public bool ShowAboutOnStartup { get; set; }
     public bool ShowNotifications { get; set; } = true;
     public WindowState WindowState { get; set; } = WindowState.Normal;
     public SortableObservableCollection<LibraryConfig> Libraries { get; set; } = [];
