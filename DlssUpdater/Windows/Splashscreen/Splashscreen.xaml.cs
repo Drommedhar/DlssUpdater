@@ -76,8 +76,6 @@ public partial class Splashscreen : Window
 
         _runInit = false;
 
-        Debugger.Launch();
-
         SplashscreenViewModel.InfoText = "Gathering installed versions...";
         _updater.GatherInstalledVersions();
         _updater.OnInfo += Updater_OnInfo;
