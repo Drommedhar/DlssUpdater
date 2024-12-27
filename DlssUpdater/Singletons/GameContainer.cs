@@ -11,6 +11,7 @@ using DLSSUpdater.Helpers;
 using DLSSUpdater.Singletons;
 using Microsoft.Win32;
 using NLog;
+using Octokit;
 using GameInfo = DlssUpdater.Defines.GameInfo;
 
 namespace DlssUpdater.Singletons;
@@ -205,37 +206,7 @@ public class GameContainer
         {
             current++;
             InfoMessage?.Invoke(this, $"Parsing games {current}/{amount}");
-            var index = -1;
-            if (item.LibraryType != LibraryType.Manual)
-                // For library games, we check against the id, not the path
-            {
-                index = Games.IndexOf(g => g.UniqueId == item.UniqueId);
-            }
-            else
-            {
-                index = Games.IndexOf(g => g.GamePath == item.GamePath);
-            }
-
-
-            if (index != -1)
-            {
-                var id = Games[index].UniqueId;
-                var isHidden = Games[index].IsHidden;
-                Games[index] = new GameInfo(item);
-                Games[index].UniqueId = id;
-                Games[index].IsHidden = isHidden;
-                await Games[index].GatherInstalledVersions();
-                Games[index].Update();
-            }
-            else
-            {
-                var info = new GameInfo(item);
-                await info.GatherInstalledVersions();
-                info.Update();
-                Games.Add(info);
-            }
-
-            _watcher.AddFile(item);
+            await CopyGameData(item);
         }
 
         SaveGames();
@@ -246,32 +217,67 @@ public class GameContainer
     {
         // Create a list of games to remove
         var gamesToRemove = Games.Where(game => game.LibraryType == type).ToList();
-
+        
         // Remove the games from the ObservableCollection
         foreach (var game in gamesToRemove)
         {
             Games.Remove(game);
             _watcher.RemoveFile(game);
         }
-
+        
         if (!_settings.Libraries.FirstOrDefault(l => l.LibraryType == type)?.IsChecked ?? false)
         {
             SaveGames();
             return;
         }
-
+        
         // Reload games from libraries of the specified type
         foreach (var lib in Libraries.Where(l => l.GetLibraryType() == type))
         {
             var libGames = await lib.GatherGamesAsync();
             foreach (var item in libGames.Where(item => !Games.Any(g => g.GamePath == item.GamePath)))
             {
-                Games.Add(item);
-                _watcher.AddFile(item);
+                await CopyGameData(item);
             }
         }
 
         SaveGames();
+    }
+
+    private async Task CopyGameData(GameInfo? item)
+    {
+        
+        var index = -1;
+        if (item.LibraryType != LibraryType.Manual)
+        // For library games, we check against the id, not the path
+        {
+            index = Games.IndexOf(g => g.UniqueId == item.UniqueId);
+        }
+        else
+        {
+            index = Games.IndexOf(g => g.GamePath == item.GamePath);
+        }
+
+
+        if (index != -1)
+        {
+            var id = Games[index].UniqueId;
+            var isHidden = Games[index].IsHidden;
+            Games[index] = new GameInfo(item);
+            Games[index].UniqueId = id;
+            Games[index].IsHidden = isHidden;
+            await Games[index].GatherInstalledVersions();
+            Games[index].Update();
+        }
+        else
+        {
+            var info = new GameInfo(item);
+            await info.GatherInstalledVersions();
+            info.Update();
+            Games.Add(info);
+        }
+
+        _watcher.AddFile(item);
     }
 
     private void Games_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
