@@ -46,7 +46,7 @@
                 <GroupBox Margin="15,0,15,10" Background="#FF1d263c"
               adonisExtensions:GroupBoxExtension.HeaderBackground="#FF0e141b">
                     <GroupBox.Header>
-                        <Label Content="Community" />
+                        <Label Content="Support &amp; Community" />
                     </GroupBox.Header>
                     <StackPanel Orientation="Vertical" Margin="0,0,0,5">
                         <StackPanel Orientation="Horizontal">
@@ -54,6 +54,13 @@
                             <TextBlock>
                                 <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
                                            NavigateUri="https://discord.gg/WShdqSDSvu">Click here</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="GitHub: " FontSize="16" FontWeight="Bold"/>
+                            <TextBlock>
+                                <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+                                           NavigateUri="https://github.com/Drommedhar/DlssUpdater">Click here</Hyperlink>
                             </TextBlock>
                         </StackPanel>
                     </StackPanel>
