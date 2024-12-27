@@ -96,6 +96,11 @@ public class UbisoftConnectLibrary : ILibrary
                         return;
                     }
 
+                    if (result.TryGetValue(name, out var locName))
+                    {
+                        name = locName;
+                    }
+
                     if (!result.TryGetValue("register", out var registerKey))
                     {
                         return;
