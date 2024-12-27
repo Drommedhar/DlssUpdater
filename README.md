@@ -1,8 +1,11 @@
 ![Dlss Updater logo](docs/images/DLSS_Updater_Logo.png)
 
+# Download
+[<img src="docs/images/msstore.png">](https://apps.microsoft.com/detail/9P1NDFBRS95L)
+
 # Introduction
 
-Dlss Updater is an open source software written to make updating any of the DLSS dlls available from nVidia easier for the end user. It allows you to update either the base DLSS dll, the ray reconstruction dll as well as the frame generation dll. This can be used to improve the visuals of games that may use an older version of DLSS and have not been updated to the latest version.
+Dlss Updater is an open source software written to make updating any of the DLSS dlls available from nVidia (Upscaling, Ray Reconstruction, Frame Generation) easier for the end user. It allows you to update either the base DLSS dll, the ray reconstruction dll as well as the frame generation dll. This can be used to improve the visuals of games that may use an older version of DLSS and have not been updated to the latest version.
 It also allows the user to easily switch back to an older version if desired. It uses TechPowerUp as a source for all available dlls, from which the user could also download the files separately. With Dlss Updater this task is unified in a specific application designed for such a task.
 
 # Build requirements
@@ -12,10 +15,6 @@ At the time of writing, these nugets include:
 * [WpfBindingErrors](https://github.com/bblanchon/WpfBindingErrors)
 
 With this you should be able to compile Dlss Updater.
-
-# Usage
-## Prerequisites
-Make sure you have the latest .NET Framework installed to run Dlss Updater. To reduce the size of the archive, the runtime is _NOT_ bundled with the application. Dlss Updater uses .NET 8.
 
 # Features
 
