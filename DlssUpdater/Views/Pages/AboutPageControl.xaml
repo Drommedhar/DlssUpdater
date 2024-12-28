@@ -63,6 +63,13 @@
                                            NavigateUri="https://github.com/Drommedhar/DlssUpdater">Click here</Hyperlink>
                             </TextBlock>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Website: " FontSize="16" FontWeight="Bold"/>
+                            <TextBlock>
+                                <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+                                           NavigateUri="http://dlssupdater.drommedhar.de/">Click here</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
             </StackPanel>
