@@ -9,7 +9,7 @@
   <Identity
     Name="Drommedhar.39104C9ADD81B"
     Publisher="CN=7C0292CF-94FD-40FD-AD8E-4F3F7B6CB04F"
-    Version="1.0.1.0" />
+    Version="1.0.2.0" />
 
   <Properties>
     <DisplayName>DlssUpdater</DisplayName>

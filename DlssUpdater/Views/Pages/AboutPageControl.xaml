@@ -72,6 +72,30 @@
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
+                <GroupBox Margin="15,0,15,10" Background="#FF1d263c"
+adonisExtensions:GroupBoxExtension.HeaderBackground="#FF0e141b">
+                    <GroupBox.Header>
+                        <Label Content="Third party libraries" />
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                        <TextBlock>
+<Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+           NavigateUri="https://github.com/benruehl/adonis-ui">adonis-ui (MIT license)</Hyperlink>
+                        </TextBlock>
+                        <TextBlock>
+<Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+           NavigateUri="https://nlog-project.org/">NLog (BSD-3-Clause)</Hyperlink>
+                        </TextBlock>
+                        <TextBlock>
+<Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+           NavigateUri="https://github.com/octokit/octokit.net">octokit.net (MIT license)</Hyperlink>
+                        </TextBlock>
+                        <TextBlock>
+<Hyperlink RequestNavigate="Hyperlink_RequestNavigate" FontSize="16" Foreground="White"
+           NavigateUri="https://github.com/bblanchon/WpfBindingErrors">WpfBindingErrors (MIT license)</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </GroupBox>
             </StackPanel>
         </ScrollViewer>
     </Grid>
