@@ -157,6 +157,7 @@ public class GameContainer
             game.UniqueId = uniqueId!;
             game.IsHidden = isHidden;
             game.GameImageUri = gameImagePath;
+            game.GenerateGameImage();
             Games.Add(game);
             _watcher.AddFile(game);
         }
