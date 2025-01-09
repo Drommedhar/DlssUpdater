@@ -98,6 +98,8 @@ public class GameContainer
 
     public void SaveGames()
     {
+        RegistryHelper.DeleteRegistrySubKey(Settings.Constants.RegistryPath + @$"\Games", RegistryHive.CurrentUser, RegistryView.Registry64);
+        
         foreach (var game in Games)
         {
             var path = GetGameRegistryPath(game.GameName);

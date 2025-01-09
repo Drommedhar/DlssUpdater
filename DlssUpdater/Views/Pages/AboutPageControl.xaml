@@ -16,9 +16,15 @@
                     <GroupBox.Header>
                         <Label Content="Developed by" />
                     </GroupBox.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Developer: " FontWeight="Bold" FontSize="16" Margin="0,0,0,0" />
-                        <Label Content="Drommedhar" FontSize="16" Margin="0,0,0,0" />
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Developer: " FontWeight="Bold" FontSize="16" Margin="0,0,0,0" />
+                            <Label Content="Drommedhar" FontSize="16" Margin="0,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Version: " FontWeight="Bold" FontSize="16" Margin="0,0,0,0" />
+                            <Label Content="{Binding ViewModel.AssemblyVersion}" FontSize="16" Margin="0,0,0,0" />
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="15,0,15,10" Background="#FF1d263c"

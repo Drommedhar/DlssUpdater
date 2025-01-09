@@ -20,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using WpfBindingErrors;
 using MessageBox = AdonisUI.Controls.MessageBox;
+using System.Reflection;
 
 namespace DlssUpdater;
 
@@ -128,7 +129,8 @@ public partial class App
         _ = MessageBox.Show(messageBox);
         if (messageBox.ButtonPressed?.Id as string == ISSUE_BUTTON_ID)
         {
-            var body = $"&body={Uri.EscapeDataString($"Encountered an unhandled exception: \n ```{e.Exception}```")}";
+            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            var body = $"&body={Uri.EscapeDataString($"Version: {assemblyVersion}\nEncountered an unhandled exception: \n ```{e.Exception}```")}";
             var labels = "&labels=exception";
             var title = $"&title=Unhandled%20Exception - '{e.Exception.Message}'";
             var url =

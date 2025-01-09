@@ -37,4 +37,10 @@ public static class RegistryHelper
         using var regKey = hklm.CreateSubKey(key);
         regKey?.SetValue(valueName, valueValue);
     }
+
+    public static void DeleteRegistrySubKey(string key, RegistryHive hive, RegistryView view)
+    {
+        using var hklm = RegistryKey.OpenBaseKey(hive, view);
+        hklm?.DeleteSubKeyTree(key);
+    }
 }
