@@ -13,6 +13,8 @@ using NLog;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
+using Windows.Foundation;
+using Windows.Services.Store;
 
 namespace DlssUpdater.Windows.Splashscreen;
 
@@ -76,6 +78,13 @@ public partial class Splashscreen : Window
 
         _runInit = false;
 
+        SplashscreenViewModel.InfoText = "Checking for update...";
+        if (await DownloadUpdatesAsync())
+        {
+            Application.Current.Shutdown();
+            return;
+        }
+
         SplashscreenViewModel.InfoText = "Gathering installed versions...";
         _updater.GatherInstalledVersions();
         _updater.OnInfo += Updater_OnInfo;
@@ -106,5 +115,48 @@ public partial class Splashscreen : Window
     private void Updater_OnInfo(object? sender, string e)
     {
         SplashscreenViewModel.InfoText = e;
+    }
+
+    private async Task<bool> DownloadUpdatesAsync()
+    {
+        StoreContext context = StoreContext.GetDefault();
+        // Obtain window handle by passing in pointer to the window object
+        var wih = new System.Windows.Interop.WindowInteropHelper(this);
+        // Initialize the dialog using wrapper function for IInitializeWithWindow
+        WinRT.Interop.InitializeWithWindow.Initialize(context, wih.Handle);
+        IReadOnlyList<StorePackageUpdate> updates = await context.GetAppAndOptionalStorePackageUpdatesAsync();
+
+        if (updates.Count > 0)
+        {
+            IAsyncOperationWithProgress<StorePackageUpdateResult, StorePackageUpdateStatus> downloadOperation =
+                context.RequestDownloadStorePackageUpdatesAsync(updates);
+
+            downloadOperation.Progress = async (asyncInfo, progress) =>
+            {
+                SplashscreenViewModel.InfoText = $"Downloading update ( {progress.PackageDownloadProgress}% )...";
+            };
+
+            StorePackageUpdateResult result = await downloadOperation.AsTask();
+            if (result.OverallState == StorePackageUpdateState.Completed)
+            {
+                return await InstallUpdatesAsync(context);
+            }
+        }
+
+        return false;
+    }
+
+    private async Task<bool> InstallUpdatesAsync(StoreContext context)
+    {
+        IReadOnlyList<StorePackageUpdate> updates = await context.GetAppAndOptionalStorePackageUpdatesAsync();
+        IAsyncOperationWithProgress<StorePackageUpdateResult, StorePackageUpdateStatus> installOperation =
+            context.RequestDownloadAndInstallStorePackageUpdatesAsync(updates);
+
+        StorePackageUpdateResult result = await installOperation.AsTask();
+
+        // Under normal circumstances, app will terminate here
+        return result.OverallState == StorePackageUpdateState.Completed;
+
+        // Handle error cases here using StorePackageUpdateResult from above
     }
 }
