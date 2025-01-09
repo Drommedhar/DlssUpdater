@@ -6,3 +6,4 @@ DlssUpdater.csproj.user
 act.exe
 release.bat
 DlssUpdaterPackage/AppPackages
+DlssUpdaterPackage/BundleArtifacts
