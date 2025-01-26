@@ -1,3 +1,5 @@
+** This application is now longer mentained. Please switch to DlssSwapper which basically now has the same functionality. **
+
 ![Dlss Updater logo](docs/images/DLSS_Updater_Logo.png)
 
 # Download
